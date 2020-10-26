@@ -1,3 +1,5 @@
 opencv-python
 numpy
 pillow
+subprocess
+requests
