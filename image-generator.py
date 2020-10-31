@@ -7,7 +7,16 @@ import sys
 import cv2 as cv
 import numpy as np
 import shutil
+import argparse
 
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-a', '--audio', required=True)
+parser.add_argument('-t', '--text', required=True)
+parser.add_argument('-o', '--output', required=False, default='output.mp4')
+
+args = parser.parse_args()
 
 if os.path.isdir('generate'):
     shutil.rmtree('generate')
@@ -17,7 +26,7 @@ os.mkdir('generate')
 time.sleep(1)
 docker = Popen(['docker', 'run','--name', 'gentle', '-p', '8765:8765', 'lowerquality/gentle'])
 time.sleep(3)
-r = os.popen('curl -F "audio=@test-audio-1.mp3" -F "transcript=@test-audio-1.txt" "http://localhost:8765/transcriptions?async=false"').read()
+r = os.popen('curl -F "audio=@' + (args.audio) +'" -F "transcript=@' + (args.text) + '" "http://localhost:8765/transcriptions?async=false"').read()
 phoneReference = json.load(open('phonemes.json', encoding='utf8'))
 characters = json.load(open('characters.json', encoding='utf8'))
 
@@ -114,7 +123,7 @@ for w in range(len(stamps['words'])):
 
 #Combine all videos into one video
 videoList.flush()
-os.popen("ffmpeg -f concat -safe 0 -i generate/videos.txt -c copy output.mp4").read()
+os.popen("ffmpeg -f concat -safe 0 -i generate/videos.txt -c copy " + {args.output}).read()
 time.sleep(1)
 if os.path.isdir('generate'):
     shutil.rmtree('generate')
