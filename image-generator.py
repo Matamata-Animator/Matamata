@@ -54,18 +54,6 @@ def createVideo(fPath, mPath, xPos, yPos, frame):
 
 
 #Make mouth closed until first phoname
-# image = cv.imread(facePath, 0)
-# face =  Image.open(facePath).convert("RGBA")
-# mouth = Image.open(mouthPath).convert("RGBA")
-# width = image.shape[1]
-# height = image.shape[0]
-# mouthPos = [characters['stupid'][0]['x'], characters['stupid'][0]['y']]
-# face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
-# face.save("generate/" + str(counter) + '.png')
-#
-# os.popen("ffmpeg -loop 1 -i generate/" + str(counter) + ".png -c:v libx264 -t " + str(round(stamps['words'][0]['start'], 4)) + " -pix_fmt yuv420p -vf scale=1920:1080 generate/" + str(counter) + ".mp4")
-# videoList.write("file '" + str(counter) + ".mp4'\n")
-# counter += 1
 counter = createVideo(facePath, mouthPath, characters['stupid'][0]['x'], characters['stupid'][0]['y'], counter)
 
 
@@ -81,32 +69,12 @@ for w in range(len(stamps['words'])):
         mouthPath = "mouths/" + (phoneReference['phonemes'][phone]['image'])
 
         facePath = "faces/dumb-smile.png"
+
         image = cv.imread(facePath, 0)
-        width = image.shape[1]
-        height = image.shape[0]
+
         mouthPos = [characters['stupid'][0]['x'], characters['stupid'][0]['y']]
 
-        #convert faace and mouth images to RGBA
-        face =  Image.open(facePath).convert("RGBA")
-        mouth = Image.open(mouthPath).convert("RGBA")
-
-        #Place mouth over the mouth location speccified in chatacters.json
-        mouth = mouth.resize((int(mouth.width * characters['default_scale']), int(mouth.height * characters['default_scale'])))
-        face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
-
-        #Save as image
-        face.save("generate/" + str(counter) + '.png')
-
-
-        cv.waitKey(0)
-        cv.destroyAllWindows()
-
-        #Convert image to a video
-        os.popen("ffmpeg -loop 1 -i generate/" + str(counter) + ".png -c:v libx264 -t " + str(word['phones'][p]['duration']) + " -pix_fmt yuv420p -vf scale=1920:1080 generate/" + str(counter) + ".mp4")
-        videoList.write("file '" + str(counter) + ".mp4'\n")
-
-        #increase image counter
-        counter += 1
+        counter = createVideo(facePath, mouthPath, mouthPos[0], mouthPos[1], counter)
     if (w < len(stamps['words']) -1):
         mouthPath = 'mouths/closed.png'
         face =  Image.open(facePath).convert("RGBA")
@@ -123,7 +91,7 @@ for w in range(len(stamps['words'])):
 
 #Combine all videos into one video
 videoList.flush()
-os.popen("ffmpeg -f concat -safe 0 -i generate/videos.txt -c copy " + {args.output}).read()
+os.popen("ffmpeg -f concat -safe 0 -i generate/videos.txt -c copy " + str({args.output})).read()
 time.sleep(1)
 if os.path.isdir('generate'):
     shutil.rmtree('generate')
