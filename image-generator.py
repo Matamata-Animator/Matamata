@@ -54,7 +54,6 @@ def createVideo(fPath, mPath, xPos, yPos, time, frame):
     face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
     face.save("generate/" + str(counter) + '.png')
     os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=1920:1080 generate/" + str(frame) + ".mp4")
-    print("\n\n\n\nffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=1920:1080 generate/" + str(frame) + ".mp4\n\n\n\n\n\n")
     videoList.write("file '" + str(frame) + ".mp4'\n")
     return frame + 1
 
@@ -90,7 +89,6 @@ for w in range(len(stamps['words'])):
 videoList.flush()
 
 os.popen("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output)).read()
-print("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output))
 time.sleep(1)
 if os.path.isdir('generate'):
     shutil.rmtree('generate')
