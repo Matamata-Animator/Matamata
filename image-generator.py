@@ -87,7 +87,7 @@ for w in range(len(stamps['words'])):
         counter = createVideo(facePath, mouthPath, mouthPos[0], mouthPos[1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), counter)
 #Combine all videos into one video
 videoList.flush()
-
+videoList.close()
 os.popen("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output)).read()
 time.sleep(1)
 if os.path.isdir('generate'):
