@@ -1,4 +1,0 @@
-sudo docker run -p 8765:8765 lowerquality/gentle
-
-curl -F "audio=@voice-test.mp3" -F "transcript=@words.txt" "http://localhost:8765/transcriptions?async=false"
-
