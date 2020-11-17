@@ -27,11 +27,7 @@ Install required packages
 
 Launch Docker if it isn't launched already
 
-> docker run --name gentle -p 8765:8765 lowerquality/gentle
->
-> docker kill gentle
->
-> docker rm gentle
+> docker pull lowerquality/gentle
 
 
 
@@ -70,7 +66,7 @@ The final pose should not have a comma at the end.
 
 ### Mouths
 
-Included in this repo is a mouth pack that I made. The mouth pack is licensed under the same license as the repo. To use your own mouth pack, create a new folder with your mouth images, and duplicate *phonemes.json*, and change the variable *mouthPath* to the path of your mouth pack. 
+Included in this repo is a mouth pack that I made. The mouth pack is licensed under the same license as the repo. To use your own mouth pack, create a new folder with your mouth images, and duplicate *phonemes.json*, and change the variable *mouthPath* to the path of your mouth pack.
 
 ## Usage
 
