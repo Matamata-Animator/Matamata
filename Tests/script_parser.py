@@ -1,6 +1,5 @@
 
-
-script = open('test-1.txt', 'r').read()
+script = open('test-1.txt', 'r', encoding='utf-8').read()
 
 def parseScript(text, startCharacter, endCharacter):
     startCharacter = startCharacter[0]
@@ -10,7 +9,7 @@ def parseScript(text, startCharacter, endCharacter):
     numPoses = 0;
 
     for i in text:
-        if i == startCharacter:
+        if i == startCharacter and not recording:
             recording = True
             poses.append("")
         elif i == endCharacter:
@@ -24,10 +23,12 @@ def parseScript(text, startCharacter, endCharacter):
     #remove tags from script
     for pose in poses:
         text = text.replace(startCharacter + pose + endCharacter, "¦")
-    print(text)
     return [poses, text]
-reee =  (parseScript(script, '[', ']')[1])
-out = open('generate/script.txt', 'w+')
-out.write(str(reee))
+reee =  (parseScript(script, '[', ']'))
+
+out = open('out.txt', 'w+', encoding='utf-8')
+out.write(reee[1])
 out.flush()
 out.close()
+
+print(reee[0])
