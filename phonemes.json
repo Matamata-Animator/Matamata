@@ -1,5 +1,5 @@
 {
-  "mouthPath": "mouths/"
+  "mouthsPath": "mouths/",
   "closed": "closed.png",
   "phonemes": {
     "dh": {
