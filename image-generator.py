@@ -22,7 +22,7 @@ parser.add_argument('-o', '--output', required=False, default='output.mp4')
 parser.add_argument('-s', '--offset', required=False, default='0.8')
 
 parser.add_argument('-c', '--character', required=False, default='characters.json')
-parser.add_argument('-m', '---mouths', required=False, default='phoenames.json')
+parser.add_argument('-m', '---mouths', required=False, default='phonemes.json')
 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080')
 
