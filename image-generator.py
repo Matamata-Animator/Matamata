@@ -21,15 +21,19 @@ parser.add_argument('-t', '--text', required=True)
 parser.add_argument('-o', '--output', required=False, default='output.mp4')
 parser.add_argument('-s', '--offset', required=False, default='0.8')
 
+parser.add_argument('-c', '--character', required=False, default='characters.json')
+
+
+parser.add_argument('-d', '--scale', required=False, default='1920:1080')
+
+
 args = parser.parse_args()
 
 
 
 phoneReference = json.load(open('phonemes.json', encoding='utf8'))
-charactersJSON = json.load(open('characters.json', encoding='utf8'))
+charactersJSON = json.load(open(str(args.character), encoding='utf8'))
 
-facePath = 'faces/dumb-smile.png'
-mouthPath = 'mouths/closed.png'
 
 #Counters:
 totalTime = 0 #totalTime keeps a running total of how long the animation is at any given point.
@@ -98,19 +102,22 @@ def getFacePath(pose, characters=charactersJSON):
         'scale': characters['default_scale'] * pose['scale']
         }
 
-def createVideo(fPath, mPath, xPos, yPos, time, frame):
+def createVideo(fPath, mPath, mScale, xPos, yPos, time, frame):
     global totalTime
     time = max(0.001, time)
     totalTime += time
     image = cv.imread(fPath, 0)
     face =  Image.open(fPath).convert("RGBA")
     mouth = Image.open(mPath).convert("RGBA")
+    mouth = mouth.resize([int(mouth.size[0] * mScale), int(mouth.size[1] * mScale)])
+
+
     width = image.shape[1]
     height = image.shape[0]
     mouthPos = [xPos, yPos]
     face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
     face.save("generate/" + str(frameCounter) + '.png')
-    os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=1920:1080 generate/" + str(frame) + ".mp4")
+    os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
     videoList.write("file '" + str(frame) + ".mp4'\n")
     return frame + 1
 
@@ -142,21 +149,19 @@ videoList = open('generate/videos.txt', 'w+')
 
 
 
-
-
-
 #Make mouth closed until first phoname
 pose = getFacePath(posesList[poseCounter])
 facePath = pose['facePath']
 face =  Image.open(facePath).convert("RGBA")
 
-frameCounter = createVideo(facePath, mouthPath, pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter)
+mouthPath = 'mouths/' + phoneReference['closed']
+
+frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter)
 
 markedCounter += 1 #Increase by 1 to get past the initial pose marker
 poseCounter += 1
 for w in range(len(stamps['words'])):
     if markedScript[markedCounter] == '¦':
-        print("\n\n\n\n\n\n\n\n\n\nRRRRRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n\n\n\n\n\n\n\n\n")
         pose = getFacePath(posesList[poseCounter])
         facePath = pose['facePath']
         face =  Image.open(facePath).convert("RGBA")
@@ -179,12 +184,11 @@ for w in range(len(stamps['words'])):
 
 
 
-        frameCounter = createVideo(facePath, mouthPath, pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter)
+        frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter)
     if (w < len(stamps['words']) - 1):
         mouthPath = 'mouths/closed.png'
-        mouth = Image.open(mouthPath).convert("RGBA")
-
-        frameCounter = createVideo(facePath, mouthPath, pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter)
+        # mouth = Image.open(mouthPath).convert("RGBA")
+        frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter)
 
 
     markedCounter += 1
@@ -195,6 +199,13 @@ for w in range(len(stamps['words'])):
 #Combine all videos into one video
 videoList.flush()
 videoList.close()
+
+#delete old output files
+if os.path.isfile(str(args.output)):
+    os.remove(str(args.output))
+
+
+
 os.popen("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output)).read()
 time.sleep(1)
 
