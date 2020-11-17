@@ -35,7 +35,7 @@ mouthPath = 'mouths/closed.png'
 totalTime = 0 #totalTime keeps a running total of how long the animation is at any given point.
 frameCounter = 0 #keeps tracke of which frame is currently bein animated
 poseCounter = 0 #keeps track of which pose is currently being animated
-
+markedCounter = 0 #keeps track of which word in the script is being read
 
 
 
@@ -78,13 +78,17 @@ def parseScript(text, startCharacter='[', endCharacter=']'): #Parse script to id
     #remove tags from script
     for pose in poses:
         text = text.replace(startCharacter + pose + endCharacter, "¦")
+    feederScript = text.replace("¦", " ")
 
+    #create a list of words
+    markedText = text.replace('\n', ' ')
+    markedText = ' '.join(markedText.split())
+    markedText = markedText.split(' ')
     return { # Out puts a dictionary with the list of poses, the script with markers of where
         'posesList': poses,
-        'markedText': text,
+        'markedText': markedText,
         'feederScript': text.replace("¦", " ")
         }
-
 def getFacePath(pose, characters=charactersJSON):
     posesList = characters[pose]
     pose = posesList[min(random.randint(0, len(posesList)), len(posesList)-1)]
@@ -120,9 +124,9 @@ scriptFile = open(feederScript, 'w+')
 scriptFile.write(parsedScript['feederScript'])
 scriptFile.flush()
 scriptFile.close()
-
-
-
+posesList = parsedScript['posesList']
+markedScript = parsedScript['markedText']
+print(markedScript)
 
 
 
@@ -142,17 +146,29 @@ videoList = open('generate/videos.txt', 'w+')
 
 
 #Make mouth closed until first phoname
-pose = getFacePath('stupid')
+pose = getFacePath(posesList[poseCounter])
 facePath = pose['facePath']
+face =  Image.open(facePath).convert("RGBA")
+
 frameCounter = createVideo(facePath, mouthPath, pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter)
 
+markedCounter += 1 #Increase by 1 to get past the initial pose marker
+poseCounter += 1
 for w in range(len(stamps['words'])):
+    if markedScript[markedCounter] == '¦':
+        print("\n\n\n\n\n\n\n\n\n\nRRRRRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n\n\n\n\n\n\n\n\n")
+        pose = getFacePath(posesList[poseCounter])
+        facePath = pose['facePath']
+        face =  Image.open(facePath).convert("RGBA")
+
+        markedCounter += 1
+        poseCounter += 1
+
+
+
     word = stamps['words'][w]
     print(word['alignedWord'])
     wordTime = 0
-    if w> 3:
-        pose = getFacePath('family-guy')
-        facePath = pose['facePath']
     for p in range(len(word['phones'])):
         #Identify current phone
         phone = (word['phones'][p]['phone']).split('_')[0]
@@ -166,10 +182,15 @@ for w in range(len(stamps['words'])):
         frameCounter = createVideo(facePath, mouthPath, pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter)
     if (w < len(stamps['words']) - 1):
         mouthPath = 'mouths/closed.png'
-        face =  Image.open(facePath).convert("RGBA")
         mouth = Image.open(mouthPath).convert("RGBA")
 
         frameCounter = createVideo(facePath, mouthPath, pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter)
+
+
+    markedCounter += 1
+
+
+
 
 #Combine all videos into one video
 videoList.flush()
