@@ -22,7 +22,7 @@ parser.add_argument('-o', '--output', required=False, default='output.mp4')
 parser.add_argument('-s', '--offset', required=False, default='0.8')
 
 parser.add_argument('-c', '--character', required=False, default='characters.json')
-
+parser.add_argument('-m', '---mouths', required=False, default='phoenames.json')
 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080')
 
@@ -31,7 +31,7 @@ args = parser.parse_args()
 
 
 
-phoneReference = json.load(open('phonemes.json', encoding='utf8'))
+phoneReference = json.load(open(str(args.mouths), encoding='utf8'))
 charactersJSON = json.load(open(str(args.character), encoding='utf8'))
 
 
@@ -154,7 +154,7 @@ pose = getFacePath(posesList[poseCounter])
 facePath = pose['facePath']
 face =  Image.open(facePath).convert("RGBA")
 
-mouthPath = 'mouths/' + phoneReference['closed']
+mouthPath = phoneReference['mouthsPath'] + phoneReference['closed']
 
 frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter)
 
@@ -186,7 +186,7 @@ for w in range(len(stamps['words'])):
 
         frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter)
     if (w < len(stamps['words']) - 1):
-        mouthPath = 'mouths/closed.png'
+        mouthPath = phoneReference['mouthsPath'] + 'closed.png'
         # mouth = Image.open(mouthPath).convert("RGBA")
         frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter)
 
