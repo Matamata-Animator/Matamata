@@ -1,8 +1,16 @@
 {
-  "default_scale":1.5,
+  "facesFolder": "faces/",
+  "default_scale": 1.5,
   "stupid": [{
     "image": "dumb-smile.png",
     "x": 613,
-    "y": 562
-  }]
+    "y": 562,
+    "scale":1
+  }],
+  "family-guy": [{
+    "image": "stewie.jpg",
+    "x": 339,
+    "y": 187,
+    "scale":1
+    }]
 }
