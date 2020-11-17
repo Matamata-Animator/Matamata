@@ -1,8 +1,10 @@
 *.mp4
 *.txt
+!requirements.txt
 *.mp3
-*.png
+!mouths/
 *.jpg
 /Clips
 /generate
 /.tmp.drivedownload
+*.driveupload
