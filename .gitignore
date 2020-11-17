@@ -1,4 +1,8 @@
 *.mp4
+*.txt
+*.mp3
+*.png
+*.jpg
 /Clips
 /generate
 /.tmp.drivedownload
