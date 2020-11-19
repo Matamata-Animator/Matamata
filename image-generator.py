@@ -12,7 +12,6 @@ import random
 
 
 
-
 #Arg Parse Stuff
 parser = argparse.ArgumentParser()
 
@@ -26,24 +25,10 @@ parser.add_argument('-m', '---mouths', required=False, default='phonemes.json')
 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080')
 
-
 args = parser.parse_args()
 
 
 
-phoneReference = json.load(open(str(args.mouths), encoding='utf8'))
-charactersJSON = json.load(open(str(args.character), encoding='utf8'))
-
-
-#Counters:
-totalTime = 0 #totalTime keeps a running total of how long the animation is at any given point.
-frameCounter = 0 #keeps tracke of which frame is currently bein animated
-poseCounter = 0 #keeps track of which pose is currently being animated
-markedCounter = 0 #keeps track of which word in the script is being read
-
-
-
-#Remove and residual folders and procesees from last time the program was run.
 if os.path.isdir('generate'):
     shutil.rmtree('generate')
 os.system('docker kill gentle')
@@ -54,6 +39,9 @@ os.mkdir('generate')
 time.sleep(1)
 docker = Popen(['docker', 'run','--name', 'gentle', '-p', '8765:8765', 'lowerquality/gentle'])
 time.sleep(3)
+videoList = open('generate/videos.txt', 'w+')
+
+
 
 
 
@@ -93,7 +81,8 @@ def parseScript(text, startCharacter='[', endCharacter=']'): #Parse script to id
         'markedText': markedText,
         'feederScript': text.replace("¦", " ")
         }
-def getFacePath(pose, characters=charactersJSON):
+
+def getFacePath(pose, characters):
     posesList = characters[pose]
     pose = posesList[min(random.randint(0, len(posesList)), len(posesList)-1)]
     return {
@@ -102,8 +91,7 @@ def getFacePath(pose, characters=charactersJSON):
         'scale': characters['default_scale'] * pose['scale']
         }
 
-def createVideo(fPath, mPath, mScale, xPos, yPos, time, frame):
-    global totalTime
+def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime):
     time = max(0.001, time)
     totalTime += time
     image = cv.imread(fPath, 0)
@@ -116,101 +104,122 @@ def createVideo(fPath, mPath, mScale, xPos, yPos, time, frame):
     height = image.shape[0]
     mouthPos = [xPos, yPos]
     face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
-    face.save("generate/" + str(frameCounter) + '.png')
+    face.save("generate/" + str(frame) + '.png')
     os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
     videoList.write("file '" + str(frame) + ".mp4'\n")
-    return frame + 1
-
-
-
-#Parse script, output parsed script to generate
-rawScript = open(args.text, 'r').read()
-parsedScript = parseScript(rawScript)
-feederScript = 'generate/script.txt'
-scriptFile = open(feederScript, 'w+')
-scriptFile.write(parsedScript['feederScript'])
-scriptFile.flush()
-scriptFile.close()
-posesList = parsedScript['posesList']
-markedScript = parsedScript['markedText']
-print(markedScript)
+    return [totalTime, frame + 1]
 
 
 
 
-#get output from gentle
-r = os.popen('curl -F "audio=@' + (args.audio) +'" -F "transcript=@' + feederScript + '" "http://localhost:8765/transcriptions?async=false"').read()
+def main():
+    phoneReference = json.load(open(str(args.mouths), encoding='utf8'))
+    charactersJSON = json.load(open(str(args.character), encoding='utf8'))
 
 
-stamps = json.loads(r)
-videoList = open('generate/videos.txt', 'w+')
+    #Counters:
+    totalTime = 0 #totalTime keeps a running total of how long the animation is at any given point.
+    frameCounter = 0 #keeps tracke of which frame is currently bein animated
+    poseCounter = 0 #keeps track of which pose is currently being animated
+    markedCounter = 0 #keeps track of which word in the script is being read
+
+
+
+    #Remove and residual folders and procesees from last time the program was run.
 
 
 
 
 
-#Make mouth closed until first phoname
-pose = getFacePath(posesList[poseCounter])
-facePath = pose['facePath']
-face =  Image.open(facePath).convert("RGBA")
 
-mouthPath = phoneReference['mouthsPath'] + phoneReference['closed']
 
-frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter)
+    #Parse script, output parsed script to generate
+    rawScript = open(args.text, 'r').read()
+    parsedScript = parseScript(rawScript)
+    feederScript = 'generate/script.txt'
+    scriptFile = open(feederScript, 'w+')
+    scriptFile.write(parsedScript['feederScript'])
+    scriptFile.flush()
+    scriptFile.close()
+    posesList = parsedScript['posesList']
+    markedScript = parsedScript['markedText']
+    print(markedScript)
 
-markedCounter += 1 #Increase by 1 to get past the initial pose marker
-poseCounter += 1
-for w in range(len(stamps['words'])):
-    if markedScript[markedCounter] == '¦':
-        pose = getFacePath(posesList[poseCounter])
-        facePath = pose['facePath']
-        face =  Image.open(facePath).convert("RGBA")
+
+    #get output from gentle
+    r = os.popen('curl -F "audio=@' + (args.audio) +'" -F "transcript=@' + feederScript + '" "http://localhost:8765/transcriptions?async=false"').read()
+
+
+    stamps = json.loads(r)
+
+
+
+
+
+    #Make mouth closed until first phoname
+    pose = getFacePath(posesList[poseCounter], charactersJSON)
+    facePath = pose['facePath']
+    face =  Image.open(facePath).convert("RGBA")
+
+    mouthPath = phoneReference['mouthsPath'] + phoneReference['closed']
+
+    totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter, totalTime)
+
+    markedCounter += 1 #Increase by 1 to get past the initial pose marker
+    poseCounter += 1
+    for w in range(len(stamps['words'])):
+        if markedScript[markedCounter] == '¦':
+            pose = getFacePath(posesList[poseCounter], charactersJSON)
+            facePath = pose['facePath']
+            face =  Image.open(facePath).convert("RGBA")
+
+            markedCounter += 1
+            poseCounter += 1
+
+
+
+        word = stamps['words'][w]
+        print(word['alignedWord'])
+        wordTime = 0
+        for p in range(len(word['phones'])):
+            #Identify current phone
+            phone = (word['phones'][p]['phone']).split('_')[0]
+            wordTime += word['phones'][p]['duration']
+            #Referance phonemes.json to see which mouth goes with which phone
+            mouthPath = "mouths/" + (phoneReference['phonemes'][phone]['image'])
+
+
+
+
+            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter, totalTime)
+        if (w < len(stamps['words']) - 1):
+            mouthPath = phoneReference['mouthsPath'] + 'closed.png'
+            # mouth = Image.open(mouthPath).convert("RGBA")
+            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter, totalTime)
+
 
         markedCounter += 1
-        poseCounter += 1
-
-
-
-    word = stamps['words'][w]
-    print(word['alignedWord'])
-    wordTime = 0
-    for p in range(len(word['phones'])):
-        #Identify current phone
-        phone = (word['phones'][p]['phone']).split('_')[0]
-        wordTime += word['phones'][p]['duration']
-        #Referance phonemes.json to see which mouth goes with which phone
-        mouthPath = "mouths/" + (phoneReference['phonemes'][phone]['image'])
 
 
 
 
-        frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter)
-    if (w < len(stamps['words']) - 1):
-        mouthPath = phoneReference['mouthsPath'] + 'closed.png'
-        # mouth = Image.open(mouthPath).convert("RGBA")
-        frameCounter = createVideo(facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter)
+    #Combine all videos into one video
+    videoList.flush()
+    videoList.close()
 
-
-    markedCounter += 1
-
-
-
-
-#Combine all videos into one video
-videoList.flush()
-videoList.close()
-
-#delete old output files
-if os.path.isfile(str(args.output)):
-    os.remove(str(args.output))
+    #delete old output files
+    if os.path.isfile(str(args.output)):
+        os.remove(str(args.output))
 
 
 
-os.popen("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output)).read()
-time.sleep(1)
+    os.popen("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output)).read()
+    time.sleep(1)
 
-#delete all generate files
-if os.path.isdir('generate'):
-    shutil.rmtree('generate')
-os.system('docker kill gentle')
-os.system('docker rm gentle')
+    #delete all generate files
+    if os.path.isdir('generate'):
+        shutil.rmtree('generate')
+    os.system('docker kill gentle')
+    os.system('docker rm gentle')
+if __name__ == '__main__':
+    main()

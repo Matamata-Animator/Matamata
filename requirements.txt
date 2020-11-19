@@ -3,3 +3,5 @@ numpy
 pillow
 requests
 ffmpeg
+numpy
+argparse
