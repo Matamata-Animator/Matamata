@@ -10,7 +10,7 @@ import shutil
 import argparse
 import random
 from tqdm.auto import tqdm
-
+from colorama import Fore, Back, Style
 
 #Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -30,6 +30,18 @@ parser.add_argument('-v', '--verbose', required=False, default=False)
 args = parser.parse_args()
 
 
+
+banner = '''
+                _          _      _          _____
+     /m        | |        | |    (_)        / ____|
+    /  m  _   _| |_ ___   | |     _ _ __   | (___  _   _ _ __   ___
+   / /m m| | | | __/ _ m  | |    | | '_ m   m___ m| | | | '_ m / __|
+  / ____ m |_| | || (_) | | |____| | |_) |  ____) | |_| | | | | (__
+ /_/    m_m__,_|m__m___/  |______|_| .__/  |_____/ m__, |_| |_|m___|
+                                   | |              __/ |
+                                   |_|             |___/
+'''
+print(Fore.GREEN + banner.replace('m', '\\') + Style.RESET_ALL)
 def runCommand(command, sync=True):
     command = command.split(' ')
     out = ''
@@ -45,6 +57,9 @@ def runCommand(command, sync=True):
             stderr=subprocess.PIPE)
         process.wait()
         out, err = process.communicate()
+        if(err != ''):
+            print(Fore.RED + "REEEEE")
+            print(Fore.RED + err)
     # out = str(out, "utf-8")
     if(args.verbose):
         print(out)
@@ -237,7 +252,9 @@ def main():
     #delete all generate files
     if os.path.isdir('generate'):
         shutil.rmtree('generate')
-    os.system('docker kill gentle')
-    os.system('docker rm gentle')
+    runCommand('docker kill gentle')
+    runCommand('docker rm gentle')
 if __name__ == '__main__':
     main()
+    print(Style.RESET_ALL)
+    print('done')
