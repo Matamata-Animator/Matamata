@@ -1,5 +1,6 @@
 *.mp4
 *.txt
+*.ai
 !requirements.txt
 *.mp3
 !mouths/

@@ -1,10 +1,25 @@
 {
-  "facesFolder": "faces/",
-  "default_scale": 0.6,
-  "stupid": [{
-    "image": "dumb-smile.png",
-    "x": 613,
-    "y": 562,
+  "facesFolder": "SampleFace/",
+  "default_scale": 4,
+  "happy": [{
+    "image": "happy.png",
+    "x": 960,
+    "y": 703,
+    "facingLeft": true,
+    "scale": 1
+  }],
+  "sad": [{
+    "image": "sad.png",
+    "x": 960,
+    "y": 703,
+    "facingLeft": true,
+    "scale": 1
+  }],
+  "angry": [{
+    "image": "angry.png",
+    "x": 960,
+    "y": 703,
+    "facingLeft": true,
     "scale": 1
   }]
 
