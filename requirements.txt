@@ -1,7 +1,7 @@
 opencv-python
 numpy
 pillow
-requests
 ffmpeg
 numpy
 argparse
+tqdm
