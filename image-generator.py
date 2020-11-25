@@ -15,17 +15,17 @@ from colorama import Fore, Back, Style
 #Arg Parse Stuff
 parser = argparse.ArgumentParser()
 
-parser.add_argument('-a', '--audio', required=True)
-parser.add_argument('-t', '--text', required=True)
-parser.add_argument('-o', '--output', required=False, default='output.mp4')
-parser.add_argument('-s', '--offset', required=False, default='0.8')
+parser.add_argument('-a', '--audio', required=True, type=str)
+parser.add_argument('-t', '--text', required=True, type=str)
+parser.add_argument('-o', '--output', required=False, default='output.mp4', type=str)
+parser.add_argument('-s', '--offset', required=False, default='0.8', type=float)
 
-parser.add_argument('-c', '--character', required=False, default='characters.json')
-parser.add_argument('-m', '---mouths', required=False, default='phonemes.json')
+parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
+parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', type=str)
 
-parser.add_argument('-d', '--scale', required=False, default='1920:1080')
+parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=str)
 
-parser.add_argument('-v', '--verbose', required=False, default=False)
+parser.add_argument('-v', '--verbose', required=False, default=False, type=bool)
 
 args = parser.parse_args()
 
@@ -123,7 +123,7 @@ def parseScript(text, startCharacter='[', endCharacter=']'): #Parse script to id
         }
 
 def getFacePath(pose, characters):
-    posesList = characters[pose]
+    posesList = characters[pose.split('-')[0]] #splits to remove directional tag
     pose = posesList[min(random.randint(0, len(posesList)), len(posesList)-1)]
     return {
         'facePath': characters['facesFolder'] + pose['image'],
@@ -175,7 +175,8 @@ def main():
     scriptFile.close()
     posesList = parsedScript['posesList']
     markedScript = parsedScript['markedText']
-    print(posesList)
+    if(args.verbose):
+        print(posesList)
 
     #get output from gentle
     r = os.popen('curl -F "audio=@' + (args.audio) +'" -F "transcript=@' + feederScript + '" "http://localhost:8765/transcriptions?async=false"').read()
@@ -256,5 +257,4 @@ def main():
     runCommand('docker rm gentle')
 if __name__ == '__main__':
     main()
-    print(Style.RESET_ALL)
-    print('done')
+    print(Style.RESET_ALL + 'done')
