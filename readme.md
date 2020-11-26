@@ -206,5 +206,15 @@ Launch Terminal
 
 > python image-generator.py -a audio.mp3 -t text.txt [flags]
 
-This may need to be accompanied by a *sudo* beforehand. 
+This may need to be accompanied by a *sudo* beforehand.
+
+
+
+## Contributing
+
+Do you use this project and want to see a new feature added? Open an issue with the tag *feature request* and say what you want.
+
+Want to try your hand writing code? Create a fork, upload your code, and make a pull request. Anything from fixing formatting/typos to entirely new features is welcome!
+
+Don't know what to work on? Take a look at the issues page to see what improvements people want. Anything marked *good first issue* should be great for newcomers!
 
