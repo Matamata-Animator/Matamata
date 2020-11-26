@@ -13,11 +13,17 @@ Install:
 * [Docker Desktop](https://www.docker.com/get-started)
 * [Anaconda](https://www.anaconda.com/products/individual), or a similar python environment that allows you to use pip. This is  just the one I recommend.
 
-Open 'Anacaona Prompt'
 
-Clone the repo
+
+Download this repo and open Anaconda Prompt in the folder. If you have Git installed, that can be done via:
 
 > git clone https://github.com/AI-Spawn/Auto-Lip-Sync
+>
+> cd Auto-Lip-Sync
+
+Otherwise, use the download button on Github, extract files from the zip, and open Anaconda Prompt in that folder. 
+
+
 
 Install required packages
 
@@ -28,6 +34,89 @@ Install required packages
 Launch Docker if it isn't launched already
 
 > docker pull lowerquality/gentle
+
+### Linux (Ubuntu) - Untested
+
+Install docker
+
+> sudo apt-get update
+
+
+
+> sudo apt-get install \
+>     apt-transport-https \
+>     ca-certificates \
+>     curl \
+>     gnupg-agent \
+>     software-properties-common
+
+
+
+> curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+
+
+**Add the docker repo to your system:**
+
+On *x86_64 / amd64*:
+
+> ```
+> sudo add-apt-repository \
+>    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+>    $(lsb_release -cs) \
+>    stable"
+> ```
+
+On *armhf*:
+
+> ```
+> sudo add-apt-repository \
+>    "deb [arch=armhf] https://download.docker.com/linux/ubuntu \
+>    $(lsb_release -cs) \
+>    stable"
+> ```
+
+On *arm64*:
+
+> ```
+> sudo add-apt-repository \
+>    "deb [arch=arm64] https://download.docker.com/linux/ubuntu \
+>    $(lsb_release -cs) \
+>    stable"
+> ```
+
+**Install the engine**:
+
+> ```
+> sudo apt-get update
+> sudo apt-get install docker-ce docker-ce-cli containerd.io
+> ```
+
+Verify Docker's installation
+
+> ```
+> sudo docker run hello-world
+> ```
+
+Clone the repo
+
+> git clone https://github.com/AI-Spawn/Auto-Lip-Sync
+>
+> cd Auto-Lip-Sync
+
+Install required packages
+
+> pip install -r requirements.txt
+>
+> sudo apt install ffmpeg
+
+Pull the lowerquality/gentle container
+
+> docker pull lowerquality/gentle
+
+### Mac - Untested
+
+Download [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/)
 
 
 
@@ -51,7 +140,9 @@ Then the script could be:
 
 ### Characters
 
-For each character you want to animate, create a *characters.json* file. Change the variable *facesFolder* to be the directory of the character's poses. Set *defaultScale* to be how much the mouth of the character should be scaled up or down.
+For an example of a character file, refer to *characters.json*
+
+For each character you want to animate, create a duplicate of *characters.json*. Change the variable *facesFolder* to be the directory of the character's poses. Set *defaultScale* to be how much the mouth of the character should be scaled up or down.
 
 For each pose the character can do, add the following:
 
@@ -68,24 +159,52 @@ The final pose should not have a comma at the end.
 
 Included in this repo is a mouth pack that I made. The mouth pack is licensed under the same license as the repo. To use your own mouth pack, create a new folder with your mouth images, and duplicate *phonemes.json*, and change the variable *mouthPath* to the path of your mouth pack.
 
+More advance users can edit or create their own *phonemes*.json, however that is significantly more difficult and probably not worth it. Replacing the mouth images is a significantly simpler solution. 
+
 ## Usage
 
 ### Flags
 
-| Flag | Name        | *** = Required,  * = Recommended | Description                                                  |
+| Flag | Shortcut    | *** = Required,  * = Recommended | Description                                                  |
 | ---- | ----------- | -------------------------------- | ------------------------------------------------------------ |
 | -a   | --audio     | ***                              | The path to the audio file being animated                    |
 | -t   | --text      | ***                              | The path to the script of the audio file                     |
-| -o   | --output    |                                  | The output of the program (output.mp4)                       |
+| -o   | --output    |                                  | The output of the program ("output.mp4")                     |
 | -s   | --offset    | *                                | How far in advance (in seconds) the program should start animating a word (0.8) |
-| -c   | --character | *                                | The list of character poses (character)                      |
-| -m   | --mouths    |                                  | The mouth pack and phonemes list (phonemes.json)             |
-| -d   | --scale     |                                  | The resolution of the final video (1920:1080)                |
+| -c   | --character | *                                | The list of character poses ("character")                    |
+| -m   | --mouths    |                                  | The mouth pack and phonemes list ("phonemes.json")           |
+| -d   | --scale     |                                  | The resolution of the final video ("1920:1080")              |
+| -v   | --verbose   |                                  | Dump process outputs to the shell (False)                    |
 
 
 
 ### Windows
 
-Launch anaconda
+Launch *Docker Desktop*
+
+Launch Anaconda Prompt
 
 > python image-generator.py -a audio.mp3 -t text.txt [flags]
+
+
+
+### Linux (Ubuntu)
+
+Launch Terminal
+
+> python image-generator.py -a audio.mp3 -t text.txt [flags]
+
+This may need to be accompanied by a *sudo* beforehand. 
+
+
+
+### Mac 
+
+Launch *Docker Desktop*
+
+Launch Terminal
+
+> python image-generator.py -a audio.mp3 -t text.txt [flags]
+
+This may need to be accompanied by a *sudo* beforehand. 
+
