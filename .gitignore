@@ -3,6 +3,7 @@
 *.ai
 !requirements.txt
 *.mp3
+*.wav
 !mouths/
 *.jpg
 /Clips
@@ -11,3 +12,5 @@
 *.driveupload
 aispawn.json
 aispawnFaces/
+.vs/
+*.mov

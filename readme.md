@@ -21,7 +21,7 @@ Download this repo and open Anaconda Prompt in the folder. If you have Git insta
 >
 > cd Auto-Lip-Sync
 
-Otherwise, use the download button on Github, extract files from the zip, and open Anaconda Prompt in that folder. 
+Otherwise, use the download button on Github, extract files from the zip, and open Anaconda Prompt in that folder.
 
 
 
@@ -159,22 +159,25 @@ The final pose should not have a comma at the end.
 
 Included in this repo is a mouth pack that I made. The mouth pack is licensed under the same license as the repo. To use your own mouth pack, create a new folder with your mouth images, and duplicate *phonemes.json*, and change the variable *mouthPath* to the path of your mouth pack.
 
-More advance users can edit or create their own *phonemes*.json, however that is significantly more difficult and probably not worth it. Replacing the mouth images is a significantly simpler solution. 
+More advance users can edit or create their own *phonemes*.json, however that is significantly more difficult and probably not worth it. Replacing the mouth images is a significantly simpler solution.
 
 ## Usage
 
 ### Flags
 
-| Flag | Shortcut    | *** = Required,  * = Recommended | Description                                                  |
-| ---- | ----------- | -------------------------------- | ------------------------------------------------------------ |
-| -a   | --audio     | ***                              | The path to the audio file being animated                    |
-| -t   | --text      | ***                              | The path to the script of the audio file                     |
-| -o   | --output    |                                  | The output of the program ("output.mp4")                     |
-| -s   | --offset    | *                                | How far in advance (in seconds) the program should start animating a word (0.8) |
-| -c   | --character | *                                | The list of character poses ("character")                    |
-| -m   | --mouths    |                                  | The mouth pack and phonemes list ("phonemes.json")           |
-| -d   | --scale     |                                  | The resolution of the final video ("1920:1080")              |
-| -v   | --verbose   |                                  | Dump process outputs to the shell (False)                    |
+| Flag | Shortcut       | *** = Required,  * = Recommended | Description                                                  |
+| ---- | -------------- | -------------------------------- | ------------------------------------------------------------ |
+| -a   | --audio        | ***                              | The path to the audio file being animated                    |
+| -t   | --text         | ***                              | The path to the script of the audio file                     |
+| -o   | --output       |                                  | The output of the program ("output.mp4")                     |
+| -s   | --offset       | *                                | How far in advance (in seconds) the program should start animating a word (0.8) |
+| -c   | --character    | *                                | The list of character poses ("character")                    |
+| -m   | --mouths       |                                  | The mouth pack and phonemes list ("phonemes.json")           |
+| -d   | --scale        |                                  | The resolution of the final video ("1920:1080")              |
+| -v   | --verbose      |                                  | Dump process outputs to the shell (False)                    |
+| -l   | --skipframes   |                                  | Whether phonemes should be skipped if the phoneme length doesn't meet the frame threshold (True) |
+| -t   | --skipthreshold |                                  | The amount of time (in frames) a phoneme needs to take up for it to be displayed (1) |
+| -r   | --framerate    |                                  | The framerate of the animation (25)                          |
 
 
 
@@ -194,11 +197,11 @@ Launch Terminal
 
 > python image-generator.py -a audio.mp3 -t text.txt [flags]
 
-This may need to be accompanied by a *sudo* beforehand. 
+This may need to be accompanied by a *sudo* beforehand.
 
 
 
-### Mac 
+### Mac
 
 Launch *Docker Desktop*
 
@@ -217,4 +220,3 @@ Do you use this project and want to see a new feature added? Open an issue with 
 Want to try your hand writing code? Create a fork, upload your code, and make a pull request. Anything from fixing formatting/typos to entirely new features is welcome!
 
 Don't know what to work on? Take a look at the issues page to see what improvements people want. Anything marked *good first issue* should be great for newcomers!
-
