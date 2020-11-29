@@ -17,8 +17,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('-a', '--audio', required=True, type=str)
 parser.add_argument('-t', '--text', required=True, type=str)
-parser.add_argument('-o', '--output', required=False, default='output.mp4', type=str)
-parser.add_argument('-s', '--offset', required=False, default='0.8', type=float)
+parser.add_argument('-o', '--output', required=False, default='output.mov', type=str)
+parser.add_argument('-s', '--offset', required=False, default='0.25', type=float)
 
 parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
 parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', type=str)
@@ -26,7 +26,7 @@ parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=str)
 
 parser.add_argument('-v', '--verbose', required=False, default=False, type=bool)
-
+parser.add_argument('-r', '--framerate', required=False, default=25, type=int)
 args = parser.parse_args()
 
 
@@ -144,7 +144,8 @@ def getFacePath(pose, characters):
         }
 
 def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror=False):
-    time = max(0.001, time)
+    time = round(time * args.framerate)/args.framerate
+    time = max(1/args.framerate, time)
     totalTime += time
     image = cv.imread(fPath, 0)
     face =  Image.open(fPath).convert("RGBA")
@@ -162,7 +163,7 @@ def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, 
 
     face.save("generate/" + str(frame) + '.png')
     # os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
-    runCommand("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
+    runCommand("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -r " + str(args.framerate) + " -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
     videoList.write("file '" + str(frame) + ".mp4'\n")
     return [totalTime, frame + 1]
 
@@ -264,11 +265,10 @@ def main():
     print("Finishing Up...")
 
     runCommand("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output))
-    time.sleep(1)
 
     #delete all generate files
-    if os.path.isdir('generate'):
-        shutil.rmtree('generate')
+    # if os.path.isdir('generate'):
+    #     shutil.rmtree('generate')
     runCommand('docker kill gentle')
     runCommand('docker rm gentle')
 if __name__ == '__main__':
