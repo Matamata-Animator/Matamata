@@ -161,6 +161,9 @@
     "ng": {
       "actual": "ng",
       "image": "r.png"
+    },
+    "oov":{
+      "image": "s.png"
     }
   }
 }
