@@ -150,7 +150,7 @@ def getFacePath(pose, characters):
 
 def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl):
     skip = True
-    if not args.skipframes or syl == 1 or (time > args.skipthreshold/args.framerate):
+    if not args.skipframes or syl == 1 or (time >= args.skipthreshold/args.framerate):
         skip = False
 
     if (not skip):
@@ -260,6 +260,8 @@ def main():
 
         markedCounter += 1
         print(" ", end='\r')
+    mouthPath = phoneReference['mouthsPath'] + phoneReference['closed']
+    totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], args.skipthreshold/args.framerate, frameCounter, totalTime, pose['mirror'], 1)
 
 
 
