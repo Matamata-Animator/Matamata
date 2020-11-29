@@ -26,7 +26,12 @@ parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=str)
 
 parser.add_argument('-v', '--verbose', required=False, default=False, type=bool)
+
 parser.add_argument('-r', '--framerate', required=False, default=25, type=int)
+
+
+parser.add_argument('-l', '--skipframes', required=False, type=bool, default=True)
+parser.add_argument('-T', '--skipthreshold', required=False, type=float, default=1)
 args = parser.parse_args()
 
 
@@ -143,28 +148,33 @@ def getFacePath(pose, characters):
         'mirror': mirrorPose
         }
 
-def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror=False):
-    time = round(time * args.framerate)/args.framerate
-    time = max(1/args.framerate, time)
-    totalTime += time
-    image = cv.imread(fPath, 0)
-    face =  Image.open(fPath).convert("RGBA")
-    mouth = Image.open(mPath).convert("RGBA")
-    mouth = mouth.resize([int(mouth.size[0] * mScale), int(mouth.size[1] * mScale)])
+def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl):
+    skip = True
+    if not args.skipframes or syl == 1 or (time > args.skipthreshold/args.framerate):
+        skip = False
+
+    if (not skip):
+        time = round(time * args.framerate)/args.framerate
+        time = max(1/args.framerate, time)
+        totalTime += time
+        image = cv.imread(fPath, 0)
+        face =  Image.open(fPath).convert("RGBA")
+        mouth = Image.open(mPath).convert("RGBA")
+        mouth = mouth.resize([int(mouth.size[0] * mScale), int(mouth.size[1] * mScale)])
 
 
-    width = image.shape[1]
-    height = image.shape[0]
-    mouthPos = [xPos, yPos]
-    face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
+        width = image.shape[1]
+        height = image.shape[0]
+        mouthPos = [xPos, yPos]
+        face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
 
-    if(mirror):
-        face = face.transpose(Image.FLIP_LEFT_RIGHT)
+        if(mirror):
+            face = face.transpose(Image.FLIP_LEFT_RIGHT)
 
-    face.save("generate/" + str(frame) + '.png')
-    # os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
-    runCommand("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -r " + str(args.framerate) + " -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
-    videoList.write("file '" + str(frame) + ".mp4'\n")
+        face.save("generate/" + str(frame) + '.png')
+        # os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
+        runCommand("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -r " + str(args.framerate) + " -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
+        videoList.write("file '" + str(frame) + ".mp4'\n")
     return [totalTime, frame + 1]
 
 
@@ -213,7 +223,7 @@ def main():
 
     mouthPath = phoneReference['mouthsPath'] + phoneReference['closed']
 
-    totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter, totalTime, pose['mirror'])
+    totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][0]['start'], 4) - float(args.offset), frameCounter, totalTime, pose['mirror'], 1)
 
     markedCounter += 1 #Increase by 1 to get past the initial pose marker
     poseCounter += 1
@@ -241,11 +251,11 @@ def main():
 
 
 
-            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter, totalTime, pose['mirror'])
+            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter, totalTime, pose['mirror'], p)
         if (w < len(stamps['words']) - 1):
             mouthPath = phoneReference['mouthsPath'] + 'closed.png'
             # mouth = Image.open(mouthPath).convert("RGBA")
-            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter, totalTime, pose['mirror'])
+            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter, totalTime, pose['mirror'], 1)
 
 
         markedCounter += 1
