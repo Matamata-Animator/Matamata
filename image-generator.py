@@ -246,21 +246,33 @@ def main():
 
         word = stamps['words'][w]
         wordTime = 0
-        for p in range(len(word['phones'])):
-            #Identify current phone
-            phone = (word['phones'][p]['phone']).split('_')[0]
-            wordTime += word['phones'][p]['duration']
-            #Referance phonemes.json to see which mouth goes with which phone
-            mouthPath = "mouths/" + (phoneReference['phonemes'][phone]['image'])
+        try:
+            for p in range(len(word['phones'])):
+                #Identify current phone
+                phone = (word['phones'][p]['phone']).split('_')[0]
+                wordTime += word['phones'][p]['duration']
+                #Referance phonemes.json to see which mouth goes with which phone
+                mouthPath = "mouths/" + (phoneReference['phonemes'][phone]['image'])
 
 
 
 
-            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter, totalTime, pose['mirror'], p)
+                totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], word['phones'][p]['duration'], frameCounter, totalTime, pose['mirror'], p)
+        except:
+
+            mouthPath = "mouths/" + (phoneReference['phonemes']['aa']['image'])
+
+
+
+
+            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1],  round(stamps['words'][w-1]['end'], 4) - round(stamps['words'][w + 1]['start'], 4) - 2/args.framerate, frameCounter, totalTime, pose['mirror'], p)
         if (w < len(stamps['words']) - 1):
             mouthPath = phoneReference['mouthsPath'] + 'closed.png'
             # mouth = Image.open(mouthPath).convert("RGBA")
-            totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter, totalTime, pose['mirror'], 1)
+            if(stamps['words'][w + 1]['case'] == 'success'):
+                totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], round(stamps['words'][w + 1]['start'], 4) - totalTime - float(args.offset), frameCounter, totalTime, pose['mirror'], 1)
+            else:
+                totalTime, frameCounter = createVideo(frameCounter, facePath, mouthPath, pose['scale'], pose['mouthPos'][0], pose['mouthPos'][1], 0, frameCounter, totalTime, pose['mirror'], 1)
 
 
         markedCounter += 1
