@@ -134,18 +134,20 @@ def getFacePath(pose, characters):
 
     #determain wherther to flip image
     mirrorPose = False
+    mirrorMouth = False
+    lookingLeft = True
     if(len(splitPose) == 2):
-        isleft = True
         if(splitPose[1].lower() == 'right' or splitPose[1].lower() == 'r'):
-            isLeft = False
-        if(isLeft != pose['facingLeft']):
+            lookingLeft = False
+        if(lookingLeft != pose['facingLeft']):
             mirrorPose = True
-
+    if(not pose["facingLeft"]):
+            mirrorMouth = True
     return {
         'facePath': characters['facesFolder'] + pose['image'],
         'mouthPos': [pose['x'], pose['y']],
         'scale': characters['default_scale'] * pose['scale'],
-        'mirror': mirrorPose
+        'mirror': [mirrorPose, mirrorMouth]
         }
 
 def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl):
@@ -166,10 +168,13 @@ def createVideo(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, 
         width = image.shape[1]
         height = image.shape[0]
         mouthPos = [xPos, yPos]
+        if(mirror[1]):
+            mouth = mouth.transpose(Image.FLIP_LEFT_RIGHT)
         face.paste(mouth, (int(mouthPos[0] - mouth.size[0]/2), int(mouthPos[1] - mouth.size[1]/2)), mouth)
 
-        if(mirror):
+        if(mirror[0]):
             face = face.transpose(Image.FLIP_LEFT_RIGHT)
+
 
         face.save("generate/" + str(frame) + '.png')
         # os.popen("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(time) + " -pix_fmt yuv420p -vf scale=" + str(args.scale) + " generate/" + str(frame) + ".mp4")
