@@ -129,8 +129,14 @@ def parseScript(text, startCharacter='[', endCharacter=']'): #Parse script to id
 
 def getFacePath(pose, characters):
     splitPose = pose.split('-')
-    posesList = characters[splitPose[0]] #splits to remove directional tag
-    pose = posesList[min(random.randint(0, len(posesList)), len(posesList)-1)]
+    try:
+        posesList = characters[splitPose[0]] #splits to remove directional tag
+        pose = posesList[min(random.randint(0, len(posesList)), len(posesList)-1)]
+    except:
+        print(Fore.RED + '[ERR 412] Failed to load pose: ' + pose)
+        print(Style.RESET_ALL)
+        quit()
+
 
     #determain wherther to flip image
     mirrorPose = False
