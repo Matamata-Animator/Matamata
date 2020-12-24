@@ -1,7 +1,8 @@
 opencv-python
-numpy
+numpy==1.19.3
 pillow
 ffmpeg
 numpy
 argparse
 tqdm
+colorama
