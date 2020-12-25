@@ -3,6 +3,7 @@ import subprocess
 import json
 import os
 
+
 def init():
     command.run('docker kill gentle')
 

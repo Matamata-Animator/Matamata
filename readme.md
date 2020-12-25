@@ -187,7 +187,7 @@ Launch *Docker Desktop*
 
 Launch Anaconda Prompt
 
-> python image-generator.py -a audio.mp3 -t text.txt [flags]
+> python animate.py -a audio.mp3 -t text.txt [flags]
 
 
 
@@ -195,7 +195,7 @@ Launch Anaconda Prompt
 
 Launch Terminal
 
-> python image-generator.py -a audio.mp3 -t text.txt [flags]
+> python animate.py -a audio.mp3 -t text.txt [flags]
 
 This may need to be accompanied by a *sudo* beforehand.
 
@@ -207,7 +207,7 @@ Launch *Docker Desktop*
 
 Launch Terminal
 
-> python image-generator.py -a audio.mp3 -t text.txt [flags]
+> python animate.py -a audio.mp3 -t text.txt [flags]
 
 This may need to be accompanied by a *sudo* beforehand.
 
