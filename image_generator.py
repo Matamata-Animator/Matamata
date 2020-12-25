@@ -94,10 +94,10 @@ def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime,
 
         width = image.shape[1]
         height = image.shape[0]
-        mouthPos = [xPos, yPos]
+        mouth_pos = [xPos, yPos]
         if mirror[1]:
             mouth = mouth.transpose(Image.FLIP_LEFT_RIGHT)
-        face.paste(mouth, (int(mouthPos[0] - mouth.size[0] / 2), int(mouthPos[1] - mouth.size[1] / 2)), mouth)
+        face.paste(mouth, (int(mouth_pos[0] - mouth.size[0] / 2), int(mouth_pos[1] - mouth.size[1] / 2)), mouth)
 
         if mirror[0]:
             face = face.transpose(Image.FLIP_LEFT_RIGHT)
