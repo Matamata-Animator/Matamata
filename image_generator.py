@@ -1,44 +1,27 @@
-import time
 import os
 import json
 from PIL import Image
-import sys
 import cv2 as cv
 import numpy as np
-import shutil
 import random
 from tqdm.auto import tqdm
 import command
 from colorama import Fore, Back, Style
-import subprocess
+import gentle
 
-if os.path.isdir('generate'):
-    shutil.rmtree('generate')
-
-command.run('docker kill gentle')
-
-command.run('docker rm gentle')
-
-os.mkdir('generate')
-
-docker = subprocess.Popen(['docker', 'run', '--name', 'gentle', '-p', '8765:8765', 'lowerquality/gentle'])
-time.sleep(3)
-videoList = open('generate/videos.txt', 'w+')
 
 args = ''
-
-
 def parse_script(text, start_character='[',
                  end_character=']'):  # Parse script to identify pose tags. start/end_character are by default set to brackets []
     start_character = start_character[0]
     end_character = end_character[0]
-    poses = [""]
+    poses = ['']
     recording = False
     num_poses = 0
     for i in text:
         if i == start_character and not recording:
             recording = True
-            poses.append("")
+            poses.append('')
             poses[num_poses] = start_character
         elif i == end_character:
             recording = False
@@ -53,7 +36,7 @@ def parse_script(text, start_character='[',
 
     # remove tags from script
     for pose in poses:
-        text = text.replace(pose, "¦")
+        text = text.replace(pose, '¦')
 
     # create a list of words
     marked_text = text.replace('\n', ' ')
@@ -62,7 +45,7 @@ def parse_script(text, start_character='[',
     return {  # Out puts a dictionary with the list of poses, the script with markers of where
         'poses_list': poses,
         'marked_text': marked_text,
-        'feeder_script': text.replace("¦", " ")
+        'feeder_script': text.replace('¦', ' ')
     }
 
 
@@ -85,7 +68,7 @@ def get_face_path(pose, characters):
             looking_left = False
         if looking_left != pose['facingLeft']:
             mirror_pose = True
-    if not pose["facingLeft"]:
+    if not pose['facingLeft']:
         mirror_mouth = True
     return {
         'facePath': characters['facesFolder'] + pose['image'],
@@ -95,7 +78,7 @@ def get_face_path(pose, characters):
     }
 
 
-def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl):
+def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl, video_list):
     skip = True
     if not args.skipframes or syl == 1 or (time >= args.skipthreshold / args.framerate):
         skip = False
@@ -105,25 +88,23 @@ def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime,
         time = max(1 / args.framerate, time)
         totalTime += time
         image = cv.imread(fPath, 0)
-        face = Image.open(fPath).convert("RGBA")
-        mouth = Image.open(mPath).convert("RGBA")
+        face = Image.open(fPath).convert('RGBA')
+        mouth = Image.open(mPath).convert('RGBA')
         mouth = mouth.resize([int(mouth.size[0] * mScale), int(mouth.size[1] * mScale)])
 
         width = image.shape[1]
         height = image.shape[0]
         mouthPos = [xPos, yPos]
-        if (mirror[1]):
+        if mirror[1]:
             mouth = mouth.transpose(Image.FLIP_LEFT_RIGHT)
         face.paste(mouth, (int(mouthPos[0] - mouth.size[0] / 2), int(mouthPos[1] - mouth.size[1] / 2)), mouth)
 
-        if (mirror[0]):
+        if mirror[0]:
             face = face.transpose(Image.FLIP_LEFT_RIGHT)
 
-        face.save("generate/" + str(frame) + '.png')
-        command.run("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(
-            time) + " -pix_fmt yuv420p -r " + str(args.framerate) + " -vf scale=" + str(
-            args.scale) + " generate/" + str(frame) + ".mp4")
-        videoList.write("file '" + str(frame) + ".mp4'\n")
+        face.save(f'generate/{frame}.png')
+        command.run(f'ffmpeg -loop 1 -i generate/{frame}.png -c:v libx264 -t {time} -pix_fmt yuv420p -r {args.framerate} -vf scale={args.scale} generate/{frame}.mp4')
+        video_list.write(f'file {frame}.mp4\n')
     return [totalTime, frame + 1]
 
 
@@ -131,6 +112,8 @@ def gen_vid(inputs):
     global args
     args = inputs
     command.set_verbose(args.verbose)
+
+    video_list = open('generate/videos.txt', 'w+')
 
     phone_reference = json.load(open(str(args.mouths), encoding='utf8'))
     characters_json = json.load(open(str(args.character), encoding='utf8'))
@@ -157,23 +140,20 @@ def gen_vid(inputs):
         print(poses_list)
 
     # get output from gentle
-    r = os.popen('curl -F "audio=@' + (
-        args.audio) + '" -F "transcript=@' + feeder_script + '" "http://localhost:8765/transcriptions?async=false"').read()
-
-    stamps = json.loads(r)
+    stamps = gentle.align(args.audio, feeder_script)
 
     # Make mouth closed until first phoneme
     pose = get_face_path(poses_list[pose_counter][1:-1], characters_json)
 
     face_path = pose['facePath']
-    face = Image.open(face_path).convert("RGBA")
+    face = Image.open(face_path).convert('RGBA')
 
     mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
 
     total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'], pose['mouthPos'][0],
                                              pose['mouthPos'][1],
                                              round(stamps['words'][0]['start'], 4) - float(args.offset), frame_counter,
-                                             total_time, pose['mirror'], 1)
+                                             total_time, pose['mirror'], 1, video_list)
 
     marked_counter += 1  # Increase by 1 to get past the initial pose marker
     pose_counter += 1
@@ -182,7 +162,7 @@ def gen_vid(inputs):
             pose = get_face_path(poses_list[pose_counter][1:-1], characters_json)
 
             face_path = pose['facePath']
-            face = Image.open(face_path).convert("RGBA")
+            face = Image.open(face_path).convert('RGBA')
 
             marked_counter += 1
             pose_counter += 1
@@ -195,15 +175,15 @@ def gen_vid(inputs):
                 phone = (word['phones'][p]['phone']).split('_')[0]
                 word_time += word['phones'][p]['duration']
                 # Reference phonemes.json to see which mouth goes with which phone
-                mouth_path = "mouths/" + (phone_reference['phonemes'][phone]['image'])
+                mouth_path = 'mouths/' + (phone_reference['phonemes'][phone]['image'])
 
                 total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
                                                          pose['mouthPos'][0], pose['mouthPos'][1],
-                                                         word['phones'][p]['duration'], frame_counter, total_time,
-                                                         pose['mirror'], p)
+                                                         word['phones'][p]['duration'], frame_counter,
+                                                         total_time, pose['mirror'], p, video_list)
         except:
 
-            mouth_path = "mouths/" + (phone_reference['phonemes']['aa']['image'])
+            mouth_path = 'mouths/' + (phone_reference['phonemes']['aa']['image'])
 
             total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
                                                      pose['mouthPos'][0],
@@ -211,38 +191,37 @@ def gen_vid(inputs):
                                                      round(stamps['words'][w - 1]['end'], 4) - round(
                                                          stamps['words'][w + 1]['start'], 4) - 2 / args.framerate,
                                                      frame_counter, total_time, pose['mirror'],
-                                                     p)
+                                                     p, video_list)
         if w < len(stamps['words']) - 1:
             mouth_path = phone_reference['mouthsPath'] + 'closed.png'
-            # mouth = Image.open(mouthPath).convert("RGBA")
             if stamps['words'][w + 1]['case'] == 'success':
                 total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
                                                          pose['mouthPos'][0], pose['mouthPos'][1],
                                                          round(stamps['words'][w + 1]['start'], 4) - total_time - float(
-                                                             args.offset), frame_counter, total_time, pose['mirror'], 1)
+                                                             args.offset), frame_counter, total_time, pose['mirror'], 1, video_list)
             else:
                 total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
                                                          pose['mouthPos'][0], pose['mouthPos'][1], 0, frame_counter,
-                                                         total_time, pose['mirror'], 1)
+                                                         total_time, pose['mirror'], 1, video_list)
 
         marked_counter += 1
-        print(" ", end='\r')
+        print(' ', end='\r')
     mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
     total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'], pose['mouthPos'][0],
                                              pose['mouthPos'][1], args.skipthreshold / args.framerate, frame_counter,
-                                             total_time, pose['mirror'], 1)
+                                             total_time, pose['mirror'], 1, video_list)
 
     # Combine all videos into one video
-    videoList.flush()
-    videoList.close()
+    video_list.flush()
+    video_list.close()
 
     # delete old output files
     if os.path.isfile(str(args.output)):
         os.remove(str(args.output))
 
-    print("Finishing Up...")
+    print('Finishing Up...')
 
-    command.run("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output))
+    command.run(f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/videos.txt -c copy {args.output}')
 
     # delete all generate files
     # if os.path.isdir('generate'):
