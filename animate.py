@@ -1,6 +1,12 @@
 import argparse
 from colorama import Fore, Back, Style
 import image_generator as ig
+import os
+import time
+import shutil
+import gentle
+import command
+import subprocess
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
 
@@ -35,5 +41,11 @@ banner = '''
 
 if __name__ == '__main__':
     print(Fore.GREEN + banner.replace('m', '\\') + Style.RESET_ALL)
+    if os.path.isdir('generate'):
+        shutil.rmtree('generate')
+    gentle.init()
+    time.sleep(3)
+    os.mkdir('generate')
+    time.sleep(3)
     ig.gen_vid(args)
     print(Style.RESET_ALL + 'done')
