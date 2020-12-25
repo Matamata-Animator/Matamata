@@ -1,10 +1,13 @@
 import subprocess
 from colorama import Fore, Back, Style
-
-def run(command, verbose=False, sync=True):
+verbose = False
+def set_verbose(is_verb):
+    global verbose
+    verbose = is_verb
+def run(command, sync=True):
     command = command.split(' ')
     out = ''
-    if (sync):
+    if sync:
         process = subprocess.run(command,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE, shell=False)
@@ -16,10 +19,10 @@ def run(command, verbose=False, sync=True):
                                    stderr=subprocess.PIPE)
         process.wait()
         out, err = process.communicate()
-        if (err != ''):
+        if err != '':
             print(Fore.RED + "REEEEE")
             print(Fore.RED + err)
     # out = str(out, "utf-8")
-    if (args.verbose):
+    if verbose:
         print(out)
     return out

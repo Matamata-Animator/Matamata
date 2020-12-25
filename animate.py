@@ -32,8 +32,8 @@ banner = '''
                                    | |              __/ |
                                    |_|             |___/
 '''
-print(Fore.GREEN + banner.replace('m', '\\') + Style.RESET_ALL)
 
-if __name__ == '__name__':
-    ig.create_video(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+if __name__ == '__main__':
+    print(Fore.GREEN + banner.replace('m', '\\') + Style.RESET_ALL)
+    ig.gen_vid(args)
     print(Style.RESET_ALL + 'done')

@@ -8,16 +8,16 @@ import numpy as np
 import shutil
 import random
 from tqdm.auto import tqdm
-from command import run as runCommand
+import command
 from colorama import Fore, Back, Style
 import subprocess
 
 if os.path.isdir('generate'):
     shutil.rmtree('generate')
 
-command = runCommand('docker kill gentle')
+command.run('docker kill gentle')
 
-command = runCommand('docker rm gentle')
+command.run('docker rm gentle')
 
 os.mkdir('generate')
 
@@ -29,7 +29,7 @@ args = ''
 
 
 def parse_script(text, start_character='[',
-                 end_character=']'):  # Parse script to identify pose tags. strart/end_character are by default set to brackets []
+                 end_character=']'):  # Parse script to identify pose tags. start/end_character are by default set to brackets []
     start_character = start_character[0]
     end_character = end_character[0]
     poses = [""]
@@ -60,17 +60,17 @@ def parse_script(text, start_character='[',
     marked_text = ' '.join(marked_text.split())
     marked_text = marked_text.split(' ')
     return {  # Out puts a dictionary with the list of poses, the script with markers of where
-        'posesList': poses,
+        'poses_list': poses,
         'marked_text': marked_text,
-        'feederScript': text.replace("¦", " ")
+        'feeder_script': text.replace("¦", " ")
     }
 
 
 def get_face_path(pose, characters):
     split_pose = pose.split('-')
     try:
-        posesList = characters[split_pose[0]]  # splits to remove directional tag
-        pose = posesList[min(random.randint(0, len(posesList)), len(posesList) - 1)]
+        poses_list = characters[split_pose[0]]  # splits to remove directional tag
+        pose = poses_list[min(random.randint(0, len(poses_list)), len(poses_list) - 1)]
     except:
         print(Fore.RED + '[ERR 412] Failed to load pose: ' + pose)
         print(Style.RESET_ALL)
@@ -120,7 +120,7 @@ def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime,
             face = face.transpose(Image.FLIP_LEFT_RIGHT)
 
         face.save("generate/" + str(frame) + '.png')
-        runCommand("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(
+        command.run("ffmpeg -loop 1 -i generate/" + str(frame) + ".png -c:v libx264 -t " + str(
             time) + " -pix_fmt yuv420p -r " + str(args.framerate) + " -vf scale=" + str(
             args.scale) + " generate/" + str(frame) + ".mp4")
         videoList.write("file '" + str(frame) + ".mp4'\n")
@@ -130,16 +130,18 @@ def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime,
 def gen_vid(inputs):
     global args
     args = inputs
+    command.set_verbose(args.verbose)
+
     phone_reference = json.load(open(str(args.mouths), encoding='utf8'))
     characters_json = json.load(open(str(args.character), encoding='utf8'))
 
     # Counters:
     total_time = 0  # totalTime keeps a running total of how long the animation is at any given point.
-    frame_counter = 0  # keeps tracke of which frame is currently bein animated
+    frame_counter = 0  # keeps track of which frame is currently being animated
     pose_counter = 0  # keeps track of which pose is currently being animated
     marked_counter = 0  # keeps track of which word in the script is being read
 
-    # Remove and residual folders and procesees from last time the program was run.
+    # Remove and residual folders and processes from last time the program was run.
 
     # Parse script, output parsed script to generate
     raw_script = open(args.text, 'r').read()
@@ -150,18 +152,17 @@ def gen_vid(inputs):
     script_file.flush()
     script_file.close()
     poses_list = parsed_script['poses_list']
-    marked_script = parsed_script['markedText']
+    marked_script = parsed_script['marked_text']
     if args.verbose:
         print(poses_list)
 
     # get output from gentle
     r = os.popen('curl -F "audio=@' + (
         args.audio) + '" -F "transcript=@' + feeder_script + '" "http://localhost:8765/transcriptions?async=false"').read()
-    # r = runCommand('curl -F "audio=@' + (args.audio) +'" -F "transcript=@' + feeder_script + '" "http://localhost:8765/transcriptions?async=false"')
 
     stamps = json.loads(r)
 
-    # Make mouth closed until first phoname
+    # Make mouth closed until first phoneme
     pose = get_face_path(poses_list[pose_counter][1:-1], characters_json)
 
     face_path = pose['facePath']
@@ -241,10 +242,10 @@ def gen_vid(inputs):
 
     print("Finishing Up...")
 
-    runCommand("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output))
+    command.run("ffmpeg -i " + str(args.audio) + " -f concat -safe 0 -i generate/videos.txt -c copy " + str(args.output))
 
     # delete all generate files
     # if os.path.isdir('generate'):
     #     shutil.rmtree('generate')
-    runCommand('docker kill gentle')
-    runCommand('docker rm gentle')
+    command.run('docker kill gentle')
+    command.run('docker rm gentle')
