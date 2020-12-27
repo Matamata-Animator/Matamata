@@ -1,3 +1,6 @@
+# python animate.py -a intro2.output.wav -t ree
+
+
 import argparse
 from colorama import Fore, Back, Style
 import image_generator as ig
@@ -5,8 +8,9 @@ import os
 import time
 import shutil
 import gentle
-import command
-import subprocess
+
+import pydub
+
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
 
@@ -24,8 +28,11 @@ parser.add_argument('-v', '--verbose', required=False, default=False, type=bool)
 
 parser.add_argument('-r', '--framerate', required=False, default=25, type=int)
 
-parser.add_argument('-l', '--skipframes', required=False, type=bool, default=True)
-parser.add_argument('-T', '--skipthreshold', required=False, type=float, default=1)
+parser.add_argument('-l', '--skip_frames', required=False, type=bool, default=True)
+parser.add_argument('-T', '--skip_thresh', required=False, type=float, default=1)
+
+parser.add_argument('-q', '--silence_thresh', required=False, default=-40, type=float)
+
 args = parser.parse_args()
 
 banner = '''
@@ -39,6 +46,21 @@ banner = '''
                                    |_|             |___/
 '''
 
+
+def split_audio():
+    audio = pydub.AudioSegment.from_file("intro2.output.wav..")
+    # audio = audio.reverse()
+    silence = pydub.silence.detect_silence(audio, silence_thresh=args.silence_thresh)
+    silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
+    silence.append((len(audio), len(audio)))
+    for i in range(len(silence) - 1):
+        print(f'({silence[i][1]}, {silence[i + 1][0]})')
+        start = (silence[i][1] - 0.5) * 1000
+        end = (silence[i + 1][0] + 0.5) * 1000
+        speak = audio[start:end]
+        speak.export(f'generate/audio/{i}.wav', 'wav')
+
+
 if __name__ == '__main__':
     print(Fore.GREEN + banner.replace('m', '\\') + Style.RESET_ALL)
     if os.path.isdir('generate'):
@@ -46,6 +68,10 @@ if __name__ == '__main__':
     gentle.init()
     time.sleep(3)
     os.mkdir('generate')
+    os.mkdir('generate/audio')
+
     time.sleep(3)
+    # split_audio()
+
     ig.gen_vid(args)
     print(Style.RESET_ALL + 'done')

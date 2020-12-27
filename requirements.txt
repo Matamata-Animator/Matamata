@@ -6,3 +6,4 @@ numpy
 argparse
 tqdm
 colorama
+pydub
