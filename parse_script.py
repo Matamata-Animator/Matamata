@@ -1,5 +1,4 @@
-def parse_script(text, start_character='[',
-                 end_character=']'):  # Parse script to identify pose tags. start/end_character are by default set to brackets []
+def parse_script(text, start_character='[', end_character=']'):  # Parse script to identify pose tags
     start_character = start_character[0]
     end_character = end_character[0]
     poses = ['']
