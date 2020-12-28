@@ -2,52 +2,16 @@ import os
 import json
 from PIL import Image
 import cv2 as cv
-import numpy as np
+import shutil
 import random
 from tqdm.auto import tqdm
-import command
 from colorama import Fore, Back, Style
+
+import command
 import gentle
+from parse_script import parse_script
 
 args = ''
-
-
-def parse_script(text, start_character='[',
-                 end_character=']'):  # Parse script to identify pose tags. start/end_character are by default set to brackets []
-    start_character = start_character[0]
-    end_character = end_character[0]
-    poses = ['']
-    recording = False
-    num_poses = 0
-    for i in text:
-        if i == start_character and not recording:
-            recording = True
-            poses.append('')
-            poses[num_poses] = start_character
-        elif i == end_character:
-            recording = False
-            poses[num_poses] += end_character
-            num_poses += 1
-        else:
-            if recording:
-                poses[num_poses] += i
-
-    # remove extra empty array entry
-    del poses[-1]
-
-    # remove tags from script
-    for pose in poses:
-        text = text.replace(pose, '¦')
-
-    # create a list of words
-    marked_text = text.replace('\n', ' ')
-    marked_text = ' '.join(marked_text.split())
-    marked_text = marked_text.split(' ')
-    return {  # Out puts a dictionary with the list of poses, the script with markers of where
-        'poses_list': poses,
-        'marked_text': marked_text,
-        'feeder_script': text.replace('¦', ' ')
-    }
 
 
 def get_face_path(pose, characters):
@@ -72,7 +36,7 @@ def get_face_path(pose, characters):
     if not pose['facingLeft']:
         mirror_mouth = True
     return {
-        'facePath': characters['facesFolder'] + pose['image'],
+        'facePath': 'custom/' + characters['facesFolder'] + pose['image'],
         'mouthPos': [pose['x'], pose['y']],
         'scale': characters['default_scale'] * pose['scale'],
         'mirror': [mirror_pose, mirror_mouth]
@@ -210,15 +174,16 @@ def gen_vid(inputs):
     video_list.close()
 
     # delete old output files
-    if os.path.isfile(str(args.output)):
-        os.remove(str(args.output))
+    if os.path.isfile(args.output):
+        os.remove(args.output)
 
     print('Finishing Up...')
 
     command.run(f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/videos.txt -c copy {args.output}')
 
     # delete all generate files
-    # if os.path.isdir('generate'):
-    #     shutil.rmtree('generate')
+    while not os.path.isfile(args.output):
+        pass
+    shutil.rmtree('generate')
     command.run('docker kill gentle')
     command.run('docker rm gentle')

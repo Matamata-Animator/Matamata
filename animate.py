@@ -5,7 +5,6 @@ import argparse
 from colorama import Fore, Back, Style
 import image_generator as ig
 import os
-import time
 import shutil
 import gentle
 
@@ -48,7 +47,7 @@ banner = '''
 
 
 def split_audio():
-    audio = pydub.AudioSegment.from_file("intro2.output.wav..")
+    audio = pydub.AudioSegment.from_file(args.audio)
     # audio = audio.reverse()
     silence = pydub.silence.detect_silence(audio, silence_thresh=args.silence_thresh)
     silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
@@ -62,16 +61,22 @@ def split_audio():
 
 
 if __name__ == '__main__':
+    # Print banner
     print(Fore.GREEN + banner.replace('m', '\\') + Style.RESET_ALL)
+
+    gentle.init()
+
+    # Delete old folder, then create the new ones
     if os.path.isdir('generate'):
         shutil.rmtree('generate')
-    gentle.init()
-    time.sleep(3)
+    while os.path.isdir('generate'):
+        pass
     os.mkdir('generate')
     os.mkdir('generate/audio')
+    while not os.path.isdir('generate/audio'):
+        pass
 
-    time.sleep(3)
-    # split_audio()
+    split_audio()
 
     ig.gen_vid(args)
     print(Style.RESET_ALL + 'done')
