@@ -14,3 +14,4 @@
 .idea/
 custom/
 generate/
+__pycache__/
