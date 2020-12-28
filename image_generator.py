@@ -90,8 +90,6 @@ def gen_vid(inputs):
     pose_counter = 0  # keeps track of which pose is currently being animated
     marked_counter = 0  # keeps track of which word in the script is being read
 
-    # Remove and residual folders and processes from last time the program was run.
-
     # Parse script, output parsed script to generate
     raw_script = open(args.text, 'r').read()
     parsed_script = parse_script(raw_script)

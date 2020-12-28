@@ -12,21 +12,10 @@ def set_verbose(is_verb):
 def run(command, sync=True):
     command = command.split(' ')
     out = ''
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    (out, err) = process.communicate()
     if sync:
-        process = subprocess.run(command,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, shell=True)
-        out = process
-
-    else:
-        process = subprocess.Popen(command,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        process.wait()
-        out, err = process.communicate()
-        if err != '':
-            print(Fore.RED + err)
-    # out = str(out, "utf-8")
+        p_status = process.wait()
     if verbose:
         print(out)
     return out

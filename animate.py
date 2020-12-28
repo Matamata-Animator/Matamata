@@ -3,12 +3,15 @@
 
 import argparse
 from colorama import Fore, Back, Style
-import image_generator as ig
 import os
 import shutil
-import gentle
-
+import json
 import pydub
+
+import gentle
+import image_generator as ig
+from parse_script import parse_script
+
 
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -53,11 +56,28 @@ def split_audio():
     silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
     silence.append((len(audio), len(audio)))
     for i in range(len(silence) - 1):
-        print(f'({silence[i][1]}, {silence[i + 1][0]})')
+        if args.verbose:
+            print(f'({silence[i][1]}, {silence[i + 1][0]})')
         start = (silence[i][1] - 0.5) * 1000
         end = (silence[i + 1][0] + 0.5) * 1000
         speak = audio[start:end]
         speak.export(f'generate/audio/{i}.wav', 'wav')
+
+
+def split_text():
+    # Parse script, output parsed script to generate
+    raw_script = open(args.text, 'r').read()
+    parsed_script = parse_script(raw_script)
+    feeder_script = 'generate/script.txt'
+    script_file = open(feeder_script, 'w+')
+    script_file.write(parsed_script['feeder_script'])
+    script_file.flush()
+    script_file.close()
+    poses_list = parsed_script['poses_list']
+    marked_script = parsed_script['marked_text']
+    if args.verbose:
+        print(poses_list)
+    stamps = gentle.align(args.audio, feeder_script)
 
 
 if __name__ == '__main__':
@@ -71,12 +91,13 @@ if __name__ == '__main__':
         shutil.rmtree('generate')
     while os.path.isdir('generate'):
         pass
-    os.mkdir('generate')
-    os.mkdir('generate/audio')
+    os.makedirs('generate/audio')
     while not os.path.isdir('generate/audio'):
         pass
 
-    split_audio()
+    # split_audio()
+    # split_text()
 
     ig.gen_vid(args)
+
     print(Style.RESET_ALL + 'done')

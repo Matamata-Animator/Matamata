@@ -7,3 +7,4 @@ argparse
 tqdm
 colorama
 pydub
+pycurl
