@@ -161,7 +161,7 @@ def gen_vid(inputs):
                                                          total_time, pose['mirror'], 1, video_list)
 
         marked_counter += 1
-        print(' ', end='\r')
+        print('', end='\r')
     mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
     total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'], pose['mouthPos'][0],
                                              pose['mouthPos'][1], args.skip_thresh / args.framerate, frame_counter,

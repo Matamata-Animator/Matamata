@@ -7,12 +7,11 @@ from io import BytesIO
 
 
 def init():
-    # command.run('docker kill gentle')
+    command.run('docker kill gentle')
 
-    # command.run('docker rm gentle')
-    # docker = subprocess.Popen(['docker', 'run', '--name', 'gentle', '-p', '8765:8765', 'lowerquality/gentle'],
-    #                           shell=True)
-    pass
+    command.run('docker rm gentle')
+    docker = subprocess.Popen(['docker', 'run', '--name', 'gentle', '-p', '8765:8765', 'lowerquality/gentle'],
+                              shell=True)
 
 
 def clean(gentle):
