@@ -1,4 +1,5 @@
 def parse_script(text, start_character='[', end_character=']'):  # Parse script to identify pose tags
+    text = text.replace('\n', ' ')
     start_character = start_character[0]
     end_character = end_character[0]
     poses = ['']
@@ -25,11 +26,11 @@ def parse_script(text, start_character='[', end_character=']'):  # Parse script 
         text = text.replace(pose, '¦')
 
     # create a list of words
-    marked_text = text.replace('\n', ' ')
-    marked_text = ' '.join(marked_text.split())
+    marked_text = ' '.join(text.split())
     marked_text = marked_text.split(' ')
     return {  # Out puts a dictionary with the list of poses, the script with markers of where
         'poses_list': poses,
         'marked_text': marked_text,
+        'pose_markers_script': text,
         'feeder_script': text.replace('¦', ' ')
     }

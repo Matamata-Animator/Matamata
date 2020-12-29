@@ -179,9 +179,6 @@ def gen_vid(inputs):
 
     command.run(f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/videos.txt -c copy {args.output}')
 
-    # delete all generate files
-    while not os.path.isfile(args.output):
-        pass
-    shutil.rmtree('generate')
+
     command.run('docker kill gentle')
     command.run('docker rm gentle')

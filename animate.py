@@ -12,7 +12,6 @@ import gentle
 import image_generator as ig
 from parse_script import parse_script
 
-
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
 
@@ -65,7 +64,7 @@ def split_audio():
         speak.export(f'generate/audio/{i}.wav', 'wav')
 
 
-def split_text():
+def find_blocks():
     # Parse script, output parsed script to generate
     raw_script = open(args.text, 'r').read()
     parsed_script = parse_script(raw_script)
@@ -78,22 +77,54 @@ def split_text():
     marked_script = parsed_script['marked_text']
     if args.verbose:
         print(poses_list)
+
     stamps = gentle.align(args.audio, feeder_script)
+    text = stamps['words'][0]['word'] + ' '
+    block_start = 0
+    blocks = []
     for word in range(len(stamps['words'])):
         if word != 0:
             base_word_gap = 0.5
             word_gap = base_word_gap
-            word_addition = 0
-            word_subtraction = 1
-            while 'start' not in stamps['words'][word + word_addition]:
-                word_gap += base_word_gap
-                word_addition += 1
-            while 'end' not in stamps['words'][word - word_subtraction]:
-                word_gap += base_word_gap
-                word_subtraction += 1
-            if word != 0 and stamps['words'][word + word_addition]['start'] - stamps['words'][word - word_subtraction]['end'] > word_gap:
-                print(stamps['words'][word+word_addition]['start'])
+            word_add = 0
+            word_subtract = 1
 
+            while 'start' not in stamps['words'][word + word_add]:
+                word_gap += base_word_gap
+                word_add += 1
+            while 'end' not in stamps['words'][word - word_subtract]:
+                word_gap += base_word_gap
+                word_subtract += 1
+
+            if stamps['words'][word + word_add]['start'] - stamps['words'][word - word_subtract]['end'] > word_gap:
+                block_end = word
+                blocks.append((block_start, block_end))
+                block_start = word + 1
+            elif stamps['words'][word] == stamps['words'][-1]:
+                block_end = word
+                blocks.append((block_start, block_end))
+    return blocks, parsed_script['pose_markers_script']
+
+
+def make_scripts(blocks, script):
+    script = script.split(' ')
+    print(script)
+
+    word_counter = 0
+    spoken_word_counter = 0
+    for block in range(len(blocks)):
+        text = ''
+        while spoken_word_counter < blocks[block][1]:
+            text += script[word_counter] + ' '
+
+            if script[word_counter] != '¦':
+                spoken_word_counter += 1
+            word_counter += 1
+
+        blocked_script = open(f'generate/scripts/{block}.txt', 'w+')
+        blocked_script.write(text)
+        blocked_script.flush()
+        blocked_script.close()
 
 
 
@@ -109,12 +140,17 @@ if __name__ == '__main__':
     while os.path.isdir('generate'):
         pass
     os.makedirs('generate/audio')
+    os.makedirs('generate/scripts')
     while not os.path.isdir('generate/audio'):
         pass
 
     split_audio()
-    split_text()
+    script_blocks = find_blocks()
+    make_scripts(script_blocks[0], script_blocks[1])
 
     ig.gen_vid(args)
-
+    # delete all generate files
+    while not os.path.isfile(args.output):
+        pass
+    # shutil.rmtree('generate')
     print(Style.RESET_ALL + 'done')
