@@ -1,8 +1,6 @@
 import command
-import subprocess
 import json
 import pycurl
-import os
 from io import BytesIO
 
 
@@ -10,12 +8,9 @@ def init():
     command.run('docker kill gentle')
 
     command.run('docker rm gentle')
-    docker = subprocess.Popen(['docker', 'run', '--name', 'gentle', '-p', '8765:8765', 'lowerquality/gentle'],
-                              shell=True)
-
+    command.run('docker run --name gentle -p 8765:8765 lowerquality/gentle', False)
 
 def clean(gentle):
-    word = 0
     while gentle['words'][0]['case'] == 'not-found-in-audio':
         del gentle['words'][0]
     while gentle['words'][-1]['case'] == 'not-found-in-audio':
