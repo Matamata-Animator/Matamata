@@ -56,7 +56,8 @@ def split_audio():
     silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
     silence.append((len(audio), len(audio)))
     for i in range(len(silence) - 1):
-        if args.verbose:
+        # if args.verbose:
+        if True:
             print(f'({silence[i][1]}, {silence[i + 1][0]})')
         start = (silence[i][1] - 0.5) * 1000
         end = (silence[i + 1][0] + 0.5) * 1000
@@ -78,6 +79,22 @@ def split_text():
     if args.verbose:
         print(poses_list)
     stamps = gentle.align(args.audio, feeder_script)
+    for word in range(len(stamps['words'])):
+        if word != 0:
+            base_word_gap = 0.5
+            word_gap = base_word_gap
+            word_addition = 0
+            word_subtraction = 1
+            while 'start' not in stamps['words'][word + word_addition]:
+                word_gap += base_word_gap
+                word_addition += 1
+            while 'end' not in stamps['words'][word - word_subtraction]:
+                word_gap += base_word_gap
+                word_subtraction += 1
+            if word != 0 and stamps['words'][word + word_addition]['start'] - stamps['words'][word - word_subtraction]['end'] > word_gap:
+                print(stamps['words'][word+word_addition]['start'])
+
+
 
 
 if __name__ == '__main__':
@@ -95,8 +112,8 @@ if __name__ == '__main__':
     while not os.path.isdir('generate/audio'):
         pass
 
-    # split_audio()
-    # split_text()
+    split_audio()
+    split_text()
 
     ig.gen_vid(args)
 
