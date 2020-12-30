@@ -11,6 +11,7 @@ import pydub
 import gentle
 import image_generator as ig
 from parse_script import parse_script
+import command
 
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -55,8 +56,7 @@ def split_audio():
     silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
     silence.append((len(audio), len(audio)))
     for i in range(len(silence) - 1):
-        # if args.verbose:
-        if True:
+        if args.verbose:
             print(f'({silence[i][1]}, {silence[i + 1][0]})')
         start = (silence[i][1] - 0.5) * 1000
         end = (silence[i + 1][0] + 0.5) * 1000
@@ -74,12 +74,10 @@ def find_blocks():
     script_file.flush()
     script_file.close()
     poses_list = parsed_script['poses_list']
-    marked_script = parsed_script['marked_text']
     if args.verbose:
         print(poses_list)
 
     stamps = gentle.align(args.audio, feeder_script)
-    text = stamps['words'][0]['word'] + ' '
     block_start = 0
     blocks = []
     for word in range(len(stamps['words'])):
@@ -103,12 +101,16 @@ def find_blocks():
             elif stamps['words'][word] == stamps['words'][-1]:
                 block_end = word
                 blocks.append((block_start, block_end))
-    return blocks, parsed_script['pose_markers_script']
+    return {
+        'blocks': blocks,
+        'script': parsed_script['pose_markers_script'],
+        'poses_list': parsed_script['poses_list'],
+        'marked_script': parsed_script['marked_text']
+    }
 
 
 def make_scripts(blocks, script):
     script = script.split(' ')
-    print(script)
 
     word_counter = 0
     spoken_word_counter = 0
@@ -121,11 +123,15 @@ def make_scripts(blocks, script):
                 spoken_word_counter += 1
             word_counter += 1
 
-        blocked_script = open(f'generate/scripts/{block}.txt', 'w+')
+        blocked_script = open(f'generate/marked_scripts/{block}.txt', 'w+')
         blocked_script.write(text)
         blocked_script.flush()
         blocked_script.close()
 
+        feeder_script = open(f'generate/feeder_scripts/{block}.txt', 'w+')
+        feeder_script.write(text.replace('¦', ''))
+        feeder_script.flush()
+        feeder_script.close()
 
 
 if __name__ == '__main__':
@@ -140,17 +146,39 @@ if __name__ == '__main__':
     while os.path.isdir('generate'):
         pass
     os.makedirs('generate/audio')
-    os.makedirs('generate/scripts')
+    os.makedirs('generate/marked_scripts')
+    os.makedirs('generate/feeder_scripts')
+    os.makedirs('generate/videos')
+
     while not os.path.isdir('generate/audio'):
         pass
 
+    # divide the project into smaller projects
     split_audio()
     script_blocks = find_blocks()
-    make_scripts(script_blocks[0], script_blocks[1])
+    make_scripts(script_blocks['blocks'], script_blocks['script'])
+    poses_list = script_blocks['poses_list']
+    pose_counter = 0
+    for block in range(len(script_blocks['blocks'])):
+        # load block's script and count the number of poses
+        marked_script = open(f'generate/marked_scripts/{block}.txt', 'r').read()
+        num_poses = len(marked_script.split('¦')) - 1
+        num_poses = max(num_poses, 0)
 
-    ig.gen_vid(args)
+        # create cropped_poses by cropping poses_list
+        cropped_poses = poses_list[pose_counter:pose_counter+num_poses]
+        if num_poses == 0:
+            cropped_poses = [poses_list[max(0, pose_counter-1)]]
+        pose_counter += num_poses
+
+        args.audio = f'generate/audio/{block}.wav'
+        args.text = f'generate/feeder_scripts/{block}.txt'
+        ig.gen_vid(args, cropped_poses, script_blocks['marked_script'], block)
     # delete all generate files
-    while not os.path.isfile(args.output):
-        pass
+    # while not os.path.isfile(args.output):
+    #     pass
     # shutil.rmtree('generate')
+
+    command.run('docker kill gentle')
+    command.run('docker rm gentle')
     print(Style.RESET_ALL + 'done')
