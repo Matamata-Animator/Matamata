@@ -2,16 +2,31 @@ import os
 import json
 from PIL import Image
 import cv2 as cv
-import shutil
 import random
 from tqdm.auto import tqdm
 from colorama import Fore, Back, Style
+import sys
 
 import command
 import gentle
-from parse_script import parse_script
 
 args = ''
+num_phonemes = 0
+num_frames = 0
+old_stdout = sys.stdout
+
+
+def init(phones):
+    global num_phonemes
+    num_phonemes = phones
+
+
+def progress_bar(frames_completed):
+    # print(f'\r{(f"[%-{num_phonemes-1}s] %d%%" % ("="*num_frames, 5*num_frames))}', end='')
+
+    with tqdm(total=num_phonemes) as pbar:
+
+        pbar.update(frames_completed)
 
 
 def get_face_path(pose, characters):
@@ -44,11 +59,8 @@ def get_face_path(pose, characters):
 
 
 def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl, video_list, number):
-    skip = True
+    global num_frames
     if not args.skip_frames or syl == 1 or (time >= args.skip_thresh / args.framerate):
-        skip = False
-
-    if not skip:
         time = round(time * args.framerate) / args.framerate
         time = max(1 / args.framerate, time)
         totalTime += time
@@ -71,6 +83,8 @@ def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime,
         command.run(
             f'ffmpeg -loop 1 -i generate/{number}/{frame}.png -c:v libx264 -t {time} -pix_fmt yuv420p -r {args.framerate} -vf scale={args.scale} generate/{number}/{frame}.mp4')
         video_list.write(f'file {frame}.mp4\n')
+        num_frames += 1
+        progress_bar(num_frames)
     return [totalTime, frame + 1]
 
 
@@ -103,8 +117,7 @@ def gen_vid(inputs, poses_list, marked_script, number):
     try:
         pose = get_face_path(poses_list[0][1:-1], characters_json)
     except:
-        print("ERR")
-        print(poses_list)
+        pass
     poses_list.pop(0)
 
     face_path = pose['facePath']
@@ -113,7 +126,8 @@ def gen_vid(inputs, poses_list, marked_script, number):
     mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
 
     try:
-        total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'], pose['mouthPos'][0],
+        total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
+                                                 pose['mouthPos'][0],
                                                  pose['mouthPos'][1],
                                                  round(stamps['words'][0]['start'], 4) - args.offset, frame_counter,
                                                  total_time, pose['mirror'], 1, video_list, number)
@@ -121,19 +135,18 @@ def gen_vid(inputs, poses_list, marked_script, number):
         total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
                                                  pose['mouthPos'][0],
                                                  pose['mouthPos'][1],
-                                                 args.offset/2,
+                                                 args.offset / 2,
                                                  frame_counter,
                                                  total_time, pose['mirror'], 1, video_list, number)
 
     marked_counter += 1  # Increase by 1 to get past the initial pose marker
     pose_counter += 1
-    for w in tqdm(range(len(stamps['words']))):
+    for w in range(len(stamps['words'])):
         if marked_script[marked_counter] == '¦':
             try:
                 pose = get_face_path(poses_list[0][1:-1], characters_json)
             except:
-                print("ERR")
-                print(poses_list)
+                pass
 
             face_path = pose['facePath']
             face = Image.open(face_path).convert('RGBA')
@@ -171,7 +184,6 @@ def gen_vid(inputs, poses_list, marked_script, number):
                                                          total_time, pose['mirror'], 1, video_list, number)
 
         marked_counter += 1
-        print('', end='\r')
     mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
     total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'], pose['mouthPos'][0],
                                              pose['mouthPos'][1], args.skip_thresh / args.framerate, frame_counter,
@@ -181,12 +193,14 @@ def gen_vid(inputs, poses_list, marked_script, number):
     video_list.flush()
     video_list.close()
 
-    # delete old output files
-    if os.path.isfile(args.output):
-        os.remove(args.output)
+    # gets the name of the last video in videos.txt, and pauses until it is a file
+    last_vid = open(f'generate/{number}/videos.txt').read().split('\n')[-2].split(' ')[1]
+    while not os.path.isfile(f'generate/{number}/{last_vid}'):
+        pass
 
-    print('Finishing Up...')
-
+    vid_name = f'{number}.{args.output.split(".")[-1]}'
     command.run(
-        f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/{number}/videos.txt -c copy generate/videos/{number}.{args.output.split(".")[-1]}')
-
+        f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/{number}/videos.txt -c copy generate/videos/{vid_name}')
+    videos_list = open('generate/videos/videos.txt', 'a')
+    videos_list.write(f'file {vid_name}\n')
+    videos_list.close()
