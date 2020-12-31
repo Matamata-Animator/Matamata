@@ -1,9 +1,7 @@
 opencv-python
 pillow
 ffmpeg
-numpy
 argparse
 colorama
 pydub
 pycurl
-progress
