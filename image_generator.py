@@ -3,17 +3,15 @@ import json
 from PIL import Image
 import cv2 as cv
 import random
-from tqdm.auto import tqdm
 from colorama import Fore, Back, Style
 import sys
 
 import command
 import gentle
+from bar import print_bar
 
 args = ''
-num_phonemes = 0
 num_frames = 0
-old_stdout = sys.stdout
 
 
 def init(phones):
@@ -23,10 +21,7 @@ def init(phones):
 
 def progress_bar(frames_completed):
     # print(f'\r{(f"[%-{num_phonemes-1}s] %d%%" % ("="*num_frames, 5*num_frames))}', end='')
-
-    with tqdm(total=num_phonemes) as pbar:
-
-        pbar.update(frames_completed)
+    print_bar(frames_completed, num_phonemes, "Generating Images: ")
 
 
 def get_face_path(pose, characters):

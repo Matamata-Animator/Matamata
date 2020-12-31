@@ -3,6 +3,7 @@
 
 import argparse
 from colorama import Fore, Back, Style
+import colorama
 import os
 import shutil
 import json
@@ -51,7 +52,10 @@ banner = '''
 
 def init():
     # Print banner
-    print(Fore.GREEN + banner.replace('m', '\\') + Style.RESET_ALL)
+    colorama.init(convert=True)
+    print(Fore.GREEN)
+    print(banner.replace('m', '\\'))
+    print(Style.RESET_ALL)
 
     gentle.init()
 
@@ -193,6 +197,7 @@ if __name__ == '__main__':
         args.audio = f'generate/audio/{block}.wav'
         args.text = f'generate/feeder_scripts/{block}.txt'
         ig.gen_vid(args, cropped_poses, script_blocks['marked_script'], block)
+    ig.progress_bar(script_blocks['num_phonemes'])
 
     # delete old output files
     if os.path.isfile(args.output):
@@ -208,4 +213,5 @@ if __name__ == '__main__':
 
     command.run('docker kill gentle')
     command.run('docker rm gentle')
-    print(Style.RESET_ALL + 'done')
+    colorama.init(convert=True)
+    print(f'{Style.RESET_ALL}Done')
