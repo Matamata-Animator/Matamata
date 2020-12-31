@@ -46,7 +46,7 @@ def get_face_path(pose, characters):
     if not pose['facingLeft']:
         mirror_mouth = True
     return {
-        'facePath': 'custom/' + characters['facesFolder'] + pose['image'],
+        'facePath': characters['facesFolder'] + pose['image'],
         'mouthPos': [pose['x'], pose['y']],
         'scale': characters['default_scale'] * pose['scale'],
         'mirror': [mirror_pose, mirror_mouth]

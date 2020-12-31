@@ -209,7 +209,7 @@ if __name__ == '__main__':
     # delete all generate files
     while not os.path.isfile(args.output):
         pass
-    # shutil.rmtree('generate')
+    shutil.rmtree('generate')
 
     command.run('docker kill gentle')
     command.run('docker rm gentle')
