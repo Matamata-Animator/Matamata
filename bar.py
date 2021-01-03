@@ -23,13 +23,13 @@ def get_gradient(dec):
 
 
 def print_bar(numerator, denominator, prefix='', length=100, char='█'):
-    pre = f'\r{prefix} |'
+    pre = f'{prefix} |'
     bar = int((numerator / denominator) * length) * char
     dec = ((numerator / denominator) * length) - floor(int((numerator / denominator) * length))
     gradient = get_gradient(dec)
     space = (length - len(bar) - 1) * ' '
     percentage = int((numerator / denominator) * 100)
-    print(f'{pre}{bar}{gradient}{space}| {percentage}% [{numerator}/{denominator}]', end='')
+    print(f'\r{pre}{bar}{gradient}{space}| {percentage}% [{numerator}/{denominator}]', end='')
 
 
 if __name__ == '__main__':

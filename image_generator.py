@@ -86,6 +86,13 @@ def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime,
 def gen_vid(inputs, poses_list, marked_script, number):
     global args
     args = inputs
+
+    # wait to make sure input files exist
+    while not os.path.isfile(args.audio):
+        pass
+    while not os.path.isfile(args.text):
+        pass
+
     command.set_verbose(args.verbose)
     feeder_script = f'generate/feeder_scripts/{number}.txt'
 
