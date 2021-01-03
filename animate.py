@@ -117,6 +117,8 @@ def find_blocks():
         save_gentle.flush()
         save_gentle.close()
     block_start = 0
+    block_end = 0
+
     blocks = []
     for word in range(len(stamps['words'])):
         if word != 0:
@@ -125,19 +127,23 @@ def find_blocks():
             word_add = 0
             word_subtract = 1
 
+            skip = False
             while 'start' not in stamps['words'][word + word_add]:
                 word_gap += base_word_gap
                 word_add += 1
+
             while 'end' not in stamps['words'][word - word_subtract]:
                 word_gap += base_word_gap
                 word_subtract += 1
 
-            if stamps['words'][word + word_add]['start'] - stamps['words'][word - word_subtract]['end'] > word_gap:
+            if word != block_end + 1 and stamps['words'][word + word_add]['start'] - \
+                    stamps['words'][word - word_subtract]['end'] > word_gap:
+                # word != block_end + 1 is very jank and should be fixed in the future
                 block_end = word
                 blocks.append((block_start, block_end))
                 block_start = word + 1
-            elif stamps['words'][word] == stamps['words'][-1]:
-                block_end = word
+            elif not skip and stamps['words'][word] == stamps['words'][-1]:
+                block_end = word+1
                 blocks.append((block_start, block_end))
     return {
         'blocks': blocks,
