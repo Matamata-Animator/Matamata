@@ -27,14 +27,17 @@ parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', 
 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=str)
 
-parser.add_argument('-v', '--verbose', required=False, default=False, type=bool)
+parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true')
 
 parser.add_argument('-r', '--framerate', required=False, default=144, type=int)
 
-parser.add_argument('-l', '--skip_frames', required=False, type=bool, default=False)
+parser.add_argument('--skip_frames', required=False, default=False, action='store_true')
 parser.add_argument('-T', '--skip_thresh', required=False, type=float, default=1)
 
 parser.add_argument('-q', '--silence_thresh', required=False, default=-40, type=float)
+parser.add_argument('-w', '--silence_len', required=False, default=1000, type=int)
+
+parser.add_argument('--no_delete', required=False, default=False, action='store_true')
 
 args = parser.parse_args()
 
@@ -76,16 +79,22 @@ def init():
 def split_audio():
     audio = pydub.AudioSegment.from_file(args.audio)
     # audio = audio.reverse()
-    silence = pydub.silence.detect_silence(audio, silence_thresh=args.silence_thresh)
+    len_of_silence = pydub.AudioSegment.silent(duration=args.silence_len)
+    audio = len_of_silence + audio
+    silence = pydub.silence.detect_silence(audio, silence_thresh=args.silence_thresh, min_silence_len=args.silence_len)
     silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
-    silence.append((len(audio), len(audio)))
-    for i in range(len(silence) - 1):
-        if args.verbose:
-            print(f'({silence[i][1]}, {silence[i + 1][0]})')
-        start = (silence[i][1] - 0.5) * 1000
-        end = (silence[i + 1][0] + 0.5) * 1000
-        speak = audio[start:end]
-        speak.export(f'generate/audio/{i}.wav', 'wav')
+    if not silence:
+        speak = audio[0:len(audio)]
+        speak.export(f'generate/audio/{0}.wav', 'wav')
+    else:
+        silence.append((len(audio), len(audio)))
+        for i in range(len(silence) - 1):
+            if args.verbose:
+                print(f'({silence[i][1]}, {silence[i + 1][0]})')
+            start = (silence[i][1] - 0.5) * 1000
+            end = (silence[i + 1][0] + 0.5) * 1000
+            speak = audio[start:end]
+            speak.export(f'generate/audio/{i}.wav', 'wav')
 
 
 def find_blocks():
@@ -102,11 +111,16 @@ def find_blocks():
         print(poses_list)
 
     stamps = gentle.align(args.audio, feeder_script)
+    if args.no_delete:
+        save_gentle = open('generate/gentle.json', 'w+')
+        save_gentle.write(json.dumps(stamps, indent=2))
+        save_gentle.flush()
+        save_gentle.close()
     block_start = 0
     blocks = []
     for word in range(len(stamps['words'])):
         if word != 0:
-            base_word_gap = 0.5
+            base_word_gap = args.silence_len / 1000
             word_gap = base_word_gap
             word_add = 0
             word_subtract = 1
@@ -147,7 +161,8 @@ def make_scripts(blocks, script):
             if script[word_counter] != '¦':
                 spoken_word_counter += 1
             word_counter += 1
-
+        if block == blocks[-1]:
+            text += script[-1]
         blocked_script = open(f'generate/marked_scripts/{block}.txt', 'w+')
         blocked_script.write(text)
         blocked_script.flush()
@@ -209,7 +224,8 @@ if __name__ == '__main__':
     # delete all generate files
     while not os.path.isfile(args.output):
         pass
-    shutil.rmtree('generate')
+    if not args.no_delete:
+        shutil.rmtree('generate')
 
     command.run('docker kill gentle')
     command.run('docker rm gentle')
