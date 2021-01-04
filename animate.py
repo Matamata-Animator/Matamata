@@ -29,7 +29,7 @@ parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=s
 
 parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true')
 
-parser.add_argument('-r', '--framerate', required=False, default=144, type=int)
+parser.add_argument('-r', '--framerate', required=False, default=60, type=int)
 
 parser.add_argument('--skip_frames', required=False, default=False, action='store_true')
 parser.add_argument('-T', '--skip_thresh', required=False, type=float, default=1)
@@ -169,6 +169,8 @@ def make_scripts(blocks, script):
             word_counter += 1
         if block == blocks[-1]:
             text += script[-1]
+        else:
+            text += script[word_counter]
         blocked_script = open(f'generate/marked_scripts/{block}.txt', 'w+')
         blocked_script.write(text)
         blocked_script.flush()
