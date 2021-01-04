@@ -1,5 +1,6 @@
 import time
 from math import floor
+import shutil
 
 
 def get_gradient(dec):
@@ -8,7 +9,7 @@ def get_gradient(dec):
         gradient = '▏'
     elif 2 / 8 <= dec < 3 / 8:
         gradient = '▎'
-    elif 3 / 8 <= dec < 4/8:
+    elif 3 / 8 <= dec < 4 / 8:
         gradient = '▍'
     elif 4 / 8 <= dec < 5 / 8:
         gradient = '▌'
@@ -22,8 +23,10 @@ def get_gradient(dec):
     return gradient
 
 
-def print_bar(numerator, denominator, prefix='', length=100, char='█'):
+def print_bar(numerator, denominator, prefix='', length=shutil.get_terminal_size((80, 20))[0], char='█'):
+    numerator = min(numerator, denominator)
     pre = f'{prefix} |'
+    length -= 2*len(str(denominator)) + 15 + len(pre)
     bar = int((numerator / denominator) * length) * char
     dec = ((numerator / denominator) * length) - floor(int((numerator / denominator) * length))
     gradient = get_gradient(dec)
