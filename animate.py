@@ -227,8 +227,10 @@ if __name__ == '__main__':
 
         # create cropped_poses by cropping poses_list
         cropped_poses = poses_list[pose_counter:pose_counter + num_poses]
-        if num_poses == 0:
-            cropped_poses = [poses_list[max(0, pose_counter - 1)]]
+        if len(cropped_poses) == 0:
+            print(poses_list)
+            print(max(0, pose_counter - 2))
+            cropped_poses = [poses_list[max(0, pose_counter - 2)]]
         pose_counter += num_poses
 
         args.audio = f'generate/audio/{block}.wav'

@@ -4,6 +4,7 @@ from PIL import Image
 import cv2 as cv
 import random
 from colorama import Fore, Back, Style
+import colorama
 import sys
 
 import command
@@ -17,6 +18,7 @@ num_frames = 0
 def init(phones):
     global num_phonemes
     num_phonemes = phones
+    colorama.init(convert=True)
 
 
 def progress_bar(frames_completed):
@@ -116,10 +118,11 @@ def gen_vid(inputs, poses_list, marked_script, number):
 
     # Make mouth closed until first phoneme
     # pose = get_face_path(poses_list[pose_counter][1:-1], characters_json)
+
     try:
         pose = get_face_path(poses_list[0][1:-1], characters_json)
     except:
-        pass
+        print(poses_list)
     poses_list.pop(0)
 
     face_path = pose['facePath']
