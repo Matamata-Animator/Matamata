@@ -100,104 +100,6 @@ def split_audio():
     return len(silence) - 1
 
 
-def find_blocks():
-    # Parse script, output parsed script to generate
-    raw_script = open(args.text, 'r').read()
-    parsed_script = parse_script(raw_script)
-    feeder_script = 'generate/script.txt'
-    script_file = open(feeder_script, 'w+')
-    script_file.write(parsed_script['feeder_script'])
-    script_file.flush()
-    script_file.close()
-
-    marked_script_path = 'generate/marked_script.txt'
-    script_file = open(marked_script_path, 'w+')
-    script_file.write(' '.join(parsed_script['marked_text']))
-    script_file.flush()
-    script_file.close()
-
-    poses_list = parsed_script['poses_list']
-    if args.verbose:
-        print(poses_list)
-
-    stamps = gentle.align(args.audio, marked_script_path)
-    if args.no_delete:
-        save_gentle = open('generate/gentle.json', 'w+')
-        save_gentle.write(json.dumps(stamps, indent=2))
-        save_gentle.flush()
-        save_gentle.close()
-
-    block_start = 0
-    block_end = 0
-
-    blocks = []
-    for word in range(len(stamps['words'])):
-        if word != 0:
-            base_word_gap = args.silence_len / 1000
-            word_gap = base_word_gap
-            word_add = 0
-            word_subtract = 1
-
-            skip = False
-            while 'start' not in stamps['words'][word + word_add]:
-                word_gap += base_word_gap
-                word_add += 1
-
-            while 'end' not in stamps['words'][word - word_subtract]:
-                word_gap += base_word_gap
-                word_subtract += 1
-
-            if word != block_end + 1 and stamps['words'][word + word_add]['start'] - \
-                    stamps['words'][word - word_subtract]['end'] > word_gap:
-                # word != block_end + 1 is very jank and should be fixed in the future
-                block_end = word
-                blocks.append((block_start, block_end))
-                block_start = word + 1
-            elif not skip and stamps['words'][word] == stamps['words'][-1]:
-                block_end = word + 1
-                blocks.append((block_start, block_end))
-    return {
-        'blocks': blocks,
-        'script': parsed_script['pose_markers_script'],
-        'poses_list': parsed_script['poses_list'],
-        'marked_script': parsed_script['marked_text'],
-        'num_phonemes': num_phonemes(stamps)
-    }
-
-
-def make_scripts(blocks, script):
-    script = script.split(' ')
-
-    word_counter = 0
-    spoken_word_counter = 0
-    for block in range(len(blocks)):
-        text = ''
-        while spoken_word_counter < blocks[block][1]:
-            text += script[word_counter] + ' '
-
-            if script[word_counter] != '¦':
-                spoken_word_counter += 1
-            word_counter += 1
-        if block == blocks[-1]:
-            text += script[-1]
-        else:
-            text += script[word_counter]
-
-        feeder_text = text.replace('¦', '')
-        feeder_script = open(f'generate/feeder_scripts/{block}.txt', 'w+')
-        feeder_script.write(feeder_text)
-        feeder_script.flush()
-        feeder_script.close()
-
-        # Remove trailing pose marker
-        if text[-1] == '¦':
-            text = text[:-1]
-        blocked_script = open(f'generate/marked_scripts/{block}.txt', 'w+')
-        blocked_script.write(text)
-        blocked_script.flush()
-        blocked_script.close()
-
-
 def num_phonemes(gentle):
     phones = len(gentle['words'])
     for word in gentle['words']:
@@ -219,6 +121,36 @@ def make_crumple(name):
     videos_list.close()
 
 
+def find_poses():
+    # Parse script, output parsed script to generate
+    raw_script = open(args.text, 'r').read()
+    parsed_script = parse_script(raw_script)
+    feeder_script = 'generate/script.txt'
+    script_file = open(feeder_script, 'w+')
+    script_file.write(parsed_script['feeder_script'])
+    script_file.flush()
+    script_file.close()
+
+    marked_text = ' '.join(parsed_script['marked_text'])
+    # marked_script_path = 'generate/marked_script.txt'
+    # script_file = open(marked_script_path, 'w+')
+    # script_file.write(marked_text)
+    # script_file.flush()
+    # script_file.close()
+
+    poses_loc = []
+    for word in range(len(parsed_script['marked_text'])):
+        if parsed_script['marked_text'][word] == '¦':
+            poses_loc.append(word)
+    print(poses_loc)
+    return {
+        'poses_loc': poses_loc,
+        'script': parsed_script['pose_markers_script'],
+        'poses_list': parsed_script['poses_list'],
+        'marked_script': parsed_script['marked_text']
+    }
+
+
 if __name__ == '__main__':
     init()
 
@@ -226,15 +158,16 @@ if __name__ == '__main__':
     print('Analyzing Audio...')
     num_audio = split_audio()
     print('Analyzing Text...')
-    script_blocks = find_blocks()
-    make_scripts(script_blocks['blocks'], script_blocks['script'])
+    script_blocks = find_poses()
     poses_list = script_blocks['poses_list']
     pose_counter = 0
 
-    ig.init(script_blocks['num_phonemes'])
+    stamps = gentle.align(args.audio, 'generate/script.txt')
+    ig.init(num_phonemes(stamps))
+
     videos_list = open('generate/videos/videos.txt', 'w+')
     videos_list.close()
-    # for block in range(len(script_blocks['blocks'])):
+
     for block in range(num_audio):
         # load block's script and count the number of poses
         # marked_script = open(f'generate/marked_scripts/{block}.txt', 'r').read()
@@ -252,7 +185,7 @@ if __name__ == '__main__':
         pose_counter += num_poses
 
         args.audio = f'generate/audio/{block}.wav'
-        args.text = f'generate/feeder_scripts/{block}.txt'
+        args.text = f'generate/script.txt'
         ig.gen_vid(args, cropped_poses, script_blocks['marked_script'], block)
     ig.progress_bar(script_blocks['num_phonemes'])
 
