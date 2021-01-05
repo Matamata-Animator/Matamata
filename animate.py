@@ -28,7 +28,6 @@ parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', 
 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=str)
 
-
 parser.add_argument('-r', '--framerate', required=False, default=60, type=int)
 
 parser.add_argument('-T', '--skip_thresh', required=False, type=float, default=1)
@@ -146,7 +145,7 @@ def find_blocks():
                 blocks.append((block_start, block_end))
                 block_start = word + 1
             elif not skip and stamps['words'][word] == stamps['words'][-1]:
-                block_end = word+1
+                block_end = word + 1
                 blocks.append((block_start, block_end))
     return {
         'blocks': blocks,
@@ -174,15 +173,20 @@ def make_scripts(blocks, script):
             text += script[-1]
         else:
             text += script[word_counter]
+
+        feeder_text = text.replace('¦', '')
+        feeder_script = open(f'generate/feeder_scripts/{block}.txt', 'w+')
+        feeder_script.write(feeder_text)
+        feeder_script.flush()
+        feeder_script.close()
+
+        # Remove trailing pose marker
+        if text[-1] == '¦':
+            text = text[:-1]
         blocked_script = open(f'generate/marked_scripts/{block}.txt', 'w+')
         blocked_script.write(text)
         blocked_script.flush()
         blocked_script.close()
-
-        feeder_script = open(f'generate/feeder_scripts/{block}.txt', 'w+')
-        feeder_script.write(text.replace('¦', ''))
-        feeder_script.flush()
-        feeder_script.close()
 
 
 def num_phonemes(gentle):
@@ -192,17 +196,19 @@ def num_phonemes(gentle):
             phones += len(word['phones'])
     return phones
 
+
 def make_crumple(name):
     vid_name = f'{name}.{args.output.split(".")[-1]}'
-    last_list = open(f'generate/{name-1}/videos.txt', 'r').read().split('\n')
+    last_list = open(f'generate/{name - 1}/videos.txt', 'r').read().split('\n')
     last_img = last_list[-2].split(' ')[1].split('.')[0]
 
     command.run(
-        f'ffmpeg -loop 1 -i generate/{name-1}/{last_img}.png -c:v libx264 -t {args.framerate/20} -pix_fmt yuv420p -r {args.framerate} -vf scale={args.scale} generate/videos/{vid_name}')
+        f'ffmpeg -loop 1 -i generate/{name - 1}/{last_img}.png -c:v libx264 -t {args.framerate / 20} -pix_fmt yuv420p -r {args.framerate} -vf scale={args.scale} generate/videos/{vid_name}')
     videos_list = open('generate/videos/videos.txt', 'a')
     videos_list.write(f'file {vid_name}\n')
     videos_list.flush()
     videos_list.close()
+
 
 if __name__ == '__main__':
     init()
