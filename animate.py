@@ -110,8 +110,8 @@ def find_blocks():
     script_file.flush()
     script_file.close()
 
-    marked_script = 'generate/marked_script.txt'
-    script_file = open(marked_script, 'w+')
+    marked_script_path = 'generate/marked_script.txt'
+    script_file = open(marked_script_path, 'w+')
     script_file.write(' '.join(parsed_script['marked_text']))
     script_file.flush()
     script_file.close()
@@ -120,12 +120,13 @@ def find_blocks():
     if args.verbose:
         print(poses_list)
 
-    stamps = gentle.align(args.audio, feeder_script)
+    stamps = gentle.align(args.audio, marked_script_path)
     if args.no_delete:
         save_gentle = open('generate/gentle.json', 'w+')
         save_gentle.write(json.dumps(stamps, indent=2))
         save_gentle.flush()
         save_gentle.close()
+
     block_start = 0
     block_end = 0
 
