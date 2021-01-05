@@ -97,6 +97,7 @@ def split_audio():
             end = (silence[i + 1][0] + 0.5) * 1000
             speak = audio[start:end]
             speak.export(f'generate/audio/{i}.wav', 'wav')
+    return len(silence) - 1
 
 
 def find_blocks():
@@ -108,6 +109,13 @@ def find_blocks():
     script_file.write(parsed_script['feeder_script'])
     script_file.flush()
     script_file.close()
+
+    marked_script = 'generate/marked_script.txt'
+    script_file = open(marked_script, 'w+')
+    script_file.write(' '.join(parsed_script['marked_text']))
+    script_file.flush()
+    script_file.close()
+
     poses_list = parsed_script['poses_list']
     if args.verbose:
         print(poses_list)
@@ -215,7 +223,7 @@ if __name__ == '__main__':
 
     # divide the project into smaller projects
     print('Analyzing Audio...')
-    split_audio()
+    num_audio = split_audio()
     print('Analyzing Text...')
     script_blocks = find_blocks()
     make_scripts(script_blocks['blocks'], script_blocks['script'])
@@ -225,9 +233,12 @@ if __name__ == '__main__':
     ig.init(script_blocks['num_phonemes'])
     videos_list = open('generate/videos/videos.txt', 'w+')
     videos_list.close()
-    for block in range(len(script_blocks['blocks'])):
+    # for block in range(len(script_blocks['blocks'])):
+    for block in range(num_audio):
         # load block's script and count the number of poses
-        marked_script = open(f'generate/marked_scripts/{block}.txt', 'r').read()
+        # marked_script = open(f'generate/marked_scripts/{block}.txt', 'r').read()
+        marked_script = open(f'generate/marked_script.txt', 'r').read()
+
         num_poses = len(marked_script.split('¦')) - 1
         num_poses = max(num_poses, 0)
 
