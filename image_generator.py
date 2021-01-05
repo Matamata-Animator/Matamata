@@ -202,7 +202,8 @@ def gen_vid(inputs, poses_list, marked_script, number):
 
     vid_name = f'{number}.{args.output.split(".")[-1]}'
     command.run(
-        f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/{number}/videos.txt -c copy generate/videos/{vid_name}')
+        f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/{number}/videos.txt -c copy generate/videos/{vid_name} -r {args.framerate}')
     videos_list = open('generate/videos/videos.txt', 'a')
     videos_list.write(f'file {vid_name}\n')
+    videos_list.flush()
     videos_list.close()
