@@ -169,24 +169,9 @@ if __name__ == '__main__':
     videos_list.close()
 
     for block in range(num_audio):
-        # load block's script and count the number of poses
-        # marked_script = open(f'generate/marked_scripts/{block}.txt', 'r').read()
-        marked_script = open(f'generate/marked_script.txt', 'r').read()
-
-        num_poses = len(marked_script.split('¦')) - 1
-        num_poses = max(num_poses, 0)
-
-        # create cropped_poses by cropping poses_list
-        cropped_poses = poses_list[pose_counter:pose_counter + num_poses]
-        if len(cropped_poses) == 0:
-            print(poses_list)
-            print(max(0, pose_counter - 2))
-            cropped_poses = [poses_list[max(0, pose_counter - 2)]]
-        pose_counter += num_poses
-
         args.audio = f'generate/audio/{block}.wav'
         args.text = f'generate/script.txt'
-        ig.gen_vid(args, cropped_poses, script_blocks['marked_script'], block)
+        ig.gen_vid(args, poses_list, script_blocks['marked_script'], block, script_blocks['poses_loc'], stamps)
     ig.progress_bar(script_blocks['num_phonemes'])
 
     # delete old output files
