@@ -13,7 +13,7 @@ from bar import print_bar
 
 args = ''
 num_frames = 0
-
+pose_counter = 0
 
 def init(phones):
     global num_phonemes
@@ -55,7 +55,7 @@ def get_face_path(pose, characters):
     }
 
 
-def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl, video_list, number):
+def create_video(fPath, mPath, mScale, xPos, yPos, time, frame, totalTime, mirror, syl, video_list, number):
     global num_frames
     if not args.skip_frames or syl == 1 or (time >= args.skip_thresh / args.framerate):
         time = round(time * args.framerate) / args.framerate
@@ -85,8 +85,9 @@ def create_video(name, fPath, mPath, mScale, xPos, yPos, time, frame, totalTime,
     return [totalTime, frame + 1]
 
 
-def gen_vid(inputs, poses_list, marked_script, number):
+def gen_vid(inputs, poses_list, marked_script, number, poses_loc, stamps):
     global args
+    global pose_counter
     args = inputs
 
     # wait to make sure input files exist
@@ -96,7 +97,7 @@ def gen_vid(inputs, poses_list, marked_script, number):
         pass
 
     command.set_verbose(args.verbose)
-    feeder_script = f'generate/feeder_scripts/{number}.txt'
+    feeder_script = 'generate/script.txt'
 
     os.makedirs(f'generate/{number}')
     video_list = open(f'generate/{number}/videos.txt', 'w+')
@@ -107,7 +108,6 @@ def gen_vid(inputs, poses_list, marked_script, number):
     # Counters:
     total_time = 0  # totalTime keeps a running total of how long the animation is at any given point.
     frame_counter = 0  # keeps track of which frame is currently being animated
-    pose_counter = 0  # keeps track of which pose is currently being animated
     marked_counter = 0  # keeps track of which word in the script is being read
 
     if args.verbose:
@@ -115,29 +115,24 @@ def gen_vid(inputs, poses_list, marked_script, number):
 
     # get output from gentle
     stamps = gentle.align(args.audio, feeder_script)
-
+    print(json.dumps(stamps, indent=4))
     # Make mouth closed until first phoneme
-    # pose = get_face_path(poses_list[pose_counter][1:-1], characters_json)
-
     try:
         pose = get_face_path(poses_list[0][1:-1], characters_json)
     except:
-        print(poses_list)
-    poses_list.pop(0)
-
+        print(json.dumps(poses_list, indent=4))
     face_path = pose['facePath']
     face = Image.open(face_path).convert('RGBA')
-
     mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
 
     try:
-        total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
+        total_time, frame_counter = create_video(face_path, mouth_path, pose['scale'],
                                                  pose['mouthPos'][0],
                                                  pose['mouthPos'][1],
                                                  round(stamps['words'][0]['start'], 4) - args.offset, frame_counter,
                                                  total_time, pose['mirror'], 1, video_list, number)
     except:
-        total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
+        total_time, frame_counter = create_video(face_path, mouth_path, pose['scale'],
                                                  pose['mouthPos'][0],
                                                  pose['mouthPos'][1],
                                                  args.offset / 2,
@@ -169,7 +164,7 @@ def gen_vid(inputs, poses_list, marked_script, number):
                 # Reference phonemes.json to see which mouth goes with which phone
                 mouth_path = 'mouths/' + (phone_reference['phonemes'][phone]['image'])
 
-                total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
+                total_time, frame_counter = create_video(face_path, mouth_path, pose['scale'],
                                                          pose['mouthPos'][0], pose['mouthPos'][1],
                                                          word['phones'][p]['duration'], frame_counter,
                                                          total_time, pose['mirror'], p, video_list, number)
@@ -178,19 +173,19 @@ def gen_vid(inputs, poses_list, marked_script, number):
         if w < len(stamps['words']) - 1:
             mouth_path = phone_reference['mouthsPath'] + 'closed.png'
             if stamps['words'][w + 1]['case'] == 'success':
-                total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
+                total_time, frame_counter = create_video(face_path, mouth_path, pose['scale'],
                                                          pose['mouthPos'][0], pose['mouthPos'][1],
                                                          round(stamps['words'][w + 1]['start'], 4) - total_time - float(
                                                              args.offset), frame_counter, total_time, pose['mirror'], 1,
                                                          video_list, number)
             else:
-                total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'],
+                total_time, frame_counter = create_video(face_path, mouth_path, pose['scale'],
                                                          pose['mouthPos'][0], pose['mouthPos'][1], 0, frame_counter,
                                                          total_time, pose['mirror'], 1, video_list, number)
 
         marked_counter += 1
     mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
-    total_time, frame_counter = create_video(frame_counter, face_path, mouth_path, pose['scale'], pose['mouthPos'][0],
+    total_time, frame_counter = create_video(face_path, mouth_path, pose['scale'], pose['mouthPos'][0],
                                              pose['mouthPos'][1], args.skip_thresh / args.framerate, frame_counter,
                                              total_time, pose['mirror'], 1, video_list, number)
 

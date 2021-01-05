@@ -14,11 +14,19 @@ def init():
 
 
 def clean(gentle):
+    clipped_before = 0
+    clipped_after = 0
     while gentle['words'][0]['case'] == 'not-found-in-audio':
         del gentle['words'][0]
+        clipped_before += 1
     while gentle['words'][-1]['case'] == 'not-found-in-audio':
         del gentle['words'][-1]
-    return gentle
+        clipped_after += 1
+    return {
+        'gentle': gentle,
+        'clipped_before': clipped_before,
+        'clipped_after': clipped_after
+    }
 
 
 def align(audio, text):
@@ -32,6 +40,4 @@ def align(audio, text):
     files = {'audio': open(audio, 'rb'),
              'transcript': open('generate/script.txt', 'rb')}
     r = requests.post(url, files=files)
-    gentle_out = json.loads(r)
-    print(gentle_out)
-    return gentle_out
+    return clean(r.json())
