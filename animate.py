@@ -28,7 +28,7 @@ parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', 
 
 parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=str)
 
-parser.add_argument('-r', '--framerate', required=False, default=60, type=int)
+parser.add_argument('-r', '--framerate', required=False, default=100, type=int)
 
 parser.add_argument('-T', '--skip_thresh', required=False, type=float, default=1)
 
@@ -70,39 +70,38 @@ def init():
     while os.path.isdir('generate'):
         pass
 
-    os.makedirs('generate/audio')
-    os.makedirs('generate/marked_scripts')
-    os.makedirs('generate/feeder_scripts')
+    os.makedirs('generate/images')
     os.makedirs('generate/videos')
-    while not os.path.isdir('generate/audio'):
+    while not os.path.isdir('generate/videos'):
         pass
 
 
-def split_audio():
-    audio = pydub.AudioSegment.from_file(args.audio)
-    # audio = audio.reverse()
-    len_of_silence = pydub.AudioSegment.silent(duration=args.silence_len)
-    audio = len_of_silence + audio
-    silence = pydub.silence.detect_silence(audio, silence_thresh=args.silence_thresh, min_silence_len=args.silence_len)
-    silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
-    if not silence:
-        speak = audio[0:len(audio)]
-        speak.export(f'generate/audio/{0}.wav', 'wav')
-    else:
-        silence.append((len(audio), len(audio)))
-        for i in range(len(silence) - 1):
-            if args.verbose:
-                print(f'({silence[i][1]}, {silence[i + 1][0]})')
-            start = (silence[i][1] - 0.5) * 1000
-            end = (silence[i + 1][0] + 0.5) * 1000
-            print(start, end)
-            speak = audio[start:end]
-            speak.export(f'generate/audio/{i}.wav', 'wav')
-    return len(silence) - 1
+def shutdown():
+    # delete all generate files
+    while not os.path.isfile(args.output):
+        pass
+    if not args.no_delete:
+        shutil.rmtree('generate')
+
+    command.run('docker kill gentle')
+    command.run('docker rm gentle')
+    colorama.init(convert=True)
+    print(f'{Style.RESET_ALL}Done')
+
+    # delete old output files
+    if os.path.isfile(args.output):
+        os.remove(args.output)
+    print('\nFinishing Up...')
+
+    if args.crumple_zone:
+        make_crumple(len(script_blocks['blocks']))
+
+    command.run(
+        f'ffmpeg -f concat -safe 0 -i generate/videos/videos.txt -c copy {args.output} -r {args.framerate}')
 
 
 def num_phonemes(gentle):
-    gentle=gentle['gentle']
+    gentle = gentle['gentle']
     phones = len(gentle['words'])
     for word in gentle['words']:
         if word['case'] == 'success':
@@ -156,46 +155,24 @@ def find_poses():
 if __name__ == '__main__':
     init()
 
-    # divide the project into smaller projects
-    print('Analyzing Audio...')
-    num_audio = split_audio()
+    # Generate the feeder script, get poses list, and where each pose should go in the script.
     print('Analyzing Text...')
     script_blocks = find_poses()
     poses_list = script_blocks['poses_list']
     pose_counter = 0
 
+    # Get gentle out
     stamps = gentle.align(args.audio, 'generate/script.txt')
     num_names = num_phonemes(stamps)
     ig.init(num_names)
 
-    videos_list = open('generate/videos/videos.txt', 'w+')
-    videos_list.close()
+    req_vid: ig.VideoRequest = args
+    req_vid.poses_list = poses_list
+    req_vid.poses_loc = script_blocks['poses_loc']
 
-    block = 0
-    if True:
-    # for block in range(num_audio):
-        # args.audio = f'generate/audio/{block}.wav'
-        args.text = f'generate/script.txt'
-        ig.gen_vid(args, poses_list, script_blocks['marked_script'], block, script_blocks['poses_loc'], stamps)
-    ig.progress_bar(script_blocks['num_phonemes'])
 
-    # delete old output files
-    if os.path.isfile(args.output):
-        os.remove(args.output)
-    print('\nFinishing Up...')
-
-    if args.crumple_zone:
-        make_crumple(len(script_blocks['blocks']))
-
-    command.run(
-        f'ffmpeg -f concat -safe 0 -i generate/videos/videos.txt -c copy {args.output} -r {args.framerate}')
-    # delete all generate files
-    while not os.path.isfile(args.output):
-        pass
-    if not args.no_delete:
-        shutil.rmtree('generate')
-
-    command.run('docker kill gentle')
-    command.run('docker rm gentle')
-    colorama.init(convert=True)
-    print(f'{Style.RESET_ALL}Done')
+    print("reeeeeeeeeeeeeeeeeeeeee")
+    ig.gen_vid(args)
+    # ig.progress_bar(script_blocks['num_phonemes'])
+    quit()
+    shutdown()
