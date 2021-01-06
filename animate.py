@@ -95,12 +95,14 @@ def split_audio():
                 print(f'({silence[i][1]}, {silence[i + 1][0]})')
             start = (silence[i][1] - 0.5) * 1000
             end = (silence[i + 1][0] + 0.5) * 1000
+            print(start, end)
             speak = audio[start:end]
             speak.export(f'generate/audio/{i}.wav', 'wav')
     return len(silence) - 1
 
 
 def num_phonemes(gentle):
+    gentle=gentle['gentle']
     phones = len(gentle['words'])
     for word in gentle['words']:
         if word['case'] == 'success':
@@ -163,13 +165,16 @@ if __name__ == '__main__':
     pose_counter = 0
 
     stamps = gentle.align(args.audio, 'generate/script.txt')
-    ig.init(num_phonemes(stamps))
+    num_names = num_phonemes(stamps)
+    ig.init(num_names)
 
     videos_list = open('generate/videos/videos.txt', 'w+')
     videos_list.close()
 
-    for block in range(num_audio):
-        args.audio = f'generate/audio/{block}.wav'
+    block = 0
+    if True:
+    # for block in range(num_audio):
+        # args.audio = f'generate/audio/{block}.wav'
         args.text = f'generate/script.txt'
         ig.gen_vid(args, poses_list, script_blocks['marked_script'], block, script_blocks['poses_loc'], stamps)
     ig.progress_bar(script_blocks['num_phonemes'])

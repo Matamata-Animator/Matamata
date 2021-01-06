@@ -16,12 +16,14 @@ def init():
 def clean(gentle):
     clipped_before = 0
     clipped_after = 0
-    while gentle['words'][0]['case'] == 'not-found-in-audio':
-        del gentle['words'][0]
+    while gentle['words'][clipped_before]['case'] == 'not-found-in-audio':
         clipped_before += 1
-    while gentle['words'][-1]['case'] == 'not-found-in-audio':
-        del gentle['words'][-1]
+
+    if gentle['words'][-clipped_after]['case'] == 'not-found-in-audio':
+        clipped_after +=1
+    while gentle['words'][-clipped_after]['case'] == 'not-found-in-audio':
         clipped_after += 1
+
     return {
         'gentle': gentle,
         'clipped_before': clipped_before,
