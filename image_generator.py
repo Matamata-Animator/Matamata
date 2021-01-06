@@ -15,6 +15,7 @@ args = ''
 num_frames = 0
 pose_counter = 0
 
+
 def init(phones):
     global num_phonemes
     num_phonemes = phones
@@ -114,8 +115,8 @@ def gen_vid(inputs, poses_list, marked_script, number, poses_loc, stamps):
         print(poses_list)
 
     # get output from gentle
-    stamps = gentle.align(args.audio, feeder_script)
-    print(json.dumps(stamps, indent=4))
+    gentle_out = gentle.align(args.audio, feeder_script)
+    stamps = gentle_out['gentle']
     # Make mouth closed until first phoneme
     try:
         pose = get_face_path(poses_list[0][1:-1], characters_json)
