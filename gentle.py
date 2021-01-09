@@ -1,7 +1,7 @@
 import command
-import json
-import pycurl
-from io import BytesIO
+import os
+import requests
+import colorama
 
 
 def init():
@@ -9,27 +9,26 @@ def init():
 
     command.run('docker rm gentle')
     command.run('docker run --name gentle -p 8765:8765 lowerquality/gentle', False)
-
-def clean(gentle):
-    while gentle['words'][0]['case'] == 'not-found-in-audio':
-        del gentle['words'][0]
-    while gentle['words'][-1]['case'] == 'not-found-in-audio':
-        del gentle['words'][-1]
-    return gentle
-
+    #wait until imafge is running
+    while 'lowerquality/gentle' not in command.run('docker ps'):
+        pass
 
 def align(audio, text):
-    # get output from gentle
+    colorama.init(convert=True)
+    while not os.path.isfile(audio):
+        pass
+    while not os.path.isfile(text):
+        pass
 
-    buffer = BytesIO()
-    g = pycurl.Curl()
-    payload = [('audio', (g.FORM_FILE, audio)), ('transcript', (g.FORM_FILE, text))]
-    g.setopt(pycurl.URL, "http://localhost:8765/transcriptions?async=false")
-    g.setopt(pycurl.HTTPPOST, payload)
-    g.setopt(pycurl.WRITEFUNCTION, buffer.write)
-    g.perform()
-    g.close()
-    res = buffer.getvalue().decode("utf-8")
-    buffer.close()
-    gentle_out = json.loads(res)
-    return gentle_out
+    # get output from gentle
+    url = 'http://localhost:8765/transcriptions?async=false'
+    files = {'audio': open(audio, 'rb'),
+             'transcript': open('generate/script.txt', 'rb')}
+    try:
+        r = requests.post(url, files=files)
+    except requests.exceptions.RequestException as e:
+        raise Exception(colorama.Fore.RED + '[ERR 503] Failed to post to Gentle: Make sure Docker Desktop is running...')
+
+
+
+    return r.json()
