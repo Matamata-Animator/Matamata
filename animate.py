@@ -1,18 +1,16 @@
-# python animate.py -a intro2.output.wav -t ree
-
-
 import argparse
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 import colorama
 import os
 import shutil
 import json
-import pydub
 
 import gentle
 import image_generator as ig
 from parse_script import parse_script
 import command
+
+import numpy as np
 
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -26,10 +24,9 @@ parser.add_argument('-s', '--offset', required=False, default='0.25', type=float
 parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
 parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', type=str)
 
-parser.add_argument('-d', '--scale', required=False, default='1920:1080', type=str)
+parser.add_argument('-d', '--dimensions', required=False, default='1920:1080', type=str)
 
-
-parser.add_argument('-r', '--framerate', required=False, default=60, type=int)
+parser.add_argument('-r', '--framerate', required=False, default=100, type=int)
 
 parser.add_argument('-T', '--skip_thresh', required=False, type=float, default=1)
 
@@ -56,7 +53,7 @@ banner = '''
 '''
 
 
-def init():
+def init() -> None:
     # Print banner
     colorama.init(convert=True)
     print(Fore.GREEN)
@@ -67,40 +64,72 @@ def init():
 
     # Delete old folder, then create the new ones
     if os.path.isdir('generate'):
-        shutil.rmtree('generate')
+        shutil.rmtree('generate', ignore_errors=True)
     while os.path.isdir('generate'):
         pass
 
-    os.makedirs('generate/audio')
-    os.makedirs('generate/marked_scripts')
-    os.makedirs('generate/feeder_scripts')
+    os.makedirs('generate/images')
     os.makedirs('generate/videos')
-    while not os.path.isdir('generate/audio'):
+    while not os.path.isdir('generate/videos'):
         pass
 
 
-def split_audio():
-    audio = pydub.AudioSegment.from_file(args.audio)
-    # audio = audio.reverse()
-    len_of_silence = pydub.AudioSegment.silent(duration=args.silence_len)
-    audio = len_of_silence + audio
-    silence = pydub.silence.detect_silence(audio, silence_thresh=args.silence_thresh, min_silence_len=args.silence_len)
-    silence = [((start / 1000), (stop / 1000)) for start, stop in silence]  # convert to sec
-    if not silence:
-        speak = audio[0:len(audio)]
-        speak.export(f'generate/audio/{0}.wav', 'wav')
-    else:
-        silence.append((len(audio), len(audio)))
-        for i in range(len(silence) - 1):
-            if args.verbose:
-                print(f'({silence[i][1]}, {silence[i + 1][0]})')
-            start = (silence[i][1] - 0.5) * 1000
-            end = (silence[i + 1][0] + 0.5) * 1000
-            speak = audio[start:end]
-            speak.export(f'generate/audio/{i}.wav', 'wav')
+def shutdown() -> None:
+    # delete all generate files
+
+    if not args.no_delete:
+        shutil.rmtree('generate')
+
+    command.run('docker kill gentle')
+    command.run('docker rm gentle')
+    colorama.init(convert=True)
+    print(f'\n{Style.RESET_ALL}Done')
+
+    # delete old output files
+    if os.path.isfile(args.output):
+        os.remove(args.output)
+    print('Finishing Up...')
+
+    # if args.crumple_zone:
+    #     make_crumple('images')
+
+    # command.run(
+    #     f'ffmpeg -f concat -safe 0 -i generate/videos/videos.txt -c copy {args.output} -r {args.framerate}')
+
+    command.run(
+        f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/images/videos.txt -c copy {args.output} -r {args.framerate}')
+    while not os.path.isfile(args.output):
+        pass
 
 
-def find_blocks():
+def num_phonemes(gentle: dict) -> int:
+    phones = 0
+    last_animated_word_end = 0
+    for word in gentle['words']:
+        if word['case'] == 'success' and 'phones' in word:
+            duration = word['start'] - last_animated_word_end
+            if duration > 0:
+                phones += 1
+            for p in range(len(word['phones'])):
+                phones += 1
+            last_animated_word_end = word['end']
+    return phones -1
+
+
+def make_crumple(name: int) -> None:
+    vid_name = f'{name}.{args.output.split(".")[-1]}'
+    last_list = open(f'generate/{name}/videos.txt', 'r').read().split('\n')
+    last_img = last_list[-2].split(' ')[1].split('.')[0]
+
+    command.run(
+        f'ffmpeg -loop 1 -i generate/{name - 1}/{last_img}.png -c:v libx264 -t {args.framerate / 20} -pix_fmt yuv420p -r {args.framerate} -vf scale={args.dimensions} generate/videos/{vid_name}')
+    videos_list = open('generate/videos/videos.txt', 'a')
+    videos_list.write(f'file {vid_name}\n')
+    videos_list.flush()
+    videos_list.close()
+
+
+def find_poses() -> dict:
     # Parse script, output parsed script to generate
     raw_script = open(args.text, 'r').read()
     parsed_script = parse_script(raw_script)
@@ -109,152 +138,49 @@ def find_blocks():
     script_file.write(parsed_script['feeder_script'])
     script_file.flush()
     script_file.close()
-    poses_list = parsed_script['poses_list']
-    if args.verbose:
-        print(poses_list)
 
-    stamps = gentle.align(args.audio, feeder_script)
-    if args.no_delete:
-        save_gentle = open('generate/gentle.json', 'w+')
-        save_gentle.write(json.dumps(stamps, indent=2))
-        save_gentle.flush()
-        save_gentle.close()
-    block_start = 0
-    block_end = 0
+    marked_text = ' '.join(parsed_script['marked_text'])
+    # marked_script_path = 'generate/marked_script.txt'
+    # script_file = open(marked_script_path, 'w+')
+    # script_file.write(marked_text)
+    # script_file.flush()
+    # script_file.close()
 
-    blocks = []
-    for word in range(len(stamps['words'])):
-        if word != 0:
-            base_word_gap = args.silence_len / 1000
-            word_gap = base_word_gap
-            word_add = 0
-            word_subtract = 1
-
-            skip = False
-            while 'start' not in stamps['words'][word + word_add]:
-                word_gap += base_word_gap
-                word_add += 1
-
-            while 'end' not in stamps['words'][word - word_subtract]:
-                word_gap += base_word_gap
-                word_subtract += 1
-
-            if word != block_end + 1 and stamps['words'][word + word_add]['start'] - \
-                    stamps['words'][word - word_subtract]['end'] > word_gap:
-                # word != block_end + 1 is very jank and should be fixed in the future
-                block_end = word
-                blocks.append((block_start, block_end))
-                block_start = word + 1
-            elif not skip and stamps['words'][word] == stamps['words'][-1]:
-                block_end = word+1
-                blocks.append((block_start, block_end))
+    poses_loc = []
+    for word in range(len(parsed_script['marked_text'])):
+        if parsed_script['marked_text'][word] == '¦':
+            poses_loc.append(word)
     return {
-        'blocks': blocks,
+        'poses_loc': poses_loc,
         'script': parsed_script['pose_markers_script'],
         'poses_list': parsed_script['poses_list'],
-        'marked_script': parsed_script['marked_text'],
-        'num_phonemes': num_phonemes(stamps)
+        'marked_script': parsed_script['marked_text']
     }
 
-
-def make_scripts(blocks, script):
-    script = script.split(' ')
-
-    word_counter = 0
-    spoken_word_counter = 0
-    for block in range(len(blocks)):
-        text = ''
-        while spoken_word_counter < blocks[block][1]:
-            text += script[word_counter] + ' '
-
-            if script[word_counter] != '¦':
-                spoken_word_counter += 1
-            word_counter += 1
-        if block == blocks[-1]:
-            text += script[-1]
-        else:
-            text += script[word_counter]
-        blocked_script = open(f'generate/marked_scripts/{block}.txt', 'w+')
-        blocked_script.write(text)
-        blocked_script.flush()
-        blocked_script.close()
-
-        feeder_script = open(f'generate/feeder_scripts/{block}.txt', 'w+')
-        feeder_script.write(text.replace('¦', ''))
-        feeder_script.flush()
-        feeder_script.close()
-
-
-def num_phonemes(gentle):
-    phones = len(gentle['words'])
-    for word in gentle['words']:
-        if word['case'] == 'success':
-            phones += len(word['phones'])
-    return phones
-
-def make_crumple(name):
-    vid_name = f'{name}.{args.output.split(".")[-1]}'
-    last_list = open(f'generate/{name-1}/videos.txt', 'r').read().split('\n')
-    last_img = last_list[-2].split(' ')[1].split('.')[0]
-
-    command.run(
-        f'ffmpeg -loop 1 -i generate/{name-1}/{last_img}.png -c:v libx264 -t {args.framerate/20} -pix_fmt yuv420p -r {args.framerate} -vf scale={args.scale} generate/videos/{vid_name}')
-    videos_list = open('generate/videos/videos.txt', 'a')
-    videos_list.write(f'file {vid_name}\n')
-    videos_list.flush()
-    videos_list.close()
 
 if __name__ == '__main__':
     init()
 
-    # divide the project into smaller projects
-    print('Analyzing Audio...')
-    split_audio()
+    # Generate the feeder script, get poses list, and where each pose should go in the script.
     print('Analyzing Text...')
-    script_blocks = find_blocks()
-    make_scripts(script_blocks['blocks'], script_blocks['script'])
+    script_blocks = find_poses()
     poses_list = script_blocks['poses_list']
     pose_counter = 0
 
-    ig.init(script_blocks['num_phonemes'])
-    videos_list = open('generate/videos/videos.txt', 'w+')
-    videos_list.close()
-    for block in range(len(script_blocks['blocks'])):
-        # load block's script and count the number of poses
-        marked_script = open(f'generate/marked_scripts/{block}.txt', 'r').read()
-        num_poses = len(marked_script.split('¦')) - 1
-        num_poses = max(num_poses, 0)
+    # Get gentle v_out
+    stamps = gentle.align(args.audio, 'generate/script.txt')
+    num_names = num_phonemes(stamps)
+    ig.init(num_names)
 
-        # create cropped_poses by cropping poses_list
-        cropped_poses = poses_list[pose_counter:pose_counter + num_poses]
-        if len(cropped_poses) == 0:
-            print(poses_list)
-            print(max(0, pose_counter - 2))
-            cropped_poses = [poses_list[max(0, pose_counter - 2)]]
-        pose_counter += num_poses
+    if args.no_delete:
+        gentle_file = open('generate/gentle.json', 'w+')
+        gentle_file.write(json.dumps(stamps, indent=4))
+        gentle_file.flush()
+        gentle_file.close()
 
-        args.audio = f'generate/audio/{block}.wav'
-        args.text = f'generate/feeder_scripts/{block}.txt'
-        ig.gen_vid(args, cropped_poses, script_blocks['marked_script'], block)
-    ig.progress_bar(script_blocks['num_phonemes'])
+    req_vid: ig.VideoRequest = args
+    req_vid.poses_list = poses_list
+    req_vid.poses_loc = script_blocks['poses_loc']
 
-    # delete old output files
-    if os.path.isfile(args.output):
-        os.remove(args.output)
-    print('\nFinishing Up...')
-
-    if args.crumple_zone:
-        make_crumple(len(script_blocks['blocks']))
-
-    command.run(
-        f'ffmpeg -f concat -safe 0 -i generate/videos/videos.txt -c copy {args.output} -r {args.framerate}')
-    # delete all generate files
-    while not os.path.isfile(args.output):
-        pass
-    if not args.no_delete:
-        shutil.rmtree('generate')
-
-    command.run('docker kill gentle')
-    command.run('docker rm gentle')
-    colorama.init(convert=True)
-    print(f'{Style.RESET_ALL}Done')
+    ig.gen_vid(args)
+    shutdown()

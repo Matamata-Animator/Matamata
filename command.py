@@ -23,4 +23,6 @@ def run(command, sync=True):
         p_status = process.wait()
     if not verbose:
         sys.stdout = old_stdout
+    if type(out) is bytes:
+        out = out.decode('utf-8')
     return out
