@@ -1,18 +1,16 @@
-# python animate.py -a intro2.output.wav -t ree
-
-
 import argparse
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 import colorama
 import os
 import shutil
 import json
-import pydub
 
 import gentle
 import image_generator as ig
 from parse_script import parse_script
 import command
+
+import numpy as np
 
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -54,6 +52,7 @@ banner = '''
                                    |_|             |___/
 '''
 
+
 def init() -> None:
     # Print banner
     colorama.init(convert=True)
@@ -84,12 +83,12 @@ def shutdown() -> None:
     command.run('docker kill gentle')
     command.run('docker rm gentle')
     colorama.init(convert=True)
-    print(f'{Style.RESET_ALL}Done')
+    print(f'\n{Style.RESET_ALL}Done')
 
     # delete old output files
     if os.path.isfile(args.output):
         os.remove(args.output)
-    print('\nFinishing Up...')
+    print('Finishing Up...')
 
     # if args.crumple_zone:
     #     make_crumple('images')
@@ -102,12 +101,19 @@ def shutdown() -> None:
     while not os.path.isfile(args.output):
         pass
 
+
 def num_phonemes(gentle: dict) -> int:
-    phones = len(gentle['words'])
+    phones = 0
+    last_animated_word_end = 0
     for word in gentle['words']:
-        if word['case'] == 'success':
-            phones += len(word['phones'])
-    return phones
+        if word['case'] == 'success' and 'phones' in word:
+            duration = word['start'] - last_animated_word_end
+            if duration > 0:
+                phones += 1
+            for p in range(len(word['phones'])):
+                phones += 1
+            last_animated_word_end = word['end']
+    return phones -1
 
 
 def make_crumple(name: int) -> None:

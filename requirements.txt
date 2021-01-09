@@ -3,6 +3,5 @@ pillow
 ffmpeg
 argparse
 colorama
-pydub
-pycurl
 requests
+numpy

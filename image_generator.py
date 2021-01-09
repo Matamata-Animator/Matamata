@@ -192,7 +192,7 @@ def gen_vid(req: VideoRequest):
                 frame.frame = frame_counter
                 frame_counter = gen_frame(frame)
             # each phoneme in a word
-            for p in range(len(gentle_out['words'][w]['phones'])):
+            for p in range(len(word['phones'])):
                 phone = (word['phones'][p]['phone']).split('_')[0]
                 frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['phonemes'][phone]['image']
                 frame.duration = word['phones'][p]['duration']
