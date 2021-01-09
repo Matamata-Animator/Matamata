@@ -34,7 +34,6 @@ def print_bar(numerator, denominator, prefix='', length=shutil.get_terminal_size
     percentage = int((numerator / denominator) * 100)
     print(f'\r{pre}{bar}{gradient}{space}| {percentage}% [{numerator}/{denominator}]', end='')
 
-
 if __name__ == '__main__':
     denom = 1000
     for i in range(denom):
