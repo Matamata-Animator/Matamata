@@ -11,6 +11,7 @@ import command
 import gentle
 from bar import print_bar
 
+
 verbose = False
 characters = ''
 
@@ -81,10 +82,11 @@ class FrameRequest:
     frame: int = 0
     folder_name: str = 'images'
     framerate = 100
-    scale: float = 1
+    dimensions: str = "1920:1080"
 
 
-def gen_frames(frame_req: FrameRequest) -> int:
+def gen_frame(frame_req: FrameRequest) -> int:
+    frame_req.duration = round(frame_req.duration, 2)
     face = Image.open(frame_req.face_path).convert('RGBA')
     mouth = Image.open(frame_req.mouth_path).convert('RGBA')
     mouth = mouth.resize([int(mouth.size[0] * frame_req.mouth_scale), int(mouth.size[1] * frame_req.mouth_scale)])
@@ -95,14 +97,20 @@ def gen_frames(frame_req: FrameRequest) -> int:
         face = face.transpose(Image.FLIP_LEFT_RIGHT)
     centered_x = int(frame_req.mouth_x - mouth.size[0] / 2)
     centered_y = int(frame_req.mouth_y - mouth.size[1] / 2)
+
     mouth_pos = (centered_x, centered_y)
     face.paste(mouth, mouth_pos, mouth)
 
-    face.save(f'generate/{frame_req.folder_name}/{frame_req.frame}.png')
+    image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
+    face.save(image_path)
 
+    # wait for image
+    while not os.path.isfile(image_path):
+        pass
     command.run(
-        f'ffmpeg -loop 1 -i generate/{frame_req.folder_name}/{frame_req.frame}.png -c:v libx264 -t {frame_req.duration} -pix_fmt yuv420p -r {frame_req.framerate} generate/{frame_req.folder_name}/{frame_req.frame}.mp4')
-    # FrameRequest.write(f'file {frame_req.frame}.mp4\n')
+        f'ffmpeg -loop 1 -i {image_path} -c:v libx264 -t {frame_req.duration} -pix_fmt yuv420p -r {frame_req.framerate} -vf scale={frame_req.dimensions} generate/{frame_req.folder_name}/{frame_req.frame}.mp4')
+
+    frame_req.video_list.write(f'file {frame_req.frame}.mp4\n')
     progress_bar(frame_req.frame)
 
     return frame_req.frame + 1
@@ -118,7 +126,7 @@ class VideoRequest:
     skip_thresh: float = ''
 
     framerate: int = 100
-    scale: float = 1
+    dimensions: str = ''
 
     verbose: bool = ''
 
@@ -154,13 +162,8 @@ def gen_vid(req: VideoRequest):
     frame.mouth_x = pose['mouth_pos'][0]
     frame.mouth_y = pose['mouth_pos'][1]
     frame.frame = frame_counter
-
-    # Keep mouth closed until first word
-    word_counter = 0
-    while gentle_out['words'][word_counter]['case'] != 'success':
-        word_counter += 1
-    frame.duration = gentle_out['words'][word_counter]['start']
-    frame_counter = gen_frames(frame)
+    frame.dimensions = req.dimensions
+    frame.video_list = open(f'generate/{frame.folder_name}/videos.txt', 'w+')
 
     last_animated_word_end = 0
     for w in range(len(gentle_out['words'])):
@@ -180,45 +183,20 @@ def gen_vid(req: VideoRequest):
             for loc in range(len(req.poses_loc)):
                 req.poses_loc[loc] -= 1
 
-        # each phoneme in a word
         if word['case'] == 'success' and 'phones' in word:
+            # keep mouth closed between last word and this word
+            duration = word['start'] -last_animated_word_end
+            if duration > 0:
+                frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+                frame.duration = duration
+                frame.frame = frame_counter
+                frame_counter = gen_frame(frame)
+            # each phoneme in a word
             for p in range(len(gentle_out['words'][w]['phones'])):
                 phone = (word['phones'][p]['phone']).split('_')[0]
                 frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['phonemes'][phone]['image']
                 frame.duration = word['phones'][p]['duration']
                 frame.frame = frame_counter
-                frame_counter = gen_frames(frame)
+                frame_counter = gen_frame(frame)
 
-
-if __name__ == '__main__':
-    from colorama import Fore, Back, Style
-    import shutil
-
-    colorama.init(convert=True)
-    print(Fore.GREEN)
-    print(Style.RESET_ALL)
-
-    gentle.init()
-
-    # Delete old folder, then create the new ones
-    if os.path.isdir('generate'):
-        shutil.rmtree('generate')
-    while os.path.isdir('generate'):
-        pass
-
-    os.makedirs('generate/images')
-    os.makedirs('generate/videos')
-
-    while not os.path.isdir('generate/videos'):
-        pass
-
-    pose = get_face_path('default')
-
-    frame = FrameRequest()
-    frame.mouth_scale = pose['scale']
-    frame.mouth_path = 'mouths/closed.png'
-    frame.mouth_x = 103
-    frame.mouth_y = 199
-    frame.folder_name = 'videos'
-    frame.duration = 1
-    gen_frames(frame)
+            last_animated_word_end = word['end']

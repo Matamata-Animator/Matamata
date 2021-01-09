@@ -1,7 +1,4 @@
 import command
-import json
-import pycurl
-from io import BytesIO
 import os
 import requests
 import colorama
@@ -12,6 +9,9 @@ def init():
 
     command.run('docker rm gentle')
     command.run('docker run --name gentle -p 8765:8765 lowerquality/gentle', False)
+    #wait until imafge is running
+    while 'lowerquality/gentle' not in command.run('docker ps'):
+        pass
 
 def align(audio, text):
     colorama.init(convert=True)
