@@ -15,6 +15,8 @@ verbose = False
 characters = ''
 
 num_phonemes = 1
+
+
 def init(phones):
     global num_phonemes
     num_phonemes = phones
@@ -41,6 +43,7 @@ def get_face_path(pose):
     # determine whether to flip image
     mirror_pose = False
     mirror_mouth = False
+
     looking_left = True
     if len(split_pose) == 2:
         if split_pose[1].lower() == 'right' or split_pose[1].lower() == 'r':
@@ -102,7 +105,8 @@ def gen_frames(frame_req: FrameRequest) -> int:
     # FrameRequest.write(f'file {frame_req.frame}.mp4\n')
     progress_bar(frame_req.frame)
 
-    return  frame_req.frame+1
+    return frame_req.frame + 1
+
 
 class VideoRequest:
     audio: str = ''
@@ -151,16 +155,17 @@ def gen_vid(req: VideoRequest):
     frame.mouth_y = pose['mouth_pos'][1]
     frame.frame = frame_counter
 
-
-    #Keep mouth closed until first word
+    # Keep mouth closed until first word
     word_counter = 0
     while gentle_out['words'][word_counter]['case'] != 'success':
         word_counter += 1
     frame.duration = gentle_out['words'][word_counter]['start']
     frame_counter = gen_frames(frame)
 
-    for word in range(len(gentle_out['words'])):
-        if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(word):
+    last_animated_word_end = 0
+    for w in range(len(gentle_out['words'])):
+        word = gentle_out['words'][w]
+        if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w):
             pose = get_face_path(req.poses_list.pop(0))
             req.poses_loc.pop(0)
 
@@ -176,16 +181,19 @@ def gen_vid(req: VideoRequest):
                 req.poses_loc[loc] -= 1
 
         # each phoneme in a word
-        if gentle_out['words'][word]['case'] == 'success' and 'phones' in gentle_out['words'][word]:
-            for p in range(len(gentle_out['words'][word]['phones'])):
-                pass
-
-
+        if word['case'] == 'success' and 'phones' in word:
+            for p in range(len(gentle_out['words'][w]['phones'])):
+                phone = (word['phones'][p]['phone']).split('_')[0]
+                frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['phonemes'][phone]['image']
+                frame.duration = word['phones'][p]['duration']
+                frame.frame = frame_counter
+                frame_counter = gen_frames(frame)
 
 
 if __name__ == '__main__':
     from colorama import Fore, Back, Style
     import shutil
+
     colorama.init(convert=True)
     print(Fore.GREEN)
     print(Style.RESET_ALL)
