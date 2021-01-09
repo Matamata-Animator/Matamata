@@ -101,7 +101,6 @@ def shutdown() -> None:
 
 
 def num_phonemes(gentle: dict) -> int:
-    gentle = gentle['gentle']
     phones = len(gentle['words'])
     for word in gentle['words']:
         if word['case'] == 'success':
@@ -161,7 +160,7 @@ if __name__ == '__main__':
     poses_list = script_blocks['poses_list']
     pose_counter = 0
 
-    # Get gentle out
+    # Get gentle v_out
     stamps = gentle.align(args.audio, 'generate/script.txt')
     num_names = num_phonemes(stamps)
     ig.init(num_names)
@@ -171,7 +170,6 @@ if __name__ == '__main__':
     req_vid.poses_loc = script_blocks['poses_loc']
 
 
-    print("reeeeeeeeeeeeeeeeeeeeee")
     ig.gen_vid(args)
     # ig.progress_bar(script_blocks['num_phonemes'])
     quit()
