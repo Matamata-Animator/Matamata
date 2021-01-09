@@ -55,7 +55,7 @@ banner = '''
 '''
 
 
-def init():
+def init() -> None:
     # Print banner
     colorama.init(convert=True)
     print(Fore.GREEN)
@@ -76,7 +76,7 @@ def init():
         pass
 
 
-def shutdown():
+def shutdown() -> None:
     # delete all generate files
     while not os.path.isfile(args.output):
         pass
@@ -100,7 +100,7 @@ def shutdown():
         f'ffmpeg -f concat -safe 0 -i generate/videos/videos.txt -c copy {args.output} -r {args.framerate}')
 
 
-def num_phonemes(gentle):
+def num_phonemes(gentle: dict) -> int:
     gentle = gentle['gentle']
     phones = len(gentle['words'])
     for word in gentle['words']:
@@ -109,7 +109,7 @@ def num_phonemes(gentle):
     return phones
 
 
-def make_crumple(name):
+def make_crumple(name: int) -> None:
     vid_name = f'{name}.{args.output.split(".")[-1]}'
     last_list = open(f'generate/{name - 1}/videos.txt', 'r').read().split('\n')
     last_img = last_list[-2].split(' ')[1].split('.')[0]
@@ -122,7 +122,7 @@ def make_crumple(name):
     videos_list.close()
 
 
-def find_poses():
+def find_poses() -> dict:
     # Parse script, output parsed script to generate
     raw_script = open(args.text, 'r').read()
     parsed_script = parse_script(raw_script)
