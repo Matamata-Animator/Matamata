@@ -10,7 +10,7 @@ import image_generator as ig
 from parse_script import parse_script
 import command
 
-import numpy as np
+import time
 
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -60,46 +60,39 @@ def init() -> None:
     print(banner.replace('m', '\\'))
     print(Style.RESET_ALL)
 
+    print("Booting Gentle...")
     gentle.init()
 
     # Delete old folder, then create the new ones
-    if os.path.isdir('generate'):
-        shutil.rmtree('generate', ignore_errors=True)
     while os.path.isdir('generate'):
-        pass
-
+        shutil.rmtree('generate', ignore_errors=True)
+        time.sleep(0.01)
     os.makedirs('generate/images')
-    os.makedirs('generate/videos')
-    while not os.path.isdir('generate/videos'):
+    while not os.path.isdir('generate/images'):
         pass
 
 
 def shutdown() -> None:
     # delete all generate files
 
-    if not args.no_delete:
-        shutil.rmtree('generate')
+
 
     command.run('docker kill gentle')
     command.run('docker rm gentle')
-    colorama.init(convert=True)
-    print(f'\n{Style.RESET_ALL}Done')
 
     # delete old output files
     if os.path.isfile(args.output):
         os.remove(args.output)
-    print('Finishing Up...')
-
-    # if args.crumple_zone:
-    #     make_crumple('images')
-
-    # command.run(
-    #     f'ffmpeg -f concat -safe 0 -i generate/videos/videos.txt -c copy {args.output} -r {args.framerate}')
+    print('\nFinishing Up...')
 
     command.run(
         f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/images/videos.txt -c copy {args.output} -r {args.framerate}')
     while not os.path.isfile(args.output):
         pass
+    if not args.no_delete:
+        shutil.rmtree('generate')
+    colorama.init(convert=True)
+    print(f'{Style.RESET_ALL}Done')
 
 
 def num_phonemes(gentle: dict) -> int:
@@ -113,20 +106,7 @@ def num_phonemes(gentle: dict) -> int:
             for p in range(len(word['phones'])):
                 phones += 1
             last_animated_word_end = word['end']
-    return phones -1
-
-
-def make_crumple(name: int) -> None:
-    vid_name = f'{name}.{args.output.split(".")[-1]}'
-    last_list = open(f'generate/{name}/videos.txt', 'r').read().split('\n')
-    last_img = last_list[-2].split(' ')[1].split('.')[0]
-
-    command.run(
-        f'ffmpeg -loop 1 -i generate/{name - 1}/{last_img}.png -c:v libx264 -t {args.framerate / 20} -pix_fmt yuv420p -r {args.framerate} -vf scale={args.dimensions} generate/videos/{vid_name}')
-    videos_list = open('generate/videos/videos.txt', 'a')
-    videos_list.write(f'file {vid_name}\n')
-    videos_list.flush()
-    videos_list.close()
+    return phones - 1
 
 
 def find_poses() -> dict:
@@ -138,13 +118,6 @@ def find_poses() -> dict:
     script_file.write(parsed_script['feeder_script'])
     script_file.flush()
     script_file.close()
-
-    marked_text = ' '.join(parsed_script['marked_text'])
-    # marked_script_path = 'generate/marked_script.txt'
-    # script_file = open(marked_script_path, 'w+')
-    # script_file.write(marked_text)
-    # script_file.flush()
-    # script_file.close()
 
     poses_loc = []
     for word in range(len(parsed_script['marked_text'])):

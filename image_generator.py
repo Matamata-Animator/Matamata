@@ -2,10 +2,8 @@ import os
 import json
 
 from PIL import Image
-import random
 from colorama import Fore, Back, Style
 import colorama
-import sys
 
 import command
 import gentle
@@ -135,6 +133,8 @@ class VideoRequest:
     poses_list: list = ''
     poses_loc: list = ''
 
+    crumple_zone: bool = False
+
 
 def gen_vid(req: VideoRequest):
     # set up process vars
@@ -200,3 +200,13 @@ def gen_vid(req: VideoRequest):
                 frame_counter = gen_frame(frame)
 
             last_animated_word_end = word['end']
+
+    # make mouth closed at the end
+    frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+    frame.frame = frame_counter
+
+    if req.crumple_zone:
+        frame.duration = frame.framerate/10
+    else:
+        frame.duration = 0.01
+    frame_counter = gen_frame(frame)
