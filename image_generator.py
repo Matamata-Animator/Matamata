@@ -168,29 +168,33 @@ def gen_vid(req: VideoRequest):
     last_animated_word_end = 0
     for w in range(len(gentle_out['words'])):
         word = gentle_out['words'][w]
-        if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w):
-            pose = get_face_path(req.poses_list.pop(0))
-            req.poses_loc.pop(0)
-
-            frame.face_path = pose['face_path']
-            frame.mouth_scale = pose['scale']
-            frame.mirror_face = pose['mirror_face']
-            frame.mirror_mouth = pose['mirror_mouth']
-            frame.mouth_x = pose['mouth_pos'][0]
-            frame.mouth_y = pose['mouth_pos'][1]
-            frame.frame = frame_counter
-            # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
-            for loc in range(len(req.poses_loc)):
-                req.poses_loc[loc] -= 1
-
         if word['case'] == 'success' and 'phones' in word:
             # keep mouth closed between last word and this word
-            duration = word['start'] -last_animated_word_end
+            duration = word['start'] - last_animated_word_end
             if duration > 0:
                 frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
-                frame.duration = duration
                 frame.frame = frame_counter
+                if frame_counter == 0:
+                    duration = max(0.01, duration - req.offset)
+                frame.duration = duration
                 frame_counter = gen_frame(frame)
+
+            # change pose
+            if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w):
+                pose = get_face_path(req.poses_list.pop(0))
+                req.poses_loc.pop(0)
+
+                frame.face_path = pose['face_path']
+                frame.mouth_scale = pose['scale']
+                frame.mirror_face = pose['mirror_face']
+                frame.mirror_mouth = pose['mirror_mouth']
+                frame.mouth_x = pose['mouth_pos'][0]
+                frame.mouth_y = pose['mouth_pos'][1]
+                frame.frame = frame_counter
+                # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
+                for loc in range(len(req.poses_loc)):
+                    req.poses_loc[loc] -= 1
+
             # each phoneme in a word
             for p in range(len(word['phones'])):
                 phone = (word['phones'][p]['phone']).split('_')[0]

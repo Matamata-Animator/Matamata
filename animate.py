@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-a', '--audio', required=True, type=str)
 parser.add_argument('-t', '--text', required=True, type=str)
 parser.add_argument('-o', '--output', required=False, default='output.mov', type=str)
-parser.add_argument('-s', '--offset', required=False, default='0.25', type=float)
+parser.add_argument('-s', '--offset', required=False, default='0.00', type=float)
 
 parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
 parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', type=str)
