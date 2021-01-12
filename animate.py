@@ -9,6 +9,7 @@ import gentle
 import image_generator as ig
 from parse_script import parse_script
 import command
+from bar import print_bar
 
 import time
 
@@ -151,4 +152,6 @@ if __name__ == '__main__':
     req_vid.poses_loc = script_blocks['poses_loc']
 
     ig.gen_vid(args)
+    print_bar(num_names, num_names, "Generating Images: ")
+
     shutdown()
