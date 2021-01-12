@@ -64,6 +64,7 @@ def init() -> None:
     gentle.init()
 
     # Delete old folder, then create the new ones
+    shutil.rmtree('generate', ignore_errors=True)
     while os.path.isdir('generate'):
         shutil.rmtree('generate', ignore_errors=True)
         time.sleep(0.01)
@@ -85,8 +86,8 @@ def shutdown() -> None:
         os.remove(args.output)
     print('\nFinishing Up...')
 
-    command.run(
-        f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/images/videos.txt -c copy {args.output} -r {args.framerate}')
+    ffmpeg =f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/images/videos.txt -c copy {args.output} -r {args.framerate}'
+    command.run(ffmpeg)
     while not os.path.isfile(args.output):
         pass
     if not args.no_delete:

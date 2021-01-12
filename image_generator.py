@@ -166,17 +166,22 @@ def gen_vid(req: VideoRequest):
     frame.video_list = open(f'generate/{frame.folder_name}/videos.txt', 'w+')
 
     last_animated_word_end = 0
+    total_time = 0
     for w in range(len(gentle_out['words'])):
         word = gentle_out['words'][w]
         if word['case'] == 'success' and 'phones' in word:
             # keep mouth closed between last word and this word
-            duration = word['start'] - last_animated_word_end
+            # duration = word['start'] - last_animated_word_end
+            duration = word['start'] - total_time
+
             if duration > 0:
                 frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
                 frame.frame = frame_counter
                 if frame_counter == 0:
                     duration = max(0.01, duration - req.offset)
                 frame.duration = duration
+                frame.duration = frame.duration
+                total_time += frame.duration
                 frame_counter = gen_frame(frame)
 
             # change pose
@@ -201,6 +206,7 @@ def gen_vid(req: VideoRequest):
                 frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['phonemes'][phone]['image']
                 frame.duration = word['phones'][p]['duration']
                 frame.frame = frame_counter
+                total_time += frame.duration
                 frame_counter = gen_frame(frame)
 
             last_animated_word_end = word['end']
