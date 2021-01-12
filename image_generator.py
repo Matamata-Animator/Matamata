@@ -76,14 +76,13 @@ class FrameRequest:
     duration: float = ''
     mirror_face: bool = False
     mirror_mouth: bool = False
-    video_list = ''
     frame: int = 0
     folder_name: str = 'images'
     framerate = 100
     dimensions: str = "1920:1080"
 
 
-def gen_frame(frame_req: FrameRequest) -> int:
+def gen_frames(frame_req: FrameRequest) -> int:
     frame_req.duration = round(frame_req.duration, 2)
     face = Image.open(frame_req.face_path).convert('RGBA')
     mouth = Image.open(frame_req.mouth_path).convert('RGBA')
@@ -102,16 +101,16 @@ def gen_frame(frame_req: FrameRequest) -> int:
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
     face.save(image_path)
 
+    for frame in range(int(frame_req.duration*100)):
+        image_path = f'generate/{frame_req.folder_name}/{frame_req.frame + frame}.png'
+        face.save(image_path)
+        progress_bar(frame_req.frame)
     # wait for image
     while not os.path.isfile(image_path):
         pass
-    command.run(
-        f'ffmpeg -loop 1 -i {image_path} -c:v libx264 -t {frame_req.duration} -pix_fmt yuv420p -r {frame_req.framerate} -vf scale={frame_req.dimensions} generate/{frame_req.folder_name}/{frame_req.frame}.mp4')
+    progress_bar(frame_req.frame + int(frame_req.duration*100))
 
-    frame_req.video_list.write(f'file {frame_req.frame}.mp4\n')
-    progress_bar(frame_req.frame)
-
-    return frame_req.frame + 1
+    return frame_req.frame + int(frame_req.duration*100)
 
 
 class VideoRequest:
@@ -163,7 +162,6 @@ def gen_vid(req: VideoRequest):
     frame.mouth_y = pose['mouth_pos'][1]
     frame.frame = frame_counter
     frame.dimensions = req.dimensions
-    frame.video_list = open(f'generate/{frame.folder_name}/videos.txt', 'w+')
 
     last_animated_word_end = 0
     total_time = 0
@@ -182,7 +180,7 @@ def gen_vid(req: VideoRequest):
                 frame.duration = duration
                 frame.duration = frame.duration
                 total_time += frame.duration
-                frame_counter = gen_frame(frame)
+                frame_counter = gen_frames(frame)
 
             # change pose
             if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w):
@@ -207,7 +205,7 @@ def gen_vid(req: VideoRequest):
                 frame.duration = word['phones'][p]['duration']
                 frame.frame = frame_counter
                 total_time += frame.duration
-                frame_counter = gen_frame(frame)
+                frame_counter = gen_frames(frame)
 
             last_animated_word_end = word['end']
 
@@ -219,4 +217,4 @@ def gen_vid(req: VideoRequest):
         frame.duration = frame.framerate/10
     else:
         frame.duration = 0.01
-    frame_counter = gen_frame(frame)
+    frame_counter = gen_frames(frame)
