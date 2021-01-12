@@ -12,6 +12,7 @@ import command
 from bar import print_bar
 
 import time
+import math
 
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -77,8 +78,6 @@ def init() -> None:
 def shutdown() -> None:
     # delete all generate files
 
-
-
     command.run('docker kill gentle')
     command.run('docker rm gentle')
 
@@ -87,8 +86,11 @@ def shutdown() -> None:
         os.remove(args.output)
     print('\nFinishing Up...')
 
-    # ffmpeg =f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/images/videos.txt -c copy {args.output} -r {args.framerate}'
-    ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -c:v libx264 -pix_fmt yuv420p {args.output}'
+    dimensions = args.dimensions.split(':')
+    for a in range(len(dimensions)):
+        dimensions[a] = math.ceil(int(dimensions[a]) / 2) * 2
+
+    ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -vf scale={dimensions[0]}:{dimensions[1]} -c:v libx264 -pix_fmt yuv420p {args.output}'
     command.run(ffmpeg)
     while not os.path.isfile(args.output):
         pass
@@ -99,7 +101,7 @@ def shutdown() -> None:
 
 
 def num_frames(gentle: dict) -> int:
-    frames = int(gentle['words'][-1]['end'] *100)
+    frames = int(gentle['words'][-1]['end'] * 100)
     if args.crumple_zone:
         frames += 1000
     return frames
