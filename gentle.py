@@ -9,9 +9,10 @@ def init():
 
     command.run('docker rm gentle')
     command.run('docker run --name gentle -p 8765:8765 lowerquality/gentle', False)
-    #wait until imafge is running
-    while 'lowerquality/gentle' not in command.run('docker ps'):
+    # wait until image is running
+    while 'Up' not in command.run('docker ps'):
         pass
+
 
 def align(audio, text):
     colorama.init(convert=True)
@@ -27,8 +28,7 @@ def align(audio, text):
     try:
         r = requests.post(url, files=files)
     except requests.exceptions.RequestException as e:
-        raise Exception(colorama.Fore.RED + '[ERR 503] Failed to post to Gentle: Make sure Docker Desktop is running...')
-
-
+        raise Exception(
+            colorama.Fore.RED + '[ERR 503] Failed to post to Gentle: Make sure Docker Desktop is running...')
 
     return r.json()
