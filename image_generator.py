@@ -104,11 +104,10 @@ def gen_frames(frame_req: FrameRequest) -> int:
     for frame in range(int(frame_req.duration*100)):
         image_path = f'generate/{frame_req.folder_name}/{frame_req.frame + frame}.png'
         face.save(image_path)
-        progress_bar(frame_req.frame)
+        progress_bar(frame_req.frame + frame)
     # wait for image
     while not os.path.isfile(image_path):
         pass
-    progress_bar(frame_req.frame + int(frame_req.duration*100))
 
     return frame_req.frame + int(frame_req.duration*100)
 
