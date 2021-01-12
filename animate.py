@@ -86,7 +86,8 @@ def shutdown() -> None:
         os.remove(args.output)
     print('\nFinishing Up...')
 
-    ffmpeg =f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/images/videos.txt -c copy {args.output} -r {args.framerate}'
+    # ffmpeg =f'ffmpeg -i {args.audio} -f concat -safe 0 -i generate/images/videos.txt -c copy {args.output} -r {args.framerate}'
+    ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -c:v libx264 -pix_fmt yuv420p {args.output}'
     command.run(ffmpeg)
     while not os.path.isfile(args.output):
         pass
@@ -96,18 +97,11 @@ def shutdown() -> None:
     print(f'{Style.RESET_ALL}Done')
 
 
-def num_phonemes(gentle: dict) -> int:
-    phones = 0
-    last_animated_word_end = 0
-    for word in gentle['words']:
-        if word['case'] == 'success' and 'phones' in word:
-            duration = word['start'] - last_animated_word_end
-            if duration > 0:
-                phones += 1
-            for p in range(len(word['phones'])):
-                phones += 1
-            last_animated_word_end = word['end']
-    return phones - 1
+def num_frames(gentle: dict) -> int:
+    frames = int(gentle['words'][-1]['end'] *100)
+    if args.crumple_zone:
+        frames += 1000
+    return frames
 
 
 def find_poses() -> dict:
@@ -143,7 +137,7 @@ if __name__ == '__main__':
 
     # Get gentle v_out
     stamps = gentle.align(args.audio, 'generate/script.txt')
-    num_names = num_phonemes(stamps)
+    num_names = num_frames(stamps)
     ig.init(num_names)
 
     if args.no_delete:
