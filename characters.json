@@ -1,26 +1,25 @@
 {
   "facesFolder": "SampleFace/",
   "default_scale": 4,
-  "happy": [{
+  "happy": {
     "image": "happy.png",
     "x": 960,
     "y": 703,
     "facingLeft": true,
     "scale": 1
-  }],
-  "sad": [{
+  },
+  "sad": {
     "image": "sad.png",
     "x": 960,
     "y": 703,
     "facingLeft": true,
     "scale": 1
-  }],
-  "angry": [{
+  },
+  "angry": {
     "image": "angry.png",
     "x": 960,
     "y": 703,
     "facingLeft": true,
     "scale": 1
-  }]
-
+  }
 }

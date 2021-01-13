@@ -30,15 +30,9 @@ parser.add_argument('-d', '--dimensions', required=False, default='1920:1080', t
 
 parser.add_argument('-r', '--framerate', required=False, default=100, type=int)
 
-parser.add_argument('-T', '--skip_thresh', required=False, type=float, default=1)
-
-parser.add_argument('-q', '--silence_thresh', required=False, default=-40, type=float)
-parser.add_argument('-w', '--silence_len', required=False, default=1000, type=int)
-
 # Flags
 parser.add_argument('--no_delete', required=False, default=False, action='store_true')
 parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true')
-parser.add_argument('--skip_frames', required=False, default=False, action='store_true')
 parser.add_argument('--crumple_zone', required=False, default=False, action='store_true')
 
 args = parser.parse_args()
@@ -101,7 +95,7 @@ def shutdown() -> None:
 
 
 def num_frames(gentle: dict) -> int:
-    frames = int(gentle['words'][-1]['end'] * 100)
+    frames = int(gentle['words'][-1]['end'] * 100 - args.offset)
     if args.crumple_zone:
         frames += 1000
     return frames
