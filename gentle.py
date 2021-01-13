@@ -6,13 +6,11 @@ import colorama
 
 def init():
     command.run('docker kill gentle')
-
     command.run('docker rm gentle')
     command.run('docker run --name gentle -p 8765:8765 lowerquality/gentle', False)
     # wait until image is running
     while 'Up' not in command.run('docker ps'):
         pass
-
 
 def align(audio, text):
     colorama.init(convert=True)

@@ -33,10 +33,9 @@ def progress_bar(frames_completed):
 
 def get_face_path(pose):
     split_pose = pose[1:-1].split('-')
-    try:
-        poses_list = characters[split_pose[0]]  # splits to remove directional tag
-        pose = poses_list[0]
-    except:
+    if split_pose[0] in characters:
+        pose = characters[split_pose[0]]  # splits to remove directional tag
+    else:
         raise Exception(Fore.RED + '[ERR 412] Failed to load pose: ' + pose)
 
     # determine whether to flip image
@@ -162,8 +161,7 @@ def gen_vid(req: VideoRequest):
     frame.frame = frame_counter
     frame.dimensions = req.dimensions
 
-    last_animated_word_end = 0
-    total_time = 0
+    total_time = req.offset/100
     for w in range(len(gentle_out['words'])):
         word = gentle_out['words'][w]
         if word['case'] == 'success' and 'phones' in word:
@@ -174,8 +172,7 @@ def gen_vid(req: VideoRequest):
             if duration > 0:
                 frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
                 frame.frame = frame_counter
-                if frame_counter == 0:
-                    duration = max(0.01, duration - req.offset)
+
                 frame.duration = duration
                 frame.duration = frame.duration
                 total_time += frame.duration
