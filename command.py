@@ -1,7 +1,6 @@
 import subprocess
 import os
 import sys
-from colorama import Fore, Back, Style
 
 verbose = False
 old_stdout = sys.stdout
