@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser()
 # Arguments
 parser.add_argument('-a', '--audio', required=True, type=str)
 parser.add_argument('-t', '--text', required=True, type=str)
-parser.add_argument('-o', '--output', required=False, default='output.mov', type=str)
+parser.add_argument('-o', '--output', required=False, default='output.mp4', type=str)
 parser.add_argument('-s', '--offset', required=False, default='0.00', type=float)
 
 parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
@@ -71,7 +71,6 @@ def init() -> None:
 
 def shutdown() -> None:
     # delete all generate files
-
     command.run('docker kill gentle')
     command.run('docker rm gentle')
 
