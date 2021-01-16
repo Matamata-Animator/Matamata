@@ -9,7 +9,6 @@ import command
 import gentle
 from bar import print_bar
 
-
 verbose = False
 characters = ''
 
@@ -66,6 +65,14 @@ def get_face_path(pose):
     }
 
 
+def getDimensions(path, scaler) -> str:
+    face = Image.open(path).convert('RGBA')
+    w = face.size[0]
+    h = face.size[1]
+
+    return f'{w*scaler}:{h*scaler}'
+
+
 class FrameRequest:
     face_path: str = ''
     mouth_path: str = ''
@@ -78,21 +85,25 @@ class FrameRequest:
     frame: int = 0
     folder_name: str = 'images'
     framerate = 100
-    dimensions: str = "1920:1080"
+    dimensions: str = "TBD"
+    scaler: float = 1
 
 
 def gen_frames(frame_req: FrameRequest) -> int:
     frame_req.duration = round(frame_req.duration, 2)
+
     face = Image.open(frame_req.face_path).convert('RGBA')
+    face = face.resize([int(face.size[0] * frame_req.scaler), int(face.size[1] * frame_req.scaler)])
+
     mouth = Image.open(frame_req.mouth_path).convert('RGBA')
-    mouth = mouth.resize([int(mouth.size[0] * frame_req.mouth_scale), int(mouth.size[1] * frame_req.mouth_scale)])
+    mouth = mouth.resize([int(mouth.size[0] * frame_req.mouth_scale * frame_req.scaler), int(mouth.size[1] * frame_req.mouth_scale * frame_req.scaler)])
 
     if frame_req.mirror_face:
         mouth = mouth.transpose(Image.FLIP_LEFT_RIGHT)
     if frame_req.mirror_mouth:
         face = face.transpose(Image.FLIP_LEFT_RIGHT)
-    centered_x = int(frame_req.mouth_x - mouth.size[0] / 2)
-    centered_y = int(frame_req.mouth_y - mouth.size[1] / 2)
+    centered_x = int((frame_req.mouth_x - mouth.size[0] / 2) * frame_req.scaler)
+    centered_y = int((frame_req.mouth_y - mouth.size[1] / 2) * frame_req.scaler)
 
     mouth_pos = (centered_x, centered_y)
     face.paste(mouth, mouth_pos, mouth)
@@ -100,7 +111,7 @@ def gen_frames(frame_req: FrameRequest) -> int:
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
     face.save(image_path)
 
-    for frame in range(int(frame_req.duration*100)):
+    for frame in range(int(frame_req.duration * 100)):
         image_path = f'generate/{frame_req.folder_name}/{frame_req.frame + frame}.png'
         face.save(image_path)
         progress_bar(frame_req.frame + frame)
@@ -108,7 +119,7 @@ def gen_frames(frame_req: FrameRequest) -> int:
     while not os.path.isfile(image_path):
         pass
 
-    return frame_req.frame + int(frame_req.duration*100)
+    return frame_req.frame + int(frame_req.duration * 100)
 
 
 class VideoRequest:
@@ -122,6 +133,7 @@ class VideoRequest:
 
     framerate: int = 100
     dimensions: str = ''
+    dimension_scaler: float = 1
 
     verbose: bool = ''
 
@@ -159,9 +171,10 @@ def gen_vid(req: VideoRequest):
     frame.mouth_x = pose['mouth_pos'][0]
     frame.mouth_y = pose['mouth_pos'][1]
     frame.frame = frame_counter
-    frame.dimensions = req.dimensions
-
-    total_time = req.offset/100
+    frame.scaler = req.dimension_scaler
+    if req.dimensions == 'TBD':
+        req.dimensions = getDimensions(pose['face_path'], req.dimension_scaler)
+    total_time = req.offset / 100
     for w in range(len(gentle_out['words'])):
         word = gentle_out['words'][w]
         if word['case'] == 'success' and 'phones' in word:
@@ -210,7 +223,8 @@ def gen_vid(req: VideoRequest):
     frame.frame = frame_counter
 
     if req.crumple_zone:
-        frame.duration = frame.framerate/10
+        frame.duration = frame.framerate / 10
     else:
         frame.duration = 0.01
     frame_counter = gen_frames(frame)
+    return req.dimensions
