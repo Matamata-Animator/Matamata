@@ -26,7 +26,8 @@ parser.add_argument('-s', '--offset', required=False, default='0.00', type=float
 parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
 parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', type=str)
 
-parser.add_argument('-d', '--dimensions', required=False, default='1920:1080', type=str)
+parser.add_argument('-d', '--dimensions', required=False, default='TBD', type=str)
+parser.add_argument('-ds', '--dimension_scaler', required=False, default='1', type=float)
 
 parser.add_argument('-r', '--framerate', required=False, default=100, type=int)
 
@@ -69,7 +70,7 @@ def init() -> None:
         pass
 
 
-def shutdown() -> None:
+def shutdown(dimensions) -> None:
     # delete all generate files
     command.run('docker kill gentle')
     command.run('docker rm gentle')
@@ -79,9 +80,9 @@ def shutdown() -> None:
         os.remove(args.output)
     print('\nFinishing Up...')
 
-    dimensions = args.dimensions.split(':')
+    dimensions = dimensions.split(':')
     for a in range(len(dimensions)):
-        dimensions[a] = math.ceil(int(dimensions[a]) / 2) * 2
+        dimensions[a] = math.ceil(float(dimensions[a]) / 2) * 2
 
     ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -vf scale={dimensions[0]}:{dimensions[1]} -c:v libx264 -pix_fmt yuv420p {args.output}'
     command.run(ffmpeg)
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     req_vid.poses_list = poses_list
     req_vid.poses_loc = script_blocks['poses_loc']
 
-    ig.gen_vid(args)
+    dimensions = ig.gen_vid(args)
     print_bar(num_names, num_names, "Generating Images: ")
 
-    shutdown()
+    shutdown(dimensions)
