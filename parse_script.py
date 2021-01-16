@@ -28,6 +28,11 @@ def parse_script(text, start_character='[', end_character=']'):  # Parse script 
     # create a list of words
     marked_text = ' '.join(text.split())
     marked_text = marked_text.split(' ')
+
+    #if there arnt any poses, set pose to default
+    if len(poses) == 0:
+        poses = ['[default]']
+
     return {  # Out puts a dictionary with the list of poses, the script with markers of where
         'poses_list': poses,
         'marked_text': marked_text,
