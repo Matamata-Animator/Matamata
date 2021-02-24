@@ -6,6 +6,7 @@ import shutil
 import json
 
 import gentle
+import transcriber
 import image_generator as ig
 from parse_script import parse_script
 import command
@@ -19,7 +20,7 @@ parser = argparse.ArgumentParser()
 
 # Arguments
 parser.add_argument('-a', '--audio', required=True, type=str)
-parser.add_argument('-t', '--text', required=True, type=str)
+parser.add_argument('-t', '--text', required=False, type=str, default='')
 parser.add_argument('-o', '--output', required=False, default='output.mp4', type=str)
 parser.add_argument('-s', '--offset', required=False, default='0.00', type=float)
 
@@ -126,6 +127,10 @@ def find_poses() -> dict:
 if __name__ == '__main__':
     init()
 
+    if args.text == '':
+        print('Transcribing Audio...')
+        args.text ='generated_script.txt'
+        transcriber.create_script(args.audio)
     # Generate the feeder script, get poses list, and where each pose should go in the script.
     print('Analyzing Text...')
     script_blocks = find_poses()
