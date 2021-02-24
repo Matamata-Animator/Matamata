@@ -212,7 +212,7 @@ This covers the most important flags and arguments. For the complete list, go to
 | Shortcut | Command        | Required | Default           | Type | Description                                                  |
 | -------- | -------------- | -------- | ----------------- | ---- | ------------------------------------------------------------ |
 | -a       | --audio        | *        |                   | str  | The path to the audio file being animated                    |
-| -t       | --text         | *        |                   | str  | The path to the script of the audio file                     |
+| -t       | --text         |          |                   | str  | The path to the script of the audio file                     |
 | -o       | --output       |          | "output.mp4"      | str  | The output of the program                                    |
 | -c       | --character    |          | "characters.json" | str  | The list of character poses                                  |
 | -m       | --mouths       |          | "phonemes.json"   | str  | The mouth pack and phonemes list                             |
