@@ -1,10 +1,14 @@
 import speech_recognition as sr
 
-AUDIO_FILE = "file"
 
-# use the audio file as the audio source
-r = sr.Recognizer()
-with sr.AudioFile(AUDIO_FILE) as source:
+def transcribe(file_name):
+    r = sr.Recognizer()
+    with sr.AudioFile(file_name) as source:
         audio = r.record(source)  # read the entire audio file
 
-        print("Transcription: " + r.recognize_google(audio))
+        return r.recognize_google(audio)
+
+def create_script(file_name):
+        script = open('generated_script.txt', 'w+')
+        text = transcribe(file_name)
+        script.write(text)
