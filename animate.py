@@ -11,6 +11,7 @@ import image_generator as ig
 from parse_script import parse_script
 import command
 from bar import print_bar
+from gen_timestamps import gen_timestamps
 
 import time
 import math
@@ -20,7 +21,10 @@ parser = argparse.ArgumentParser()
 
 # Arguments
 parser.add_argument('-a', '--audio', required=True, type=str)
+
 parser.add_argument('-t', '--text', required=False, type=str, default='')
+parser.add_argument('-ts', '--timestamps', required=False, type=str, default='')
+
 parser.add_argument('-o', '--output', required=False, default='output.mp4', type=str)
 parser.add_argument('-s', '--offset', required=False, default='0.00', type=float)
 
@@ -129,8 +133,15 @@ if __name__ == '__main__':
 
     if args.text == '':
         print('Transcribing Audio...')
-        args.text ='generated_script.txt'
+        args.text = 'generated_script.txt'
         transcriber.create_script(args.audio)
+
+    timestamps = []
+    if args.timestamps != '':
+        print('Generating Timestamps...')
+        timestamps = gen_timestamps(args.timestamps)
+
+
     # Generate the feeder script, get poses list, and where each pose should go in the script.
     print('Analyzing Text...')
     script_blocks = find_poses()
@@ -149,6 +160,7 @@ if __name__ == '__main__':
         gentle_file.close()
 
     req_vid: ig.VideoRequest = args
+    req_vid.timestamps = timestamps
     req_vid.poses_list = poses_list
     req_vid.poses_loc = script_blocks['poses_loc']
 
