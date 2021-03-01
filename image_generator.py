@@ -70,7 +70,7 @@ def getDimensions(path, scaler) -> str:
     w = face.size[0]
     h = face.size[1]
 
-    return f'{w*scaler}:{h*scaler}'
+    return f'{w * scaler}:{h * scaler}'
 
 
 class FrameRequest:
@@ -96,7 +96,8 @@ def gen_frames(frame_req: FrameRequest) -> int:
     face = face.resize([int(face.size[0] * frame_req.scaler), int(face.size[1] * frame_req.scaler)])
 
     mouth = Image.open(frame_req.mouth_path).convert('RGBA')
-    mouth = mouth.resize([int(mouth.size[0] * frame_req.mouth_scale * frame_req.scaler), int(mouth.size[1] * frame_req.mouth_scale * frame_req.scaler)])
+    mouth = mouth.resize([int(mouth.size[0] * frame_req.mouth_scale * frame_req.scaler),
+                          int(mouth.size[1] * frame_req.mouth_scale * frame_req.scaler)])
 
     if frame_req.mirror_face:
         mouth = mouth.transpose(Image.FLIP_LEFT_RIGHT)
@@ -143,6 +144,8 @@ class VideoRequest:
     poses_loc: list = ''
 
     crumple_zone: bool = False
+
+    timestamps: list = []
 
 
 def gen_vid(req: VideoRequest):
@@ -191,8 +194,23 @@ def gen_vid(req: VideoRequest):
                 total_time += frame.duration
                 frame_counter = gen_frames(frame)
 
+            #if using timestamps, see if pose should be swapped
+            for p in range(len(req.timestamps)):
+                if frame.frame >= req.timestamps[p]['time']:
+                    pose = get_face_path(req.timestamps[p]['pose'])
+                    frame.face_path = pose['face_path']
+                    frame.mouth_scale = pose['scale']
+                    frame.mirror_face = pose['mirror_face']
+                    frame.mirror_mouth = pose['mirror_mouth']
+                    frame.mouth_x = pose['mouth_pos'][0]
+                    frame.mouth_y = pose['mouth_pos'][1]
+                    frame.frame = frame_counter
+                    # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
+                    for loc in range(len(req.poses_loc)):
+                        req.poses_loc[loc] -= 1
+
             # change pose
-            if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w):
+            if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
                 pose = get_face_path(req.poses_list.pop(0))
                 req.poses_loc.pop(0)
 
@@ -207,6 +225,8 @@ def gen_vid(req: VideoRequest):
                 for loc in range(len(req.poses_loc)):
                     req.poses_loc[loc] -= 1
 
+
+
             # each phoneme in a word
             for p in range(len(word['phones'])):
                 phone = (word['phones'][p]['phone']).split('_')[0]
@@ -217,6 +237,7 @@ def gen_vid(req: VideoRequest):
                 frame_counter = gen_frames(frame)
 
             last_animated_word_end = word['end']
+
 
     # make mouth closed at the end
     frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
