@@ -12,6 +12,7 @@ This is the auto-lip-sync tool created by AI Spawn.
      * [Ubuntu](#Ubuntu---Untested)
      * [Mac](#Mac---Untested)
 * [Setup](#setup)
+     * [Timestamps](#timestamps)
      * [Script](#script)
      * [Characters](#characters)
      * [Mouths](#mouths)
@@ -31,109 +32,107 @@ This tool was made to be more convenient for people, and since the majority of p
 
 Install:
 * [Docker Desktop](https://www.docker.com/get-started)
+
 * [Anaconda](https://www.anaconda.com/products/individual#Downloads), or a similar python environment that allows you to use pip. This is  just the one I recommend.
 
-
+  
 
 Download this repo and open Anaconda Prompt in the folder. If you have Git installed, that can be done via:
 
-> git clone https://github.com/AI-Spawn/Auto-Lip-Sync
->
-> cd Auto-Lip-Sync
-
+```
+git clone https://github.com/AI-Spawn/Auto-Lip-Sync
+cd Auto-Lip-Sync
+```
 Otherwise, use the download button on GitHub, extract files from the zip, and open Anaconda Prompt in that folder.
 
-
-
 Install required packages
-
-> pip install -r requirements.txt
->
-> conda install ffmpeg
+```
+pip install -r requirements.txt
+conda install ffmpeg
+```
 
 Launch Docker if it isn't launched already
 
-> docker pull lowerquality/gentle
-
+```
+docker pull lowerquality/gentle
+```
 ### Ubuntu - Untested
 
 Install docker
 
-> sudo apt-get update
+``` 
+sudo apt-get update
+```
 
+```
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+```
 
-
-> sudo apt-get install \
->     apt-transport-https \
->     ca-certificates \
->     curl \
->     gnupg-agent \
->     software-properties-common
-
-
-
-> curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-
-
+```
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+```
 
 **Add the docker repo to your system:**
 
 On *x86_64 / amd64*:
 
-> ```
-> sudo add-apt-repository \
->    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
->    $(lsb_release -cs) \
->    stable"
-> ```
+```
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+```
 
 On *armhf*:
 
-> ```
-> sudo add-apt-repository \
->    "deb [arch=armhf] https://download.docker.com/linux/ubuntu \
->    $(lsb_release -cs) \
->    stable"
-> ```
+```
+sudo add-apt-repository \
+   "deb [arch=armhf] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+```
 
 On *arm64*:
 
-> ```
-> sudo add-apt-repository \
->    "deb [arch=arm64] https://download.docker.com/linux/ubuntu \
->    $(lsb_release -cs) \
->    stable"
-> ```
+```
+sudo add-apt-repository \
+   "deb [arch=arm64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+```
 
 **Install the engine**:
 
-> ```
-> sudo apt-get update
-> sudo apt-get install docker-ce docker-ce-cli containerd.io
-> ```
+```
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
 
 Verify Docker's installation
 
-> ```
-> sudo docker run hello-world
-> ```
+```
+sudo docker run hello-world
+```
 
 Clone the repo
-
-> git clone https://github.com/AI-Spawn/Auto-Lip-Sync
->
-> cd Auto-Lip-Sync
-
+```
+git clone https://github.com/AI-Spawn/Auto-Lip-Sync
+cd Auto-Lip-Sync
+```
 Install required packages
-
-> pip install -r requirements.txt
->
-> sudo apt install ffmpeg
-
+```
+pip install -r requirements.txt
+sudo apt install ffmpeg
+```
 Pull the lowerquality/gentle container
-
-> docker pull lowerquality/gentle
-
+```
+docker pull lowerquality/gentle
+```
 ### Mac - Untested
 
 Download [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/)
@@ -141,32 +140,40 @@ Download [Docker Desktop for Mac](https://hub.docker.com/editions/community/dock
 Download [Anaconda](https://www.anaconda.com/products/individual#Downloads)
 
 Download this repo:
-
-> git clone https://github.com/AI-Spawn/Auto-Lip-Sync
-
+```
+git clone https://github.com/AI-Spawn/Auto-Lip-Sync
+```
 Open the anaconda prompt in the Auto-Lip-Sync folder.
 
 
 
 Install required packages
-
-> pip install -r requirements.txt
->
-> conda install ffmpeg
-
+```
+pip install -r requirements.txt
+conda install ffmpeg
+```
 Launch Docker if it isn't launched already
 
 
 
 Pull lowerquality/gentle from DockerHub:
 
-> docker pull lowerquality/gentle
-
+```
+docker pull lowerquality/gentle
+```
 
 
 ## Setup
 
+### Timestamps
+
+The timestamps file is composed of a list of pose changes along with how many milliseconds into the animation the pose should change. For instance, if you wanted to swap to the `happy` pose after 3.5 seconds, the timestamps file will look like:
+
+> 3500 happy
+
 ### Script
+
+ If no script is provided, the program will automatically generate a script for you. 
 
 The script should be a text document with a transcript of audio, and poses in-between brackets. For instance, if the audio read:
 
@@ -175,6 +182,8 @@ The script should be a text document with a transcript of audio, and poses in-be
 Then the script could be:
 
 > [POSE_NAME] The quick brown fox jumps over the lazy dog
+
+If poses are provided via a timestamps file, then no poses will be read from the script. 
 
 
 
@@ -212,7 +221,8 @@ This covers the most important flags and arguments. For the complete list, go to
 | Shortcut | Command        | Required | Default           | Type | Description                                                  |
 | -------- | -------------- | -------- | ----------------- | ---- | ------------------------------------------------------------ |
 | -a       | --audio        | *        |                   | str  | The path to the audio file being animated                    |
-| -t       | --text         | *        |                   | str  | The path to the script of the audio file                     |
+| -t       | --text         |          |                   | str  | The path to the script of the audio file                     |
+| -ts      | --timestamps   |          |                   | str  | The path to the file containing pose  timestamps.            |
 | -o       | --output       |          | "output.mp4"      | str  | The output of the program                                    |
 | -c       | --character    |          | "characters.json" | str  | The list of character poses                                  |
 | -m       | --mouths       |          | "phonemes.json"   | str  | The mouth pack and phonemes list                             |
@@ -227,17 +237,17 @@ This covers the most important flags and arguments. For the complete list, go to
 Launch *Docker Desktop*
 
 Launch *Anaconda Prompt*
-
-> python animate.py -a audio.mp3 -t text.txt [flags]
-
+```
+python animate.py -a audio.mp3 -t text.txt [flags]
+```
 
 
 ### Ubuntu
 
 Launch Terminal
-
-> sudo python animate.py -a audio.mp3 -t text.txt [flags]
-
+```
+sudo python animate.py -a audio.mp3 -t text.txt [flags]
+```
 
 
 ### Mac
@@ -245,9 +255,9 @@ Launch Terminal
 Launch *Docker Desktop*
 
 Launch *Anaconda Prompt*
-
-> python animate.py -a audio.mp3 -t text.txt [flags]
-
+```
+python animate.py -a audio.mp3 -t text.txt [flags]
+```
 This may need to be accompanied by a *sudo* beforehand.
 
 
