@@ -7,8 +7,8 @@ def get_gradient(dec):
     gradient = ' '
     if 1 / 8 <= dec < 5 / 8:
         gradient = '▌'
-    elif 7 / 8 <= dec < 8 / 8:
-        gradient = '▉'
+    elif 5 / 8 <= dec <= 8 / 8:
+        gradient = '█'
 
     return gradient
 
