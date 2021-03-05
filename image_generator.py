@@ -9,6 +9,24 @@ import command
 import gentle
 from bar import print_bar
 
+import copy
+import threading
+
+threads = []
+
+
+class LockingCounter():
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.count = 0
+
+    def increment(self):
+        with self.lock:
+            self.count += 1
+
+
+q = LockingCounter()
+
 verbose = False
 characters = ''
 
@@ -89,7 +107,12 @@ class FrameRequest:
     scaler: float = 1
 
 
-def gen_frames(frame_req: FrameRequest) -> int:
+def num_frames(frame_req: FrameRequest) -> int:
+    return int(frame_req.duration * 100)
+
+
+def gen_frames(frame_req: FrameRequest, d):
+    global q
     frame_req.duration = round(frame_req.duration, 2)
 
     face = Image.open(frame_req.face_path).convert('RGBA')
@@ -111,16 +134,18 @@ def gen_frames(frame_req: FrameRequest) -> int:
 
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
     face.save(image_path)
+    q.increment()
 
     for frame in range(int(frame_req.duration * 100)):
         image_path = f'generate/{frame_req.folder_name}/{frame_req.frame + frame}.png'
         face.save(image_path)
-        progress_bar(frame_req.frame + frame)
+        q.increment()
+
     # wait for image
     while not os.path.isfile(image_path):
         pass
-
-    return frame_req.frame + int(frame_req.duration * 100)
+    face.close()
+    mouth.close()
 
 
 class VideoRequest:
@@ -152,6 +177,8 @@ def gen_vid(req: VideoRequest):
     # set up process vars
     global verbose
     global characters
+    global threads
+
     characters = json.load(open(req.character, 'r'))
     command.set_verbose(req.verbose)
     verbose = req.verbose
@@ -192,9 +219,13 @@ def gen_vid(req: VideoRequest):
                 frame.duration = duration
                 frame.duration = frame.duration
                 total_time += frame.duration
-                frame_counter = gen_frames(frame)
+                # thread.start_new_thread(gen_frames, (frame, ))
+                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                threads[-1].start()
 
-            #if using timestamps, see if pose should be swapped
+                frame_counter += num_frames(frame)
+
+            # if using timestamps, see if pose should be swapped
             for p in range(len(req.timestamps)):
                 if frame.frame >= req.timestamps[p]['time']:
                     pose = get_face_path(req.timestamps[p]['pose'])
@@ -225,8 +256,6 @@ def gen_vid(req: VideoRequest):
                 for loc in range(len(req.poses_loc)):
                     req.poses_loc[loc] -= 1
 
-
-
             # each phoneme in a word
             for p in range(len(word['phones'])):
                 phone = (word['phones'][p]['phone']).split('_')[0]
@@ -234,10 +263,12 @@ def gen_vid(req: VideoRequest):
                 frame.duration = word['phones'][p]['duration']
                 frame.frame = frame_counter
                 total_time += frame.duration
-                frame_counter = gen_frames(frame)
+                # frame_counter = gen_frames(frame)
+                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                threads[-1].start()
+                frame_counter += num_frames(frame)
 
             last_animated_word_end = word['end']
-
 
     # make mouth closed at the end
     frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
@@ -247,5 +278,14 @@ def gen_vid(req: VideoRequest):
         frame.duration = frame.framerate / 10
     else:
         frame.duration = 0.01
-    frame_counter = gen_frames(frame)
+    threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+    threads[-1].start()
+
+    frame_counter += num_frames(frame)
+
+    while q.count <= num_phonemes:
+        progress_bar(q.count)
+
+    for t in threads:
+        t.join()
     return req.dimensions
