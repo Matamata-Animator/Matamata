@@ -46,6 +46,8 @@ parser.add_argument('-v', '--verbose', required=False, default=False, action='st
 parser.add_argument('--crumple_zone', required=False, default=False, action='store_true')
 
 args = parser.parse_args()
+if args.emotion_detection_env and args.timestamps:
+    parser.error("Emotion detection and timestamp mode are currently mutually exclusive. Sorry!")
 
 banner = '''
                 _          _      _          _____
