@@ -6,3 +6,5 @@ colorama
 requests
 numpy
 SpeechRecognition
+ibm_watson
+python_dotenv
