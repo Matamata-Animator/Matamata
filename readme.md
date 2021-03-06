@@ -18,6 +18,7 @@ This is the auto-lip-sync tool created by AI Spawn.
      * [Mouths](#mouths)
 * [Usage](#usage)
      * [Flags and Arguments](#flags-and-arguments)
+     * [Additional Features](#Emotion-Detection)
      * [Windows](#Windows)
      * [Ubuntu](#Ubuntu)
      * [Mac](#Mac)
