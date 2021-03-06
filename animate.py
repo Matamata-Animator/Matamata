@@ -4,7 +4,9 @@ import colorama
 import os
 import shutil
 import json
+from dotenv import load_dotenv
 
+import emotion
 import gentle
 import transcriber
 import image_generator as ig
@@ -36,12 +38,16 @@ parser.add_argument('-ds', '--dimension_scaler', required=False, default='1', ty
 
 parser.add_argument('-r', '--framerate', required=False, default=100, type=int)
 
+parser.add_argument('-em', '--emotion_detection_env', required=False, type=str)
+
 # Flags
 parser.add_argument('--no_delete', required=False, default=False, action='store_true')
 parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true')
 parser.add_argument('--crumple_zone', required=False, default=False, action='store_true')
 
 args = parser.parse_args()
+if args.emotion_detection_env and args.timestamps:
+    parser.error("Emotion detection and timestamp mode are currently mutually exclusive. Sorry!")
 
 banner = '''
                 _          _      _          _____
@@ -61,6 +67,8 @@ def init() -> None:
     print(Fore.GREEN)
     print(banner.replace('m', '\\'))
     print(Style.RESET_ALL)
+
+    command.set_verbose(args.verbose)
 
     print("Booting Gentle...")
     gentle.init()
@@ -135,6 +143,18 @@ if __name__ == '__main__':
         print('Transcribing Audio...')
         args.text = 'generated_script.txt'
         transcriber.create_script(args.audio)
+
+    if args.emotion_detection_env:
+        print('Detecting Emotions...')
+        load_dotenv(dotenv_path=args.emotion_detection_env)
+
+        emotion.init(api_url=os.getenv("TONE_ANALYZER_URL"), api_key=os.getenv("TONE_ANALYZER_IAM_APIKEY"))
+        emotion.save_emotions(args.text, 'script_with_emotions.txt')
+
+        response = input('Emotions generated. Please confirm that the generated poses are correct (Y/N)')
+        if response.lower() != 'y':
+            exit()
+        args.text = 'script_with_emotions.txt'
 
     timestamps = []
     if args.timestamps != '':

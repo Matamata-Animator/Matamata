@@ -18,6 +18,7 @@ This is the auto-lip-sync tool created by AI Spawn.
      * [Mouths](#mouths)
 * [Usage](#usage)
      * [Flags and Arguments](#flags-and-arguments)
+     * [Additional Features](#Emotion-Detection)
      * [Windows](#Windows)
      * [Ubuntu](#Ubuntu)
      * [Mac](#Mac)
@@ -218,19 +219,35 @@ More advance users can edit or create their own *phonemes*.json, however that is
 
 This covers the most important flags and arguments. For the complete list, go to [Flags and Arguments](flags_and_arguments.md). 
 
-| Shortcut | Command        | Required | Default           | Type | Description                                                  |
-| -------- | -------------- | -------- | ----------------- | ---- | ------------------------------------------------------------ |
-| -a       | --audio        | *        |                   | str  | The path to the audio file being animated                    |
-| -t       | --text         |          |                   | str  | The path to the script of the audio file                     |
-| -ts      | --timestamps   |          |                   | str  | The path to the file containing pose  timestamps.            |
-| -o       | --output       |          | "output.mp4"      | str  | The output of the program                                    |
-| -c       | --character    |          | "characters.json" | str  | The list of character poses                                  |
-| -m       | --mouths       |          | "phonemes.json"   | str  | The mouth pack and phonemes list                             |
-| -d       | --dimensions   |          | "1920:1080"       | str  | The resolution of the final video                            |
-| -v       | --verbose      |          |                   | flag | Dump process outputs to the shell                            |
-|          | --crumple_zone |          |                   | flag | Add 10 seconds to the end of the video of the character with their mouth shut, in the last pose they were in. Useful for exporting to a video editor while working with another framerate. |
+| Shortcut | Command                 | Required | Default           | Type | Description                                                  |
+| -------- | ----------------------- | -------- | ----------------- | ---- | ------------------------------------------------------------ |
+| -a       | --audio                 | *        |                   | str  | The path to the audio file being animated                    |
+| -t       | --text                  |          |                   | str  | The path to the script of the audio file                     |
+| -ts      | --timestamps            |          |                   | str  | The path to the file containing pose  timestamps.            |
+| -o       | --output                |          | "output.mp4"      | str  | The output of the program                                    |
+| -c       | --character             |          | "characters.json" | str  | The list of character poses                                  |
+| -m       | --mouths                |          | "phonemes.json"   | str  | The mouth pack and phonemes list                             |
+| -d       | --dimensions            |          | "1920:1080"       | str  | The resolution of the final video                            |
+| -v       | --verbose               |          |                   | flag | Dump process outputs to the shell                            |
+|          | --crumple_zone          |          |                   | flag | Add 10 seconds to the end of the video of the character with their mouth shut, in the last pose they were in. Useful for exporting to a video editor while working with another framerate. |
+| -em      | --emotion_detection_env |          |                   | str  | The name of the environment file to load for emotion detection. Mutually exclusive with `-ts`. More info in the README. |
 
+### Other features
 
+#### Emotion Detection
+Emotion detection generates poses automatically from the perceived emotion of each sentence.
+It uses the free IBM Watson Tone Analyzer API, but you will still need to provide your own
+credentials. To get your credentials, do the following:
+
+1. [Create](https://cloud.ibm.com/registration) an IBM Cloud/IBM Watson account.
+2. Go to [your cloud dashboard](https://cloud.ibm.com/).
+3. Login if you haven't already.
+4. Click "Create Resource" and add the Watson Tone Analyzer API. The Lite plan is free.
+5. Open the sidebar and click "Resource List".
+6. Find the Tone Analyzer resource and click it.
+7. Download your credentials. They should come as a .env file.
+
+You can now provide the name of this file to the tool by using the `-em` argument.
 
 ### Windows
 
