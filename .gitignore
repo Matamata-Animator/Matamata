@@ -4,7 +4,7 @@
 *.mp3
 *.wav
 *.mov
-*.driveupload
+*.env
 
 !requirements.txt
 !mouths/
@@ -15,3 +15,4 @@
 custom/
 generate/
 __pycache__/
+venv/
