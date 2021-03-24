@@ -98,9 +98,9 @@ def shutdown(dimensions) -> None:
         dimensions[a] = math.ceil(float(dimensions[a]) / 2) * 2
 
     ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -vf scale={dimensions[0]}:{dimensions[1]} -c:v libx264 -pix_fmt yuv420p {args.output}'
-    command.run(ffmpeg)
-    while not os.path.isfile(args.output):
-        pass
+    # command.run(ffmpeg)
+    # while not os.path.isfile(args.output):
+    #     pass
     if not args.no_delete:
         shutil.rmtree('generate')
     colorama.init(convert=True)

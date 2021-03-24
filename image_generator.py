@@ -15,7 +15,10 @@ import copy
 import threading
 
 import time
+
 threads = []
+
+frames = []
 
 
 class LockingCounter():
@@ -39,8 +42,11 @@ num_phonemes = 1
 
 def init(phones):
     global num_phonemes
+    global frames
     num_phonemes = phones
     colorama.init(convert=True)
+
+    frames = [0] * num_phonemes
 
 
 def v_out(log):
@@ -115,6 +121,8 @@ def num_frames(frame_req: FrameRequest) -> int:
 
 def gen_frames(frame_req: FrameRequest, d):
     global q
+    global frames
+
     frame_req.duration = round(frame_req.duration, 2)
 
     face = cv2.imread(frame_req.face_path, cv2.IMREAD_UNCHANGED)
@@ -140,17 +148,19 @@ def gen_frames(frame_req: FrameRequest, d):
                 face[y, x][:3] = mouth[my, mx][:3]
 
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
-    cv2.imwrite(image_path, face)
-
+    # cv2.imwrite(image_path, face)
+    start = int(frame_req.frame)
+    end = int(frame_req.frame + frame_req.duration * 100)
+    frames[start:end] = [face] * int(frame_req.duration * 100)
     q.increment()
     for frame in range(int(frame_req.duration * 100)):
-        image_path = f'generate/{frame_req.folder_name}/{int(frame_req.frame) + frame}.png'
-        cv2.imwrite(image_path, face)
+        # image_path = f'generate/{frame_req.folder_name}/{int(frame_req.frame) + frame}.png'
+        # cv2.imwrite(image_path, face)
         q.increment()
 
     # wait for image
-    while not os.path.isfile(image_path):
-        pass
+    # while not os.path.isfile(image_path):
+    #     pass
     return frame_req.frame + frame_req.duration * 100
 
 
@@ -202,6 +212,8 @@ def gen_vid(req: VideoRequest):
     global verbose
     global characters
     global threads
+
+    global frames
 
     characters = json.load(open(req.character, 'r'))
     command.set_verbose(req.verbose)
@@ -304,5 +316,19 @@ def gen_vid(req: VideoRequest):
 
     for t in threads:
         t.join()
-    time.sleep(3)
+
+    size = req.dimensions.split(':')
+    size = (int(size[1].split('.')[0]), int(size[0].split('.')[0]))
+
+    print(size)
+    video = cv2.VideoWriter("cv.avi", cv2.VideoWriter_fourcc(*'MJPG'), 100, size)
+
+    video.release()
+    for f in frames:
+        cv2.imshow('frame', f)
+        video.write(f)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
+    video.release()
+
     return req.dimensions
