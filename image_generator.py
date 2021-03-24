@@ -27,9 +27,9 @@ class LockingCounter():
         self.lock = threading.Lock()
         self.count = 0
 
-    def increment(self):
+    def increment(self, num=1):
         with self.lock:
-            self.count += 1
+            self.count += num
             progress_bar(self.count)
 
 
@@ -154,10 +154,7 @@ def gen_frames(frame_req: FrameRequest, d):
     end = int(frame_req.frame + frame_req.duration * 100)
     frames[start:end] = [face] * int(frame_req.duration * 100)
     q.increment()
-    for frame in range(int(frame_req.duration * 100)):
-        # image_path = f'generate/{frame_req.folder_name}/{int(frame_req.frame) + frame}.png'
-        # cv2.imwrite(image_path, face)
-        q.increment()
+    q.increment(int(frame_req.duration * 100))
 
     # wait for image
     # while not os.path.isfile(image_path):
