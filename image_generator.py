@@ -1,7 +1,9 @@
 import os
 import json
 
-from PIL import Image
+import cv2
+import numpy as np
+
 from colorama import Fore, Back, Style
 import colorama
 
@@ -83,11 +85,9 @@ def get_face_path(pose):
     }
 
 
-def getDimensions(path, scaler) -> str:
-    face = Image.open(path).convert('RGBA')
-    w = face.size[0]
-    h = face.size[1]
-
+def get_dimensions(path, scaler) -> str:
+    face = cv2.imread(path)
+    w, h = face.shape[1::-1]
     return f'{w * scaler}:{h * scaler}'
 
 
@@ -115,37 +115,62 @@ def gen_frames(frame_req: FrameRequest, d):
     global q
     frame_req.duration = round(frame_req.duration, 2)
 
-    face = Image.open(frame_req.face_path).convert('RGBA')
-    face = face.resize([int(face.size[0] * frame_req.scaler), int(face.size[1] * frame_req.scaler)])
+    face = cv2.imread(frame_req.face_path, cv2.IMREAD_UNCHANGED)
+    scale = (int(face.shape[1] * frame_req.scaler), int(face.shape[0] * frame_req.scaler))
+    face = cv2.resize(face, scale)
 
-    mouth = Image.open(frame_req.mouth_path).convert('RGBA')
-    mouth = mouth.resize([int(mouth.size[0] * frame_req.mouth_scale * frame_req.scaler),
-                          int(mouth.size[1] * frame_req.mouth_scale * frame_req.scaler)])
-
+    mouth = cv2.imread(frame_req.mouth_path, cv2.IMREAD_UNCHANGED)
+    scale = (int(mouth.shape[1] * frame_req.mouth_scale * frame_req.scaler),
+             int(mouth.shape[0] * frame_req.mouth_scale * frame_req.scaler))
+    mouth = cv2.resize(mouth, scale)
     if frame_req.mirror_face:
-        mouth = mouth.transpose(Image.FLIP_LEFT_RIGHT)
+        mouth = cv2.flip(mouth, 1)
     if frame_req.mirror_mouth:
-        face = face.transpose(Image.FLIP_LEFT_RIGHT)
-    centered_x = int((frame_req.mouth_x - mouth.size[0] / 2) * frame_req.scaler)
-    centered_y = int((frame_req.mouth_y - mouth.size[1] / 2) * frame_req.scaler)
+        face = cv2.flip(face, 1)
 
-    mouth_pos = (centered_x, centered_y)
-    face.paste(mouth, mouth_pos, mouth)
+    centered_x = int((frame_req.mouth_x) * frame_req.scaler)
+    centered_y = int((frame_req.mouth_y) * frame_req.scaler)
+    # print(centered_y)
+    height, width, depth = mouth.shape
 
+    # for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
+    #     for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
+    #         if mouth[my, mx][-1] != 0 or len(mouth[my, mx]) <= 3:
+    #             for i, c in enumerate(face[y, x]):
+    #                 if i < len(mouth[my, mx]):
+    #                     pass
+    #                         face[y, x][i] = mouth[my, mx][i]
+    face[centered_y: centered_y + height, centered_x: centered_x + width ] = mouth
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
-    face.save(image_path)
-    q.increment()
+    cv2.imwrite(image_path, face)
+
+    # q.increment()
 
     for frame in range(int(frame_req.duration * 100)):
         image_path = f'generate/{frame_req.folder_name}/{frame_req.frame + frame}.png'
-        face.save(image_path)
-        q.increment()
+        cv2.imwrite(image_path, face)
+        # q.increment()
 
     # wait for image
     while not os.path.isfile(image_path):
         pass
-    face.close()
-    mouth.close()
+
+
+def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose):
+    for p in range(len(timestamps)):
+        if frame.frame >= timestamps[p]['time']:
+            pose = get_face_path(timestamps[p]['pose'])
+            frame.face_path = pose['face_path']
+            frame.mouth_scale = pose['scale']
+            frame.mirror_face = pose['mirror_face']
+            frame.mirror_mouth = pose['mirror_mouth']
+            frame.mouth_x = pose['mouth_pos'][0]
+            frame.mouth_y = pose['mouth_pos'][1]
+            frame.frame = fc
+            # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
+            for loc in range(len(poses_loc)):
+                poses_loc[loc] -= 1
+    return frame, poses_loc, pose
 
 
 class VideoRequest:
@@ -193,6 +218,9 @@ def gen_vid(req: VideoRequest):
 
     # set pose to be default, set mouth to be closed
     pose = get_face_path(req.poses_list[0])
+    # if using timestamps, see if pose should be swapped
+    frame, req.poses_loc, pose= update_pose_from_timestamps(frame, req.timestamps, req.poses_loc, frame_counter, pose)
+
     frame.face_path = pose['face_path']
     frame.mouth_scale = pose['scale']
     frame.mirror_face = pose['mirror_face']
@@ -203,7 +231,7 @@ def gen_vid(req: VideoRequest):
     frame.frame = frame_counter
     frame.scaler = req.dimension_scaler
     if req.dimensions == 'TBD':
-        req.dimensions = getDimensions(pose['face_path'], req.dimension_scaler)
+        req.dimensions = get_dimensions(pose['face_path'], req.dimension_scaler)
     total_time = req.offset / 100
     for w in range(len(gentle_out['words'])):
         word = gentle_out['words'][w]
@@ -219,26 +247,15 @@ def gen_vid(req: VideoRequest):
                 frame.duration = duration
                 frame.duration = frame.duration
                 total_time += frame.duration
-                # thread.start_new_thread(gen_frames, (frame, ))
-                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
-                threads[-1].start()
+
+                gen_frames(copy.deepcopy(frame), q)
+                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                # threads[-1].start()
 
                 frame_counter += num_frames(frame)
 
             # if using timestamps, see if pose should be swapped
-            for p in range(len(req.timestamps)):
-                if frame.frame >= req.timestamps[p]['time']:
-                    pose = get_face_path(req.timestamps[p]['pose'])
-                    frame.face_path = pose['face_path']
-                    frame.mouth_scale = pose['scale']
-                    frame.mirror_face = pose['mirror_face']
-                    frame.mirror_mouth = pose['mirror_mouth']
-                    frame.mouth_x = pose['mouth_pos'][0]
-                    frame.mouth_y = pose['mouth_pos'][1]
-                    frame.frame = frame_counter
-                    # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
-                    for loc in range(len(req.poses_loc)):
-                        req.poses_loc[loc] -= 1
+            frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps, req.poses_loc, frame_counter, pose)
 
             # change pose
             if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
@@ -264,8 +281,8 @@ def gen_vid(req: VideoRequest):
                 frame.frame = frame_counter
                 total_time += frame.duration
                 # frame_counter = gen_frames(frame)
-                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
-                threads[-1].start()
+                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                # threads[-1].start()
                 frame_counter += num_frames(frame)
 
             last_animated_word_end = word['end']
@@ -283,8 +300,8 @@ def gen_vid(req: VideoRequest):
 
     frame_counter += num_frames(frame)
 
-    while q.count <= num_phonemes:
-        progress_bar(q.count)
+    # while q.count <= num_phonemes:
+    #     progress_bar(q.count)
 
     for t in threads:
         t.join()
