@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 
 import cv2
 import numpy as np
@@ -294,10 +295,10 @@ def gen_vid(req: VideoRequest):
                 frame.frame = frame_counter
                 total_time += frame.duration
 
-                frame_counter = gen_frames(frame, q)
-                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
-                # threads[-1].start()
-                # frame_counter += num_frames(frame)
+                # frame_counter = gen_frames(frame, q)
+                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                threads[-1].start()
+                frame_counter += num_frames(frame)
 
             last_animated_word_end = word['end']
 
@@ -318,17 +319,11 @@ def gen_vid(req: VideoRequest):
         t.join()
 
     size = frames[0].shape[1], frames[0].shape[0]
-    print(size)
+
     fourcc = cv2.VideoWriter_fourcc(*'avc1')
-    # fourcc = -1
     video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
-    #
-    # video.release()
     for f in frames:
-        # cv2.imshow('frame', f)
         video.write(f)
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
     video.release()
 
     return req.dimensions
