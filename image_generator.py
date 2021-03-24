@@ -131,7 +131,7 @@ def gen_frames(frame_req: FrameRequest, d):
 
     centered_x = int((frame_req.mouth_x) * frame_req.scaler)
     centered_y = int((frame_req.mouth_y) * frame_req.scaler)
-    height, width, depth = mouth.shape
+    height, width = mouth.shape[:2]
 
     for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
         for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
