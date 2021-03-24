@@ -26,6 +26,7 @@ class LockingCounter():
     def increment(self):
         with self.lock:
             self.count += 1
+            progress_bar(self.count)
 
 
 q = LockingCounter()
@@ -142,15 +143,15 @@ def gen_frames(frame_req: FrameRequest, d):
     cv2.imwrite(image_path, face)
 
     q.increment()
-
     for frame in range(int(frame_req.duration * 100)):
-        image_path = f'generate/{frame_req.folder_name}/{frame_req.frame + frame}.png'
+        image_path = f'generate/{frame_req.folder_name}/{int(frame_req.frame) + frame}.png'
         cv2.imwrite(image_path, face)
         q.increment()
 
     # wait for image
     while not os.path.isfile(image_path):
         pass
+    return frame_req.frame + frame_req.duration * 100
 
 
 def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose):
@@ -247,11 +248,10 @@ def gen_vid(req: VideoRequest):
                 frame.duration = frame.duration
                 total_time += frame.duration
 
-                # gen_frames(copy.deepcopy(frame))
-                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q, )))
-                threads[-1].start()
-
-                frame_counter += num_frames(frame)
+                frame_counter = gen_frames(frame, q)
+                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q, )))
+                # threads[-1].start()
+                # frame_counter += num_frames(frame)
 
             # if using timestamps, see if pose should be swapped
             frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps,
@@ -281,10 +281,11 @@ def gen_vid(req: VideoRequest):
                 frame.duration = word['phones'][p]['duration']
                 frame.frame = frame_counter
                 total_time += frame.duration
-                # frame_counter = gen_frames(frame, q)
-                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
-                threads[-1].start()
-                frame_counter += num_frames(frame)
+
+                frame_counter = gen_frames(frame, q)
+                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                # threads[-1].start()
+                # frame_counter += num_frames(frame)
 
             last_animated_word_end = word['end']
 
@@ -301,9 +302,7 @@ def gen_vid(req: VideoRequest):
 
     frame_counter += num_frames(frame)
 
-    while q.count <= num_phonemes:
-        progress_bar(q.count)
-
     for t in threads:
         t.join()
+    time.sleep(3)
     return req.dimensions
