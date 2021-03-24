@@ -186,6 +186,5 @@ if __name__ == '__main__':
     req_vid.poses_loc = script_blocks['poses_loc']
 
     dimensions = ig.gen_vid(args)
-    print_bar(num_names, num_names, "Generating Images: ")
 
     shutdown(dimensions)
