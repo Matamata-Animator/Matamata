@@ -14,6 +14,7 @@ from bar import print_bar
 import copy
 import threading
 
+import time
 threads = []
 
 
@@ -142,12 +143,12 @@ def gen_frames(frame_req: FrameRequest, d):
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
     cv2.imwrite(image_path, face)
 
-    # q.increment()
+    q.increment()
 
     for frame in range(int(frame_req.duration * 100)):
         image_path = f'generate/{frame_req.folder_name}/{frame_req.frame + frame}.png'
         cv2.imwrite(image_path, face)
-        # q.increment()
+        q.increment()
 
     # wait for image
     while not os.path.isfile(image_path):
@@ -302,8 +303,8 @@ def gen_vid(req: VideoRequest):
 
     frame_counter += num_frames(frame)
 
-    # while q.count <= num_phonemes:
-    #     progress_bar(q.count)
+    while q.count <= num_phonemes:
+        progress_bar(q.count)
 
     for t in threads:
         t.join()
