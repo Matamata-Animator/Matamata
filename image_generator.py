@@ -317,15 +317,15 @@ def gen_vid(req: VideoRequest):
     for t in threads:
         t.join()
 
-    size = req.dimensions.split(':')
-    size = (int(size[1].split('.')[0]), int(size[0].split('.')[0]))
-
+    size = frames[0].shape[1], frames[0].shape[0]
     print(size)
-    video = cv2.VideoWriter("cv.avi", cv2.VideoWriter_fourcc(*'MJPG'), 100, size)
-
-    video.release()
+    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    # fourcc = -1
+    video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
+    #
+    # video.release()
     for f in frames:
-        cv2.imshow('frame', f)
+        # cv2.imshow('frame', f)
         video.write(f)
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
