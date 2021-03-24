@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 
 import cv2
 import numpy as np
@@ -15,7 +16,10 @@ import copy
 import threading
 
 import time
+
 threads = []
+
+frames = []
 
 
 class LockingCounter():
@@ -23,9 +27,9 @@ class LockingCounter():
         self.lock = threading.Lock()
         self.count = 0
 
-    def increment(self):
+    def increment(self, num=1):
         with self.lock:
-            self.count += 1
+            self.count += num
             progress_bar(self.count)
 
 
@@ -39,8 +43,11 @@ num_phonemes = 1
 
 def init(phones):
     global num_phonemes
+    global frames
     num_phonemes = phones
     colorama.init(convert=True)
+
+    frames = [0] * num_phonemes
 
 
 def v_out(log):
@@ -90,7 +97,7 @@ def get_face_path(pose):
 def get_dimensions(path, scaler) -> str:
     face = cv2.imread(path)
     w, h = face.shape[1::-1]
-    return f'{w * scaler}:{h * scaler}'
+    return f'{int(w * scaler)}:{int(h * scaler)}'
 
 
 class FrameRequest:
@@ -115,10 +122,15 @@ def num_frames(frame_req: FrameRequest) -> int:
 
 def gen_frames(frame_req: FrameRequest, d):
     global q
+    global frames
+
     frame_req.duration = round(frame_req.duration, 2)
 
-    face = cv2.imread(frame_req.face_path, cv2.IMREAD_UNCHANGED)
-    scale = (int(face.shape[1] * frame_req.scaler), int(face.shape[0] * frame_req.scaler))
+    face = cv2.imread(frame_req.face_path)
+
+    size = frame_req.dimensions.split(':')
+    size = [int(i) for i in size]
+    scale = (int(size[0] * frame_req.scaler), int(size[1] * frame_req.scaler))
     face = cv2.resize(face, scale)
 
     mouth = cv2.imread(frame_req.mouth_path, cv2.IMREAD_UNCHANGED)
@@ -139,18 +151,16 @@ def gen_frames(frame_req: FrameRequest, d):
             if mouth[my, mx][-1] != 0 or len(mouth[my, mx]) <= 3:
                 face[y, x][:3] = mouth[my, mx][:3]
 
-    image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
-    cv2.imwrite(image_path, face)
 
-    q.increment()
-    for frame in range(int(frame_req.duration * 100)):
-        image_path = f'generate/{frame_req.folder_name}/{int(frame_req.frame) + frame}.png'
-        cv2.imwrite(image_path, face)
-        q.increment()
+    # image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
+    # cv2.imwrite(image_path, face)
 
-    # wait for image
-    while not os.path.isfile(image_path):
-        pass
+    start = int(frame_req.frame)
+    end = int(frame_req.frame + frame_req.duration * 100)
+    frames[start:end] = [face] * int(frame_req.duration * 100)
+    q.increment(int(frame_req.duration * 100)+1)
+
+
     return frame_req.frame + frame_req.duration * 100
 
 
@@ -160,12 +170,15 @@ def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose):
 
             pose = get_face_path(timestamps[p]['pose'])
             frame.face_path = pose['face_path']
+
             frame.mouth_scale = pose['scale']
             frame.mirror_face = pose['mirror_face']
             frame.mirror_mouth = pose['mirror_mouth']
             frame.mouth_x = pose['mouth_pos'][0]
             frame.mouth_y = pose['mouth_pos'][1]
             frame.frame = fc
+
+
             # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
             for loc in range(len(poses_loc)):
                 poses_loc[loc] -= 1
@@ -203,6 +216,9 @@ def gen_vid(req: VideoRequest):
     global characters
     global threads
 
+    global frames
+
+
     characters = json.load(open(req.character, 'r'))
     command.set_verbose(req.verbose)
     verbose = req.verbose
@@ -232,6 +248,7 @@ def gen_vid(req: VideoRequest):
     frame.scaler = req.dimension_scaler
     if req.dimensions == 'TBD':
         req.dimensions = get_dimensions(pose['face_path'], req.dimension_scaler)
+        frame.dimensions = req.dimensions
     total_time = req.offset / 100
     for w in range(len(gentle_out['words'])):
         word = gentle_out['words'][w]
@@ -259,20 +276,20 @@ def gen_vid(req: VideoRequest):
                                                                      frame_counter, pose)
 
             # change pose
-            if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
-                pose = get_face_path(req.poses_list.pop(0))
-                req.poses_loc.pop(0)
-
-                frame.face_path = pose['face_path']
-                frame.mouth_scale = pose['scale']
-                frame.mirror_face = pose['mirror_face']
-                frame.mirror_mouth = pose['mirror_mouth']
-                frame.mouth_x = pose['mouth_pos'][0]
-                frame.mouth_y = pose['mouth_pos'][1]
-                frame.frame = frame_counter
-                # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
-                for loc in range(len(req.poses_loc)):
-                    req.poses_loc[loc] -= 1
+            # if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
+            #     pose = get_face_path(req.poses_list.pop(0))
+            #     req.poses_loc.pop(0)
+            #
+            #     frame.face_path = pose['face_path']
+            #     frame.mouth_scale = pose['scale']
+            #     frame.mirror_face = pose['mirror_face']
+            #     frame.mirror_mouth = pose['mirror_mouth']
+            #     frame.mouth_x = pose['mouth_pos'][0]
+            #     frame.mouth_y = pose['mouth_pos'][1]
+            #     frame.frame = frame_counter
+            #     # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
+            #     for loc in range(len(req.poses_loc)):
+            #         req.poses_loc[loc] -= 1
 
             # each phoneme in a word
             for p in range(len(word['phones'])):
@@ -282,10 +299,10 @@ def gen_vid(req: VideoRequest):
                 frame.frame = frame_counter
                 total_time += frame.duration
 
-                frame_counter = gen_frames(frame, q)
-                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
-                # threads[-1].start()
-                # frame_counter += num_frames(frame)
+                # frame_counter = gen_frames(frame, q)
+                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                threads[-1].start()
+                frame_counter += num_frames(frame)
 
             last_animated_word_end = word['end']
 
@@ -304,5 +321,13 @@ def gen_vid(req: VideoRequest):
 
     for t in threads:
         t.join()
-    time.sleep(3)
+
+    size = frames[0].shape[1], frames[0].shape[0]
+
+    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
+    for f in frames:
+        video.write(f)
+    video.release()
+
     return req.dimensions
