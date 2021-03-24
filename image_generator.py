@@ -136,10 +136,8 @@ def gen_frames(frame_req: FrameRequest, d):
     for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
         for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
             if mouth[my, mx][-1] != 0 or len(mouth[my, mx]) <= 3:
-                for i, c in enumerate(face[y, x]):
-                    if i < len(mouth[my, mx]):
-                        face[y, x][i] = mouth[my, mx][i]
-    # face[centered_y: centered_y + height, centered_x: centered_x + width ] = mouth
+                face[y, x][:3] = mouth[my, mx][:3]
+
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
     cv2.imwrite(image_path, face)
 
