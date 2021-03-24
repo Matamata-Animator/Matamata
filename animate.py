@@ -97,7 +97,8 @@ def shutdown(dimensions) -> None:
     for a in range(len(dimensions)):
         dimensions[a] = math.ceil(float(dimensions[a]) / 2) * 2
 
-    ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -vf scale={dimensions[0]}:{dimensions[1]} -c:v libx264 -pix_fmt yuv420p {args.output}'
+    # ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -vf scale={dimensions[0]}:{dimensions[1]} -c:v libx264 -pix_fmt yuv420p {args.output}'
+    ffmpeg = f'ffmpeg -i generate/cv.mp4 -i {args.audio} -c:v copy -c:a aac {args.output}'
     command.run(ffmpeg)
     while not os.path.isfile(args.output):
         pass
@@ -185,6 +186,5 @@ if __name__ == '__main__':
     req_vid.poses_loc = script_blocks['poses_loc']
 
     dimensions = ig.gen_vid(args)
-    print_bar(num_names, num_names, "Generating Images: ")
 
     shutdown(dimensions)
