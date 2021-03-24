@@ -130,17 +130,15 @@ def gen_frames(frame_req: FrameRequest, d):
 
     centered_x = int((frame_req.mouth_x) * frame_req.scaler)
     centered_y = int((frame_req.mouth_y) * frame_req.scaler)
-    # print(centered_y)
     height, width, depth = mouth.shape
 
-    # for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
-    #     for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
-    #         if mouth[my, mx][-1] != 0 or len(mouth[my, mx]) <= 3:
-    #             for i, c in enumerate(face[y, x]):
-    #                 if i < len(mouth[my, mx]):
-    #                     pass
-    #                         face[y, x][i] = mouth[my, mx][i]
-    face[centered_y: centered_y + height, centered_x: centered_x + width ] = mouth
+    for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
+        for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
+            if mouth[my, mx][-1] != 0 or len(mouth[my, mx]) <= 3:
+                for i, c in enumerate(face[y, x]):
+                    if i < len(mouth[my, mx]):
+                        face[y, x][i] = mouth[my, mx][i]
+    # face[centered_y: centered_y + height, centered_x: centered_x + width ] = mouth
     image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
     cv2.imwrite(image_path, face)
 
@@ -158,7 +156,8 @@ def gen_frames(frame_req: FrameRequest, d):
 
 def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose):
     for p in range(len(timestamps)):
-        if frame.frame >= timestamps[p]['time']:
+        if frame.frame >= timestamps[p]['time'] and timestamps[p]['time'] != 0:
+
             pose = get_face_path(timestamps[p]['pose'])
             frame.face_path = pose['face_path']
             frame.mouth_scale = pose['scale']
@@ -219,7 +218,8 @@ def gen_vid(req: VideoRequest):
     # set pose to be default, set mouth to be closed
     pose = get_face_path(req.poses_list[0])
     # if using timestamps, see if pose should be swapped
-    frame, req.poses_loc, pose= update_pose_from_timestamps(frame, req.timestamps, req.poses_loc, frame_counter, pose)
+    frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps, req.poses_loc,
+                                                             frame_counter, pose)
 
     frame.face_path = pose['face_path']
     frame.mouth_scale = pose['scale']
@@ -248,14 +248,16 @@ def gen_vid(req: VideoRequest):
                 frame.duration = frame.duration
                 total_time += frame.duration
 
-                gen_frames(copy.deepcopy(frame), q)
-                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
-                # threads[-1].start()
+                # gen_frames(copy.deepcopy(frame))
+                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q, )))
+                threads[-1].start()
 
                 frame_counter += num_frames(frame)
 
             # if using timestamps, see if pose should be swapped
-            frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps, req.poses_loc, frame_counter, pose)
+            frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps,
+                                                                     req.poses_loc,
+                                                                     frame_counter, pose)
 
             # change pose
             if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
@@ -280,9 +282,9 @@ def gen_vid(req: VideoRequest):
                 frame.duration = word['phones'][p]['duration']
                 frame.frame = frame_counter
                 total_time += frame.duration
-                # frame_counter = gen_frames(frame)
-                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
-                # threads[-1].start()
+                # frame_counter = gen_frames(frame, q)
+                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                threads[-1].start()
                 frame_counter += num_frames(frame)
 
             last_animated_word_end = word['end']
