@@ -276,20 +276,20 @@ def gen_vid(req: VideoRequest):
                                                                      frame_counter, pose)
 
             # change pose
-            # if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
-            #     pose = get_face_path(req.poses_list.pop(0))
-            #     req.poses_loc.pop(0)
-            #
-            #     frame.face_path = pose['face_path']
-            #     frame.mouth_scale = pose['scale']
-            #     frame.mirror_face = pose['mirror_face']
-            #     frame.mirror_mouth = pose['mirror_mouth']
-            #     frame.mouth_x = pose['mouth_pos'][0]
-            #     frame.mouth_y = pose['mouth_pos'][1]
-            #     frame.frame = frame_counter
-            #     # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
-            #     for loc in range(len(req.poses_loc)):
-            #         req.poses_loc[loc] -= 1
+            if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
+                pose = get_face_path(req.poses_list.pop(0))
+                req.poses_loc.pop(0)
+            
+                frame.face_path = pose['face_path']
+                frame.mouth_scale = pose['scale']
+                frame.mirror_face = pose['mirror_face']
+                frame.mirror_mouth = pose['mirror_mouth']
+                frame.mouth_x = pose['mouth_pos'][0]
+                frame.mouth_y = pose['mouth_pos'][1]
+                frame.frame = frame_counter
+                # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
+                for loc in range(len(req.poses_loc)):
+                    req.poses_loc[loc] -= 1
 
             # each phoneme in a word
             for p in range(len(word['phones'])):
