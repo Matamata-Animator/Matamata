@@ -9,7 +9,7 @@ This is the auto-lip-sync tool created by AI Spawn.
 * [Table of Contents](#table-of-contents)
 * [Installation](#Installation)
      * [Windows](#Windows)
-     * [Ubuntu](#Ubuntu---Untested)
+     * [Ubuntu](#Ubuntu/Debian---Untested)
      * [Mac](#Mac---Untested)
 * [Setup](#setup)
      * [Timestamps](#timestamps)
@@ -57,7 +57,7 @@ Launch Docker if it isn't launched already
 ```
 docker pull lowerquality/gentle
 ```
-### Ubuntu/Debian/Raspbian - Untested
+### Ubuntu/Debian - Untested
 
 Install docker
 
