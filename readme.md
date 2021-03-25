@@ -57,7 +57,7 @@ Launch Docker if it isn't launched already
 ```
 docker pull lowerquality/gentle
 ```
-### Ubuntu - Untested
+### Ubuntu/Debian/Raspbian - Untested
 
 Install docker
 
@@ -127,8 +127,8 @@ cd Auto-Lip-Sync
 ```
 Install required packages
 ```
+sudo apt-get install -y libatlas-base-dev libhdf5-dev libhdf5-serial-dev libatlas-base-dev libjasper-dev  libqtgui4  libqt4-test ffmpeg
 pip install -r requirements.txt
-sudo apt install ffmpeg
 ```
 Pull the lowerquality/gentle container
 ```
