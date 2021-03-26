@@ -6,6 +6,7 @@ from pydub import AudioSegment
 
 import json
 
+
 def transcribe(file_name):
     sound = AudioSegment.from_wav(file_name)
     sound = sound.set_channels(1)
@@ -41,10 +42,12 @@ def transcribe(file_name):
     r = json.loads(r)
     return r['text']
 
+
 def create_script(file_name):
-        script = open('generated_script.txt', 'w+')
-        text = transcribe(file_name)
-        script.write(text)
+    script = open('generated_script.txt', 'w+')
+    text = transcribe(file_name)
+    script.write(text)
+
 
 if __name__ == '__main__':
     print(transcribe('custom/test.wav'))

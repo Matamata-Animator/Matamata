@@ -322,12 +322,5 @@ def gen_vid(req: VideoRequest):
     for t in threads:
         t.join()
 
-    size = frames[0].shape[1], frames[0].shape[0]
 
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
-    video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
-    for f in frames:
-        video.write(f)
-    video.release()
-
-    return req.dimensions
+    return frames

@@ -18,6 +18,8 @@ from gen_timestamps import gen_timestamps
 import time
 import math
 
+import cv2
+
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
 
@@ -83,21 +85,24 @@ def init() -> None:
         pass
 
 
-def shutdown(dimensions) -> None:
+def shutdown(frames) -> None:
     # delete all generate files
     command.run('docker kill gentle')
     command.run('docker rm gentle')
+
+    print('\nCombining Frames...')
+    size = frames[0].shape[1], frames[0].shape[0]
+    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
+    for f in frames:
+        video.write(f)
+    video.release()
 
     # delete old output files
     if os.path.isfile(args.output):
         os.remove(args.output)
     print('\nFinishing Up...')
 
-    dimensions = dimensions.split(':')
-    for a in range(len(dimensions)):
-        dimensions[a] = math.ceil(float(dimensions[a]) / 2) * 2
-
-    # ffmpeg = f'ffmpeg -r 100 -i generate/images/%d.png -i {args.audio} -vf scale={dimensions[0]}:{dimensions[1]} -c:v libx264 -pix_fmt yuv420p {args.output}'
     ffmpeg = f'ffmpeg -i generate/cv.mp4 -i {args.audio} -c:v copy -c:a aac {args.output}'
     command.run(ffmpeg)
     while not os.path.isfile(args.output):
@@ -167,7 +172,6 @@ if __name__ == '__main__':
     print('Analyzing Text...')
     script_blocks = find_poses()
     poses_list = script_blocks['poses_list']
-    pose_counter = 0
 
     # Get gentle v_out
     stamps = gentle.align(args.audio, 'generate/script.txt')
@@ -185,6 +189,6 @@ if __name__ == '__main__':
     req_vid.poses_list = poses_list
     req_vid.poses_loc = script_blocks['poses_loc']
 
-    dimensions = ig.gen_vid(args)
+    frames = ig.gen_vid(args)
 
-    shutdown(dimensions)
+    shutdown(frames)
