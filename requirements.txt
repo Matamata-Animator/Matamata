@@ -10,3 +10,4 @@ ibm_watson
 python_dotenv
 pydub
 vosk
+ffmpeg-python
