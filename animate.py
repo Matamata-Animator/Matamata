@@ -12,6 +12,7 @@ import transcriber
 import image_generator as ig
 from parse_script import parse_script
 import command
+
 from bar import print_bar
 from gen_timestamps import gen_timestamps
 
@@ -19,6 +20,7 @@ import time
 import math
 
 import cv2
+import ffmpeg
 
 # Arg Parse Stuff
 parser = argparse.ArgumentParser()
@@ -103,8 +105,10 @@ def shutdown(frames) -> None:
         os.remove(args.output)
     print('\nFinishing Up...')
 
-    ffmpeg = f'ffmpeg -i generate/cv.mp4 -i {args.audio} -c:v copy -c:a aac {args.output}'
-    command.run(ffmpeg)
+    export_video = ffmpeg.input('generate/cv.mp4', )
+    export_audio = ffmpeg.input(args.audio)
+    ffmpeg.concat(export_video, export_audio, v=1, a=1).output(args.output, loglevel='quiet').run()
+
     while not os.path.isfile(args.output):
         pass
     if not args.no_delete:
