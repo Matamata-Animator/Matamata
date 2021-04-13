@@ -148,8 +148,12 @@ def gen_frames(frame_req: FrameRequest, d):
 
     for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
         for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
-            if mouth[my, mx][-1] != 0 or len(mouth[my, mx]) <= 3:
-                face[y, x][:3] = mouth[my, mx][:3]
+            fp = face[y, x]
+            mp = mouth[my, mx]
+            if mp[-1] == 255 or len(mp) <= 3:
+                fp[:3] = mp[:3]
+            else:
+                fp[:3] = np.add(np.array(mp[:3]) * mp[-1], np.array(fp[:3]) * (1-mp[-1]))
 
 
     # image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
