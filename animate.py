@@ -43,6 +43,8 @@ parser.add_argument('-em', '--emotion_detection_env', required=False, type=str)
 
 # Flags
 parser.add_argument('--no_delete', required=False, default=False, action='store_true')
+parser.add_argument('--cache', required=False, default=False, action='store_true')
+
 parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true')
 parser.add_argument('--crumple_zone', required=False, default=False, action='store_true')
 
@@ -176,7 +178,7 @@ if __name__ == '__main__':
     # Get gentle v_out
     stamps = gentle.align(args.audio, 'generate/script.txt')
     num_names = num_frames(stamps)
-    ig.init(num_names)
+    ig.init(num_names, args.cache)
 
     if args.no_delete:
         gentle_file = open('generate/gentle.json', 'w+')

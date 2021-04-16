@@ -7,7 +7,7 @@ import docker
 from typing import Union
 
 try:
-    client: docker.Client = docker.from_env()
+    client: docker.DockerClient = docker.from_env()
 except docker.errors.DockerException:
     raise Exception('Make sure Docker Desktop is running')
 
@@ -21,13 +21,13 @@ def init() -> docker.DockerClient.containers:
     return container
 
 
-def terminate(container: Union[docker.DockerClient.containers, str]) -> None:
-    if type(container) == type(docker.DockerClient.containers):
+def terminate(container: Union[type(docker.DockerClient.containers), str], name='gentle') -> None:
+    if isinstance(container, type(docker.DockerClient.containers)):
         container.kill()
         container.remove()
-    if (type(container) == 'str'):
+    if isinstance(container, str):
         for c in client.containers.list():
-            if c.name == 'gentle':
+            if c.name == name:
                 c.kill()
                 c.remove()
 
