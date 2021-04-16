@@ -153,19 +153,27 @@ def gen_frames(frame_req: FrameRequest, d):
             if mp[-1] == 255 or len(mp) <= 3:
                 fp[:3] = mp[:3]
             else:
-                fp[:3] = np.add(np.array(mp[:3]) * mp[-1], np.array(fp[:3]) * (1-mp[-1]))
-
-
-    # image_path = f'generate/{frame_req.folder_name}/{frame_req.frame}.png'
-    # cv2.imwrite(image_path, face)
+                # fp[:3] = ablend(mp[-1], mp, fp)[:3]
+                # fp[:3] = [0, 0, 0]
+                mp[-1] /= 255
+                fp[:3] = np.add(np.array(mp[:3]) * mp[-1], np.array(fp[:3]) * (1 - mp[-1]))
+                fp = [int(i) for i in fp][:3]
 
     start = int(frame_req.frame)
     end = int(frame_req.frame + frame_req.duration * 100)
     frames[start:end] = [face] * int(frame_req.duration * 100)
-    q.increment(int(frame_req.duration * 100)+1)
-
+    q.increment(int(frame_req.duration * 100) + 1)
 
     return frame_req.frame + frame_req.duration * 100
+
+
+def ablend(a, fg, bg) -> list:
+    a /= 255
+    blend = [(1 - a) * fg[0] + a * bg[0],
+             (1 - a) * fg[1] + a * bg[1],
+             (1 - a) * fg[2] + a * bg[2]]
+    # blend = [np.clip(i, 0, 255) for i in blend]
+    return blend
 
 
 def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose):
@@ -181,7 +189,6 @@ def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose):
             frame.mouth_x = pose['mouth_pos'][0]
             frame.mouth_y = pose['mouth_pos'][1]
             frame.frame = fc
-
 
             # decrement each loc because each previous loc is an additional 'word' in the script in animate.py
             for loc in range(len(poses_loc)):
@@ -221,7 +228,6 @@ def gen_vid(req: VideoRequest):
     global threads
 
     global frames
-
 
     characters = json.load(open(req.character, 'r'))
 
@@ -283,7 +289,7 @@ def gen_vid(req: VideoRequest):
             if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
                 pose = get_face_path(req.poses_list.pop(0))
                 req.poses_loc.pop(0)
-            
+
                 frame.face_path = pose['face_path']
                 frame.mouth_scale = pose['scale']
                 frame.mirror_face = pose['mirror_face']
@@ -325,6 +331,5 @@ def gen_vid(req: VideoRequest):
 
     for t in threads:
         t.join()
-
 
     return frames

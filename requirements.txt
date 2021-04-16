@@ -5,12 +5,11 @@ python_dotenv
 
 opencv-python
 numpy
-ffmpeg
+ffmpeg-python
 
 pydub
 vosk
 
-ffmpeg-python
-docker-py
+docker
 
 ibm_watson
