@@ -224,7 +224,7 @@ def gen_vid(req: VideoRequest):
 
 
     characters = json.load(open(req.character, 'r'))
-    command.set_verbose(req.verbose)
+
     verbose = req.verbose
     phone_reference = json.load(open(str(req.mouths), encoding='utf8'))
 
