@@ -11,7 +11,6 @@ import gentle
 import transcriber
 import image_generator as ig
 from parse_script import parse_script
-import command
 
 from bar import print_bar
 from gen_timestamps import gen_timestamps
@@ -87,11 +86,8 @@ def init():
 
 
 def shutdown(frames, container) -> None:
-    # delete all generate files
     container.kill()
     container.remove()
-    # command.run('docker kill gentle')
-    # command.run('docker rm gentle')
 
     print('\nCombining Frames...')
     size = frames[0].shape[1], frames[0].shape[0]

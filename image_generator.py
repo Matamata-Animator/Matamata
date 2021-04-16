@@ -8,7 +8,6 @@ import numpy as np
 from colorama import Fore, Back, Style
 import colorama
 
-import command
 import gentle
 from bar import print_bar
 
