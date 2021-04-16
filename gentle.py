@@ -1,4 +1,3 @@
-import command
 import os
 import requests
 import colorama
