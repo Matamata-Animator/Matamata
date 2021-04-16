@@ -12,11 +12,9 @@ import transcriber
 import image_generator as ig
 from parse_script import parse_script
 
-from bar import print_bar
 from gen_timestamps import gen_timestamps
 
 import time
-import math
 
 import cv2
 import ffmpeg

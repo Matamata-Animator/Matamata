@@ -1,6 +1,4 @@
-import os
 import json
-import sys
 
 import cv2
 import numpy as np
@@ -14,7 +12,6 @@ from bar import print_bar
 import copy
 import threading
 
-import time
 
 threads = []
 
