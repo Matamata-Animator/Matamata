@@ -11,13 +11,10 @@ import gentle
 import transcriber
 import image_generator as ig
 from parse_script import parse_script
-import command
 
-from bar import print_bar
 from gen_timestamps import gen_timestamps
 
 import time
-import math
 
 import cv2
 import ffmpeg
@@ -65,17 +62,15 @@ banner = '''
 '''
 
 
-def init() -> None:
+def init():
     # Print banner
     colorama.init(convert=True)
     print(Fore.GREEN)
     print(banner.replace('m', '\\'))
     print(Style.RESET_ALL)
 
-    command.set_verbose(args.verbose)
-
     print("Booting Gentle...")
-    gentle.init()
+    client = gentle.init()
 
     # Delete old folder, then create the new ones
     shutil.rmtree('generate', ignore_errors=True)
@@ -85,12 +80,12 @@ def init() -> None:
     os.makedirs('generate/images')
     while not os.path.isdir('generate/images'):
         pass
+    return client
 
 
-def shutdown(frames) -> None:
-    # delete all generate files
-    command.run('docker kill gentle')
-    command.run('docker rm gentle')
+def shutdown(frames, container) -> None:
+    container.kill()
+    container.remove()
 
     print('\nCombining Frames...')
     size = frames[0].shape[1], frames[0].shape[0]
@@ -147,7 +142,7 @@ def find_poses() -> dict:
 
 
 if __name__ == '__main__':
-    init()
+    container = init()
 
     if args.text == '':
         print('Transcribing Audio...')
@@ -195,4 +190,4 @@ if __name__ == '__main__':
 
     frames = ig.gen_vid(args)
 
-    shutdown(frames)
+    shutdown(frames, container)
