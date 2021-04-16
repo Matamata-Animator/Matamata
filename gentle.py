@@ -4,13 +4,15 @@ import colorama
 
 import docker
 
+from typing import Union
+
+try:
+    client: docker.Client = docker.from_env()
+except docker.errors.DockerException:
+    raise Exception('Make sure Docker Desktop is running')
+
 
 def init() -> docker.DockerClient.containers:
-    client: docker.Client = docker.from_env()
-    for c in client.containers.list():
-        if c.name == 'gentle':
-            c.kill()
-            c.remove()
     container = client.containers.run('lowerquality/gentle', ports={'8765/tcp': 8765}, detach=True, name='gentle')
 
     # wait until image is running
@@ -19,7 +21,18 @@ def init() -> docker.DockerClient.containers:
     return container
 
 
-def align(audio, text):
+def terminate(container: Union[docker.DockerClient.containers, str]) -> None:
+    if type(container) == type(docker.DockerClient.containers):
+        container.kill()
+        container.remove()
+    if (type(container) == 'str'):
+        for c in client.containers.list():
+            if c.name == 'gentle':
+                c.kill()
+                c.remove()
+
+
+def align(audio, text) -> dict:
     colorama.init(convert=True)
     while not os.path.isfile(audio):
         pass

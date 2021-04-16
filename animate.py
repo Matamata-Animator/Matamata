@@ -70,6 +70,8 @@ def init():
     print(Style.RESET_ALL)
 
     print("Booting Gentle...")
+
+    gentle.terminate('gentle')
     client = gentle.init()
 
     # Delete old folder, then create the new ones
@@ -84,8 +86,7 @@ def init():
 
 
 def shutdown(frames, container) -> None:
-    container.kill()
-    container.remove()
+    gentle.terminate(container)
 
     print('\nCombining Frames...')
     size = frames[0].shape[1], frames[0].shape[0]
