@@ -3,14 +3,18 @@ import os
 import requests
 import colorama
 
+import docker
+
 
 def init():
-    command.run('docker kill gentle')
-    command.run('docker rm gentle')
-    command.run('docker run --name gentle -p 8765:8765 lowerquality/gentle', False)
+    client: docker.Client = docker.from_env()
+    container = client.containers.run('lowerquality/gentle', ports={'8765/tcp':8765}, detach=True)
+
     # wait until image is running
-    while 'Up' not in command.run('docker ps'):
+    while container.status != 'running':
         pass
+    return container
+
 
 def align(audio, text):
     colorama.init(convert=True)
