@@ -117,7 +117,6 @@ class FrameRequest:
     dimensions: str = "TBD"
     scaler: float = 1
 
-
 def num_frames(frame_req: FrameRequest) -> int:
     return int(frame_req.duration * 100)
 
@@ -227,6 +226,8 @@ class VideoRequest:
     crumple_zone: bool = False
 
     timestamps: list = []
+
+    cache: bool = False
 
 
 def gen_vid(req: VideoRequest):
