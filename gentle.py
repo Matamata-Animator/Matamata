@@ -6,13 +6,16 @@ import colorama
 import docker
 
 
-def init():
+def init() -> docker.DockerClient.containers:
     client: docker.Client = docker.from_env()
-    container = client.containers.run('lowerquality/gentle', ports={'8765/tcp':8765}, detach=True)
+    container = client.containers.run('lowerquality/gentle', ports={'8765/tcp': 8765}, detach=True, name='gentle')
 
     # wait until image is running
-    while container.status != 'running':
-        pass
+    b = 'gggggg'
+    while container.status != 'created':
+        if container.status != b:
+            b= container.status
+            print(container.status)
     return container
 
 
