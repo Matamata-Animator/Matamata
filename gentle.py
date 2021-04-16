@@ -7,14 +7,15 @@ import docker
 
 def init() -> docker.DockerClient.containers:
     client: docker.Client = docker.from_env()
+    for c in client.containers.list():
+        if c.name == 'gentle':
+            c.kill()
+            c.remove()
     container = client.containers.run('lowerquality/gentle', ports={'8765/tcp': 8765}, detach=True, name='gentle')
 
     # wait until image is running
-    b = 'gggggg'
     while container.status != 'created':
-        if container.status != b:
-            b= container.status
-            print(container.status)
+        pass
     return container
 
 
