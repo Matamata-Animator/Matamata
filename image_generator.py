@@ -12,6 +12,9 @@ from bar import print_bar
 import copy
 import threading
 
+from functools import lru_cache
+
+from memo import memoize
 
 threads = []
 
@@ -90,6 +93,9 @@ def get_face_path(pose):
     }
 
 
+get_face_path = memoize(get_face_path)
+
+
 def get_dimensions(path, scaler) -> str:
     face = cv2.imread(path)
     w, h = face.shape[1::-1]
@@ -111,17 +117,11 @@ class FrameRequest:
     dimensions: str = "TBD"
     scaler: float = 1
 
-
 def num_frames(frame_req: FrameRequest) -> int:
     return int(frame_req.duration * 100)
 
 
-def gen_frames(frame_req: FrameRequest, d):
-    global q
-    global frames
-
-    frame_req.duration = round(frame_req.duration, 2)
-
+def gen_frame(frame_req: FrameRequest) -> list:
     face = cv2.imread(frame_req.face_path)
 
     size = frame_req.dimensions.split(':')
@@ -146,12 +146,25 @@ def gen_frames(frame_req: FrameRequest, d):
         for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
             fp = face[y, x]
             mp = mouth[my, mx]
-            if mp[-1] == 255 or len(mp) <= 3 or (mp[0] == 0 and mp[1] == 0 and mp[2] == 0 and mp[3] >10):
+            if mp[-1] == 255 or len(mp) <= 3 or (mp[0] == 0 and mp[1] == 0 and mp[2] == 0 and mp[3] > 10):
                 fp[:3] = mp[:3]
             else:
                 mp[-1] /= 255
                 fp[:3] = np.add(np.array(mp[:3]) * mp[-1], np.array(fp[:3]) * (1 - mp[-1]))
                 fp[:3] = [int(i) for i in fp][:3]
+    return face
+
+
+gen_frame = memoize(gen_frame)
+
+
+def write_frames(frame_req: FrameRequest, d):
+    global q
+    global frames
+
+    frame_req.duration = round(frame_req.duration, 2)
+
+    face = gen_frame(frame_req)
 
     start = int(frame_req.frame)
     end = int(frame_req.frame + frame_req.duration * 100)
@@ -214,6 +227,8 @@ class VideoRequest:
 
     timestamps: list = []
 
+    cache: bool = False
+
 
 def gen_vid(req: VideoRequest):
     # set up process vars
@@ -269,7 +284,7 @@ def gen_vid(req: VideoRequest):
                 frame.duration = frame.duration
                 total_time += frame.duration
 
-                frame_counter = gen_frames(frame, q)
+                frame_counter = write_frames(frame, q)
                 # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q, )))
                 # threads[-1].start()
                 # frame_counter += num_frames(frame)
@@ -304,7 +319,7 @@ def gen_vid(req: VideoRequest):
                 total_time += frame.duration
 
                 # frame_counter = gen_frames(frame, q)
-                threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+                threads.append(threading.Thread(target=write_frames, args=(copy.deepcopy(frame), q,)))
                 threads[-1].start()
                 frame_counter += num_frames(frame)
 
@@ -318,7 +333,7 @@ def gen_vid(req: VideoRequest):
         frame.duration = frame.framerate / 10
     else:
         frame.duration = 0.01
-    threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q,)))
+    threads.append(threading.Thread(target=write_frames, args=(copy.deepcopy(frame), q,)))
     threads[-1].start()
 
     frame_counter += num_frames(frame)
