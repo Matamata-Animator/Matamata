@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # Get gentle v_out
     stamps = gentle.align(args.audio, 'generate/script.txt')
     num_names = num_frames(stamps)
-    ig.init(num_names, args.cache)
+    ig.init(num_names)
 
     if args.no_delete:
         gentle_file = open('generate/gentle.json', 'w+')
