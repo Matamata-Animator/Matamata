@@ -15,6 +15,7 @@ import threading
 from functools import lru_cache
 
 from memo import memoize
+import colorsys
 
 threads = []
 
@@ -117,6 +118,7 @@ class FrameRequest:
     dimensions: str = "TBD"
     scaler: float = 1
 
+
 def num_frames(frame_req: FrameRequest) -> int:
     return int(frame_req.duration * 100)
 
@@ -146,12 +148,10 @@ def gen_frame(frame_req: FrameRequest) -> list:
         for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
             fp = face[y, x]
             mp = mouth[my, mx]
-            if mp[-1] == 255 or len(mp) <= 3 or (mp[0] == 0 and mp[1] == 0 and mp[2] == 0 and mp[3] > 10):
+            if mp[-1] == 255 or len(mp) <= 3:
                 fp[:3] = mp[:3]
-            else:
-                mp[-1] /= 255
-                fp[:3] = np.add(np.array(mp[:3]) * mp[-1], np.array(fp[:3]) * (1 - mp[-1]))
-                fp[:3] = [int(i) for i in fp][:3]
+            elif mp[-1] != 0:
+                fp[:3] = ablend(mp[-1], mp, fp)
     return face
 
 
@@ -176,10 +176,14 @@ def write_frames(frame_req: FrameRequest, d):
 
 def ablend(a, fg, bg) -> list:
     a /= 255
-    blend = [(1 - a) * fg[0] + a * bg[0],
-             (1 - a) * fg[1] + a * bg[1],
-             (1 - a) * fg[2] + a * bg[2]]
-    # blend = [np.clip(i, 0, 255) for i in blend]
+
+    fhsv = np.array(colorsys.rgb_to_hsv(*fg[:3]))
+    bhsv = np.array(colorsys.rgb_to_hsv(*bg[:3]))
+    blend = (fhsv * a + bhsv * (1 - a))
+
+    blend = colorsys.hsv_to_rgb(*blend)
+    blend = [int(i) for i in blend]
+
     return blend
 
 
@@ -332,7 +336,7 @@ def gen_vid(req: VideoRequest):
     if req.crumple_zone:
         frame.duration = frame.framerate / 10
     else:
-        frame.duration = 0.01
+        frame.duration = 0.05
     threads.append(threading.Thread(target=write_frames, args=(copy.deepcopy(frame), q,)))
     threads[-1].start()
 
