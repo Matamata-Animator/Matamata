@@ -102,9 +102,6 @@ def shutdown(frames, container) -> None:
     video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
     for f in frames:
         video.write(f)
-        cv2.imshow('frame', f)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
     video.release()
 
     # delete old output files
