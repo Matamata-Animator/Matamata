@@ -29,6 +29,8 @@ parser.add_argument('-t', '--text', required=False, type=str, default='')
 parser.add_argument('-ts', '--timestamps', required=False, type=str, default='')
 
 parser.add_argument('-o', '--output', required=False, default='output.mp4', type=str)
+parser.add_argument('-cd', '--codec', required=False, default='avc1', type=str)
+
 parser.add_argument('-s', '--offset', required=False, default='0.00', type=float)
 
 parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
@@ -46,6 +48,9 @@ parser.add_argument('--no_delete', required=False, default=False, action='store_
 
 parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true')
 parser.add_argument('--crumple_zone', required=False, default=False, action='store_true')
+parser.add_argument('-nd', '--no_docker', required=False, default=False, action='store_true')
+
+
 
 args = parser.parse_args()
 if args.emotion_detection_env and args.timestamps:
@@ -70,10 +75,11 @@ def init():
     print(banner.replace('m', '\\'))
     print(Style.RESET_ALL)
 
-    print("Booting Gentle...")
-
-    gentle.terminate('gentle')
-    client = gentle.init()
+    client = None
+    if not args.no_docker:
+        print("Booting Gentle...")
+        gentle.terminate('gentle')
+        client = gentle.init()
 
     # Delete old folder, then create the new ones
     shutil.rmtree('generate', ignore_errors=True)
@@ -87,14 +93,18 @@ def init():
 
 
 def shutdown(frames, container) -> None:
-    gentle.terminate(container)
+    if not args.no_docker:
+        gentle.terminate(container)
 
     print('\nCombining Frames...')
     size = frames[0].shape[1], frames[0].shape[0]
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    fourcc = cv2.VideoWriter_fourcc(*args.codec)
     video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
     for f in frames:
         video.write(f)
+        cv2.imshow('frame', f)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
     video.release()
 
     # delete old output files

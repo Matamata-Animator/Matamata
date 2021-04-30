@@ -15,3 +15,5 @@
 | -s       | --offset                |          | 0                                | float | How many milliseconds to shift the video forward by relative to the audio |
 | -r       | --framerate             |          | 100                              | int   | NOT CURRENTLY WORKING -framerate of the video                |
 | -em      | --emotion_detection_env |          |                                  | str   | The name of the environment file to load for emotion detection. Mutually exclusive with `-ts`. More info in the README. |
+| -nd      | --no_docker |          |                                  | flag   | Don't start docker automatically |
+| -cd      | --codec |          |                                  | str   | The video codec used for the VideoWriter |
