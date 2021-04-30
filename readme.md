@@ -9,7 +9,7 @@ This is the auto-lip-sync tool created by AI Spawn.
 * [Table of Contents](#table-of-contents)
 * [Installation](#Installation)
      * [Windows](#Windows)
-     * [Ubuntu](#Ubuntu/Debian---Untested)
+     * [Ubuntu](#Ubuntu)
      * [Mac](#Mac---Untested)
 * [Setup](#setup)
      * [Timestamps](#timestamps)
@@ -57,68 +57,7 @@ Launch Docker if it isn't launched already
 ```
 docker pull lowerquality/gentle
 ```
-### Ubuntu/Debian - Untested
-
-Install docker
-
-``` 
-sudo apt-get update
-```
-
-```
-sudo apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg-agent \
-    software-properties-common
-```
-
-```
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-```
-
-**Add the docker repo to your system:**
-
-On *x86_64 / amd64*:
-
-```
-sudo add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
-```
-
-On *armhf*:
-
-```
-sudo add-apt-repository \
-   "deb [arch=armhf] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
-```
-
-On *arm64*:
-
-```
-sudo add-apt-repository \
-   "deb [arch=arm64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
-```
-
-**Install the engine**:
-
-```
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io
-```
-
-Verify Docker's installation
-
-```
-sudo docker run hello-world
-```
+### Ubuntu
 
 Clone the repo
 ```
@@ -127,12 +66,12 @@ cd Auto-Lip-Sync
 ```
 Install required packages
 ```
-sudo apt-get install -y libatlas-base-dev libhdf5-dev libhdf5-serial-dev libatlas-base-dev libjasper-dev  libqtgui4  libqt4-test ffmpeg
-pip install -r requirements.txt
+sudo apt install -y ffmpeg python3-pip python3-opencv docker.io
+pip3 install -r requirements.txt
 ```
 Pull the lowerquality/gentle container
 ```
-docker pull lowerquality/gentle
+sudo docker pull lowerquality/gentle
 ```
 ### Mac - Untested
 
@@ -222,7 +161,6 @@ This covers the most important flags and arguments. For the complete list, go to
 | Shortcut | Command                 | Required | Default           | Type | Description                                                  |
 | -------- | ----------------------- | -------- | ----------------- | ---- | ------------------------------------------------------------ |
 | -a       | --audio                 | *        |                   | str  | The path to the audio file being animated                    |
-| -t       | --text                  |          |                   | str  | The path to the script of the audio file                     |
 | -ts      | --timestamps            |          |                   | str  | The path to the file containing pose  timestamps.            |
 | -o       | --output                |          | "output.mp4"      | str  | The output of the program                                    |
 | -c       | --character             |          | "characters.json" | str  | The list of character poses                                  |
@@ -255,15 +193,21 @@ Launch *Docker Desktop*
 
 Launch *Anaconda Prompt*
 ```
-python animate.py -a audio.mp3 -t text.txt [flags]
+python animate.py -a audio.wav [flags]
 ```
 
 
 ### Ubuntu
 
 Launch Terminal
+
+Start docker
+```angular2html
+sudo systemctl start docker
+sudo docker run --name gentle -p 8765:8765 lowerquality/gentle &
 ```
-sudo python animate.py -a audio.mp3 -t text.txt [flags]
+```
+sudo python animate.py -a audio.wav -nd -cd FMP4 [flags]
 ```
 
 
@@ -273,7 +217,7 @@ Launch *Docker Desktop*
 
 Launch *Anaconda Prompt*
 ```
-python animate.py -a audio.mp3 -t text.txt [flags]
+python animate.py -a audio.wav [flags]
 ```
 This may need to be accompanied by a *sudo* beforehand.
 
