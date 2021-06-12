@@ -59,7 +59,7 @@ def progress_bar(frames_completed):
     print_bar(frames_completed, num_phonemes, "Generating Images: ")
 
 
-def get_face_path(pose):
+def get_face_path(pose, phone_reference):
     split_pose = pose[1:-1].split('-')
     if split_pose[0] in characters:
         pose = characters[split_pose[0]]  # splits to remove directional tag
@@ -85,16 +85,22 @@ def get_face_path(pose):
     if 'scale' in pose:
         scale *= pose['scale']
 
+    if 'closed_mouth' in pose:
+        closed_mouth = pose['closed_mouth']
+    else:
+        closed_mouth = phone_reference['closed']
+
     return {
         'face_path': characters['facesFolder'] + pose['image'],
         'mouth_pos': [pose['x'], pose['y']],
         'scale': float(scale),
         'mirror_face': mirror_pose,
-        'mirror_mouth': mirror_mouth
+        'mirror_mouth': mirror_mouth,
+        'closed_mouth': closed_mouth
     }
 
 
-get_face_path = memoize(get_face_path)
+# get_face_path = memoize(get_face_path)
 
 
 def get_dimensions(path, scaler) -> str:
@@ -187,11 +193,11 @@ def ablend(a, fg, bg) -> list:
     return blend
 
 
-def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose):
+def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose, phone_references):
     for p in range(len(timestamps)):
         if frame.frame >= timestamps[p]['time'] and timestamps[p]['time'] != 0:
 
-            pose = get_face_path(timestamps[p]['pose'])
+            pose = get_face_path(timestamps[p]['pose'], phone_references)
             frame.face_path = pose['face_path']
 
             frame.mouth_scale = pose['scale']
@@ -255,16 +261,16 @@ def gen_vid(req: VideoRequest):
     frame_counter = 0
 
     # set pose to be default, set mouth to be closed
-    pose = get_face_path(req.poses_list[0])
+    pose = get_face_path(req.poses_list[0], phone_reference)
     # if using timestamps, see if pose should be swapped
     frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps, req.poses_loc,
-                                                             frame_counter, pose)
+                                                             frame_counter, pose, phone_reference)
 
     frame.face_path = pose['face_path']
     frame.mouth_scale = pose['scale']
     frame.mirror_face = pose['mirror_face']
     frame.mirror_mouth = pose['mirror_mouth']
-    frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+    frame.mouth_path = phone_reference['mouthsPath'] + pose['closed_mouth']
     frame.mouth_x = pose['mouth_pos'][0]
     frame.mouth_y = pose['mouth_pos'][1]
     frame.frame = frame_counter
@@ -281,7 +287,7 @@ def gen_vid(req: VideoRequest):
             duration = word['start'] - total_time
 
             if duration > 0:
-                frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+                frame.mouth_path = phone_reference['mouthsPath'] + pose['closed_mouth']
                 frame.frame = frame_counter
 
                 frame.duration = duration
@@ -296,11 +302,11 @@ def gen_vid(req: VideoRequest):
             # if using timestamps, see if pose should be swapped
             frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps,
                                                                      req.poses_loc,
-                                                                     frame_counter, pose)
+                                                                     frame_counter, pose, phone_reference)
 
             # change pose
             if len(req.poses_loc) > 0 and int(req.poses_loc[0]) == int(w) and len(req.timestamps) == 0:
-                pose = get_face_path(req.poses_list.pop(0))
+                pose = get_face_path(req.poses_list.pop(0), phone_reference)
                 req.poses_loc.pop(0)
 
                 frame.face_path = pose['face_path']
@@ -330,7 +336,7 @@ def gen_vid(req: VideoRequest):
             last_animated_word_end = word['end']
 
     # make mouth closed at the end
-    frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+    frame.mouth_path = phone_reference['mouthsPath'] + pose['closed_mouth']
     frame.frame = frame_counter
 
     if req.crumple_zone:
