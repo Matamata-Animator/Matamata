@@ -20,7 +20,7 @@ This is the auto-lip-sync tool created by AI Spawn.
      * [Flags and Arguments](#flags-and-arguments)
      * [Additional Features](#Emotion-Detection)
      * [Windows](#Windows)
-     * [Ubuntu](#Ubuntu)
+     * [Ubuntu](#Ubuntu-Usage)
      * [Mac](#Mac)
 * [Contributing](#Contributing)
 
@@ -66,8 +66,8 @@ cd Auto-Lip-Sync
 ```
 Install required packages
 ```
-sudo apt install -y ffmpeg python3-pip python3-opencv docker.io
-pip3 install -r requirements.txt
+sudo apt install ffmpeg python3-pip python3-opencv docker.io
+sudo pip3 install -r requirements.txt
 ```
 Pull the lowerquality/gentle container
 ```
@@ -197,7 +197,7 @@ python animate.py -a audio.wav [flags]
 ```
 
 
-### Ubuntu
+### Ubuntu-Usage
 
 Launch Terminal
 
@@ -207,7 +207,7 @@ sudo systemctl start docker
 sudo docker run --name gentle -p 8765:8765 lowerquality/gentle &
 ```
 ```
-sudo python animate.py -a audio.wav -nd -cd FMP4 [flags]
+sudo python3 animate.py -a audio.wav -nd -cd FMP4 [flags]
 ```
 
 
@@ -227,6 +227,6 @@ This may need to be accompanied by a *sudo* beforehand.
 
 Do you use this project and want to see a new feature added? Open an issue with the tag *feature request* and say what you want.
 
-Want to try your hand writing code? Create a fork, upload your code, and make a pull request. Anything from fixing formatting/typos to entirely new features is welcome!
+Want to try your hand at writing code? Create a fork, upload your code, and make a pull request. Anything from fixing formatting/typos to entirely new features is welcome!
 
 Don't know what to work on? Take a look at the issues page to see what improvements people want. Anything marked *good first issue* should be great for newcomers!
