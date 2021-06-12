@@ -135,13 +135,20 @@ For each pose you want to animate, create a duplicate of *characters.json*. Chan
 
 For each pose the character can do, add the following:
 
->   "POSE_NAME": {
->    "image": "POSE_IMAGE.png",
->    "x": POUTH_X_POSITION,
->    "y": MOUTH_Y_POSITION,
->    "scale": HOW MUCH THE MOUTH SHOULD SCALE UP OR DOWN,
->   "facingLeft": OPTIONAL -- True if character is looking to the left
->
+> "POSE_NAME": {
+> 
+> "image": "POSE_IMAGE.png",
+> 
+>  "x": MOUTH_X_POSITION,
+> 
+> "y": MOUTH_Y_POSITION,
+> 
+>  "scale": HOW MUCH THE MOUTH SHOULD SCALE UP OR DOWN,
+>  
+>  "facingLeft": OPTIONAL -- True if character is looking to the left,
+> 
+>   "closed_mouth": OPTIONAL -- the name of the image in your mouths folder used as a closed mouth instead of the default 
+> 
 >   },
 
 The final pose should not have a comma at the end.
