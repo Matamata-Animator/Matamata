@@ -1,7 +1,6 @@
 {
   "mouthsPath": "mouths/",
   "closed": "closed.png",
-  "happy_closed": "Aup.png",
   "phonemes": {
     "dh": {
       "actual": "T͟H",
