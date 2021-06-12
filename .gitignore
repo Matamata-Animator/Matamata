@@ -8,11 +8,13 @@
 
 !requirements.txt
 !mouths/
+!character_creator/
 
 .tmp.drivedownload/
 .vs/
 .idea/
-custom/
+custom/**
 generate/
 __pycache__/
 venv/
+
