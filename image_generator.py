@@ -85,12 +85,17 @@ def get_face_path(pose):
     if 'scale' in pose:
         scale *= pose['scale']
 
+    closed_mouth = 'closed'
+    if 'closed_mouth' in pose:
+        closed_mouth = pose['closed_mouth']
+
     return {
         'face_path': characters['facesFolder'] + pose['image'],
         'mouth_pos': [pose['x'], pose['y']],
         'scale': float(scale),
         'mirror_face': mirror_pose,
-        'mirror_mouth': mirror_mouth
+        'mirror_mouth': mirror_mouth,
+        'closed_mouth': closed_mouth
     }
 
 
@@ -264,7 +269,7 @@ def gen_vid(req: VideoRequest):
     frame.mouth_scale = pose['scale']
     frame.mirror_face = pose['mirror_face']
     frame.mirror_mouth = pose['mirror_mouth']
-    frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+    frame.mouth_path = phone_reference['mouthsPath'] + phone_reference[pose['closed_mouth']]
     frame.mouth_x = pose['mouth_pos'][0]
     frame.mouth_y = pose['mouth_pos'][1]
     frame.frame = frame_counter
@@ -281,7 +286,7 @@ def gen_vid(req: VideoRequest):
             duration = word['start'] - total_time
 
             if duration > 0:
-                frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+                frame.mouth_path = phone_reference['mouthsPath'] + phone_reference[pose['closed_mouth']]
                 frame.frame = frame_counter
 
                 frame.duration = duration
@@ -330,7 +335,7 @@ def gen_vid(req: VideoRequest):
             last_animated_word_end = word['end']
 
     # make mouth closed at the end
-    frame.mouth_path = phone_reference['mouthsPath'] + phone_reference['closed']
+    frame.mouth_path = phone_reference['mouthsPath'] + phone_reference[pose['closed_mouth']]
     frame.frame = frame_counter
 
     if req.crumple_zone:
