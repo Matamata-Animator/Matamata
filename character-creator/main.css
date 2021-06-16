@@ -1,0 +1,30 @@
+body {
+  /* overflow-x: hidden; */
+}
+#canvas {
+  /* position: absolute; */
+  top: 0;
+  left: 0;
+  margin: 0px;
+  width: 1%;
+}
+#form_parent {
+  grid-row: span 2;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(900px, 1fr));
+  place-items: center;
+  gap: 1rem;
+  grid-auto-columns: 900px;
+  /* row-gap: 1rem; */
+  /* column-gap: 1rem; */
+}
+
+#dropzone {
+  padding: 1vw;
+  border-style: dashed;
+  font-size: 36pt;
+  width: 97.5%;
+}
