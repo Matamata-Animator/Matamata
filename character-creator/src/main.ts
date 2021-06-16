@@ -6,7 +6,8 @@ let border = 10;
 
 let character: any;
 let img_name: string;
-let json;
+let json_name: string;
+let json: any;
 
 let mouth_pos: [number, number] = [0, 0];
 
@@ -23,6 +24,8 @@ function setup() {
   dropzone.dragLeave(unhighlight);
   dropzone.drop(gotFile, unhighlight);
   rectMode(CENTER);
+
+  // alert("If you upload an image and it does not properly display, upload it again.");
 }
 
 function draw() {
@@ -47,6 +50,7 @@ function gotFile(file: p5.File) {
     cnv.parent("canvas");
   } else if (file.type === "application" /*json*/ && !json_made) {
     json = file.data;
+    json_name = file.name;
     if (json.facesFolder) {
       alert("JSON Loaded Successfully");
     }
@@ -77,27 +81,4 @@ function target(x: number, y: number) {
   fill(0, 200, 0);
   rect(x, y, 40, 3);
   rect(x, y, 3, 20);
-}
-
-function addPose() {
-  let gc: Map<string, number> = new Map();
-  //@ts-ignore
-  var x = document.getElementById("form").elements;
-  for (const i of x) {
-    gc.set(i.name, i.value);
-  }
-
-  let pose: Pose = {
-    image: img_name,
-    x: mouth_pos[0],
-    y: mouth_pos[1],
-  };
-  //@ts-ignore
-  json[gc.get("pose_name")] = pose;
-}
-
-interface Pose {
-  image: string;
-  x: number;
-  y: number;
 }

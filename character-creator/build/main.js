@@ -1,10 +1,30 @@
 "use strict";
+function addPose() {
+    if (!character) {
+        alert("Please upload a pose image");
+    }
+    if (!json) {
+        alert("Please upload a characters.json");
+    }
+    let gc = new Map();
+    var x = document.getElementById("form").elements;
+    for (const i of x) {
+        gc.set(i.name, i.value);
+    }
+    let pose = {
+        image: img_name,
+        x: mouth_pos[0],
+        y: mouth_pos[1],
+    };
+    json[gc.get("pose_name")] = pose;
+}
 var dropzone;
 let cnv;
 var json_made = false;
 let border = 10;
 let character;
 let img_name;
+let json_name;
 let json;
 let mouth_pos = [0, 0];
 function setup() {
@@ -37,6 +57,7 @@ function gotFile(file) {
     }
     else if (file.type === "application" && !json_made) {
         json = file.data;
+        json_name = file.name;
         if (json.facesFolder) {
             alert("JSON Loaded Successfully");
         }
@@ -61,18 +82,5 @@ function target(x, y) {
     fill(0, 200, 0);
     rect(x, y, 40, 3);
     rect(x, y, 3, 20);
-}
-function addPose() {
-    let gc = new Map();
-    var x = document.getElementById("form").elements;
-    for (const i of x) {
-        gc.set(i.name, i.value);
-    }
-    let pose = {
-        image: img_name,
-        x: mouth_pos[0],
-        y: mouth_pos[1],
-    };
-    json[gc.get("pose_name")] = pose;
 }
 //# sourceMappingURL=../src/src/main.js.map
