@@ -1,0 +1,22 @@
+{
+  "name": "p5js-typescript-template",
+  "version": "1.0.0",
+  "description": "A template for using p5js with typescript",
+  "scripts": {},
+  "homepage": "https://github.com/AI-Spawn/p5js-typescript-template",
+  "devDependencies": {
+    "@types/p5": ">=0.9.0",
+    "typescript": ">=4.0.0"
+  },
+  "main": "index.js",
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AI-Spawn/p5js-typescript-template"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AI-Spawn/p5js-typescript-template/issues"
+  }
+}
