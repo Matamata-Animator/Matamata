@@ -1,3 +1,4 @@
+ConfigArgParse
 argparse
 colorama
 requests
