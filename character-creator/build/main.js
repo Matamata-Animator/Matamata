@@ -16,7 +16,11 @@ function addPose() {
         x: mouth_pos[0],
         y: mouth_pos[1],
         scale: mScale,
+        facingLeft: mirror_mouth,
     };
+    if (gc.get("closed_mouth") + "") {
+        pose["closed_mouth"] = gc.get("closed_mouth");
+    }
     json["facesFolder"] = gc.get("facesFolder");
     json[gc.get("pose_name")] = pose;
 }
