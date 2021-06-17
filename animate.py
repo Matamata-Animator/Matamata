@@ -1,4 +1,4 @@
-import argparse
+import configargparse
 from colorama import Fore, Style
 import colorama
 import os
@@ -20,39 +20,42 @@ import cv2
 import ffmpeg
 
 # Arg Parse Stuff
-parser = argparse.ArgumentParser()
+parser = configargparse.ArgParser()
 
 # Arguments
-parser.add_argument('-a', '--audio', required=True, type=str)
+parser.add('--config', required=False, is_config_file=True, default='config.txt', help='config file path')
 
-parser.add_argument('-t', '--text', required=False, type=str, default='')
-parser.add_argument('-ts', '--timestamps', required=False, type=str, default='')
+parser.add('-a', '--audio', required=True, type=str)
 
-parser.add_argument('-o', '--output', required=False, default='output.mp4', type=str)
-parser.add_argument('-cd', '--codec', required=False, default='avc1', type=str)
+parser.add('-t', '--text', required=False, type=str, default='')
+parser.add('-ts', '--timestamps', required=False, type=str, default='')
 
-parser.add_argument('-s', '--offset', required=False, default='0.00', type=float)
+parser.add('-o', '--output', required=False, default='output.mp4', type=str)
+parser.add('-cd', '--codec', required=False, default='avc1', type=str)
 
-parser.add_argument('-c', '--character', required=False, default='characters.json', type=str)
-parser.add_argument('-m', '---mouths', required=False, default='phonemes.json', type=str)
+parser.add('-s', '--offset', required=False, default='0.00', type=float)
 
-parser.add_argument('-d', '--dimensions', required=False, default='TBD', type=str)
-parser.add_argument('-ds', '--dimension_scaler', required=False, default='1', type=float)
+parser.add('-c', '--character', required=False, default='characters.json', type=str)
+parser.add('-m', '---mouths', required=False, default='phonemes.json', type=str)
 
-parser.add_argument('-r', '--framerate', required=False, default=100, type=int)
+parser.add('-d', '--dimensions', required=False, default='TBD', type=str)
+parser.add('-ds', '--dimension_scaler', required=False, default='1', type=float)
 
-parser.add_argument('-em', '--emotion_detection_env', required=False, type=str)
+parser.add('-r', '--framerate', required=False, default=100, type=int)
+
+parser.add('-em', '--emotion_detection_env', required=False, type=str)
 
 # Flags
-parser.add_argument('--no_delete', required=False, default=False, action='store_true')
+parser.add('--no_delete', required=False, default=False, action='store_true')
 
-parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true')
-parser.add_argument('--crumple_zone', required=False, default=False, action='store_true')
-parser.add_argument('-nd', '--no_docker', required=False, default=False, action='store_true')
+parser.add('-v', '--verbose', required=False, default=False, action='store_true')
+parser.add('--crumple_zone', required=False, default=False, action='store_true')
+parser.add('-nd', '--no_docker', required=False, default=False, action='store_true')
 
 
 
 args = parser.parse_args()
+
 if args.emotion_detection_env and args.timestamps:
     parser.error("Emotion detection and timestamp mode are currently mutually exclusive. Sorry!")
 
