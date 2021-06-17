@@ -1,16 +1,22 @@
-var dropzone: p5.Element;
+let dropzone: p5.Element;
+let mdrop: p5.Element;
+
 let cnv: p5.Renderer;
-var json_made: boolean = false;
+let json_made: boolean = false;
 
 let border = 10;
 
+let mouse_down = false;
 let character: any;
 let img_name: string;
-let json_name: string;
-let json: any;
+let json_name: string = "characters.json";
+let json: any = {};
 
 let mouth_pos: [number, number] = [0, 0];
 
+let mouth_image: any;
+let mirror_mouth: boolean = false;
+let mScale: number = 1;
 function setup() {
   cnv = createCanvas(0, 0);
   cnv.parent("canvas");
@@ -23,8 +29,15 @@ function setup() {
   dropzone.dragOver(highlight);
   dropzone.dragLeave(unhighlight);
   dropzone.drop(gotFile, unhighlight);
+
+  //@ts-ignore
+  mdrop = select("#mdrop");
+  mdrop.dragOver(mhighlight);
+  mdrop.dragLeave(munhighlight);
+  mdrop.drop(mgotFile, unhighlight);
   rectMode(CENTER);
 
+  mouth_image = loadImage("mouths/Adown.png");
   // alert("If you upload an image and it does not properly display, upload it again.");
 }
 
@@ -34,7 +47,17 @@ function draw() {
     rect(0, 0, width * 2, height * 2);
     image(character, border, border);
 
-    target(mouth_pos[0], mouth_pos[1]);
+    drawMouth(mouth_pos[0], mouth_pos[1]);
+  }
+
+  if (mouse_down && hovering()) {
+    mouth_pos = [mouseX, mouseY];
+  }
+
+  //@ts-ignore
+  var x = document.getElementById("form").elements;
+  if (x["facingLeft"].checked != mirror_mouth) {
+    mirror_mouth = !mirror_mouth;
   }
 }
 function gotFile(file: p5.File) {
@@ -51,34 +74,44 @@ function gotFile(file: p5.File) {
   } else if (file.type === "application" /*json*/ && !json_made) {
     json = file.data;
     json_name = file.name;
-    if (json.facesFolder) {
-      alert("JSON Loaded Successfully");
-    }
+
     json_made = true;
+
+    //set form values
+    let gc: Map<string, number> = new Map();
+    //@ts-ignore
+    var x = document.getElementById("form").elements;
+    x["facesFolder"].value = json.facesFolder;
+  }
+}
+function mgotFile(file: p5.File) {
+  if (file.type === "image") {
+    mouth_image = createImg(file.data);
+    mouth_image.hide();
   }
 }
 
-function highlight() {
-  dropzone.style("background-color", "#ccc");
-}
-
-function unhighlight() {
-  dropzone.style("background-color", "#fff");
-}
-
-function mousePressed() {
-  if (
-    border < mouseX &&
-    mouseX < width - border &&
-    border < mouseY &&
-    mouseY < height - border
-  ) {
-    mouth_pos = [mouseX, mouseY];
+function drawMouth(x: number, y: number) {
+  imageMode(CENTER);
+  if (mirror_mouth) {
+    push();
+    scale(-1, 1);
+    image(
+      mouth_image,
+      -x,
+      y,
+      mouth_image.width * mScale,
+      mouth_image.height * mScale
+    );
+    pop();
+  } else {
+    image(
+      mouth_image,
+      x,
+      y,
+      mouth_image.width * mScale,
+      mouth_image.height * mScale
+    );
   }
-}
-
-function target(x: number, y: number) {
-  fill(0, 200, 0);
-  rect(x, y, 40, 3);
-  rect(x, y, 3, 20);
+  imageMode(CORNER);
 }

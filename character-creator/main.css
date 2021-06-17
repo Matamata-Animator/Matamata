@@ -22,9 +22,9 @@ body {
   /* column-gap: 1rem; */
 }
 
-#dropzone {
-  padding: 1vw;
+.drop {
+  padding: 0.7vw;
   border-style: dashed;
-  font-size: 36pt;
+  font-size: 1vw;
   width: 97.5%;
 }

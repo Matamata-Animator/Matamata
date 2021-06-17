@@ -15,18 +15,58 @@ function addPose() {
         image: img_name,
         x: mouth_pos[0],
         y: mouth_pos[1],
+        scale: mScale,
+        facingLeft: mirror_mouth,
     };
+    if (gc.get("closed_mouth") + "") {
+        pose["closed_mouth"] = gc.get("closed_mouth");
+    }
+    json["facesFolder"] = gc.get("facesFolder");
     json[gc.get("pose_name")] = pose;
 }
-var dropzone;
+function highlight() {
+    dropzone.style("background-color", "#ccc");
+}
+function unhighlight() {
+    dropzone.style("background-color", "#fff");
+}
+function mhighlight() {
+    mdrop.style("background-color", "#ccc");
+}
+function munhighlight() {
+    mdrop.style("background-color", "#fff");
+}
+function hovering() {
+    return (border < mouseX &&
+        mouseX < width - border &&
+        border < mouseY &&
+        mouseY < height - border);
+}
+function mouseWheel(event) {
+    if (hovering()) {
+        mScale -= event.deltaY / 1000;
+    }
+}
+function mousePressed() {
+    mouse_down = true;
+}
+function mouseReleased() {
+    mouse_down = false;
+}
+let dropzone;
+let mdrop;
 let cnv;
-var json_made = false;
+let json_made = false;
 let border = 10;
+let mouse_down = false;
 let character;
 let img_name;
-let json_name;
-let json;
+let json_name = "characters.json";
+let json = {};
 let mouth_pos = [0, 0];
+let mouth_image;
+let mirror_mouth = false;
+let mScale = 1;
 function setup() {
     cnv = createCanvas(0, 0);
     cnv.parent("canvas");
@@ -36,14 +76,26 @@ function setup() {
     dropzone.dragOver(highlight);
     dropzone.dragLeave(unhighlight);
     dropzone.drop(gotFile, unhighlight);
+    mdrop = select("#mdrop");
+    mdrop.dragOver(mhighlight);
+    mdrop.dragLeave(munhighlight);
+    mdrop.drop(mgotFile, unhighlight);
     rectMode(CENTER);
+    mouth_image = loadImage("mouths/Adown.png");
 }
 function draw() {
     if (character) {
         fill(200, 0, 0);
         rect(0, 0, width * 2, height * 2);
         image(character, border, border);
-        target(mouth_pos[0], mouth_pos[1]);
+        drawMouth(mouth_pos[0], mouth_pos[1]);
+    }
+    if (mouse_down && hovering()) {
+        mouth_pos = [mouseX, mouseY];
+    }
+    var x = document.getElementById("form").elements;
+    if (x["facingLeft"].checked != mirror_mouth) {
+        mirror_mouth = !mirror_mouth;
     }
 }
 function gotFile(file) {
@@ -58,29 +110,29 @@ function gotFile(file) {
     else if (file.type === "application" && !json_made) {
         json = file.data;
         json_name = file.name;
-        if (json.facesFolder) {
-            alert("JSON Loaded Successfully");
-        }
         json_made = true;
+        let gc = new Map();
+        var x = document.getElementById("form").elements;
+        x["facesFolder"].value = json.facesFolder;
     }
 }
-function highlight() {
-    dropzone.style("background-color", "#ccc");
-}
-function unhighlight() {
-    dropzone.style("background-color", "#fff");
-}
-function mousePressed() {
-    if (border < mouseX &&
-        mouseX < width - border &&
-        border < mouseY &&
-        mouseY < height - border) {
-        mouth_pos = [mouseX, mouseY];
+function mgotFile(file) {
+    if (file.type === "image") {
+        mouth_image = createImg(file.data);
+        mouth_image.hide();
     }
 }
-function target(x, y) {
-    fill(0, 200, 0);
-    rect(x, y, 40, 3);
-    rect(x, y, 3, 20);
+function drawMouth(x, y) {
+    imageMode(CENTER);
+    if (mirror_mouth) {
+        push();
+        scale(-1, 1);
+        image(mouth_image, -x, y, mouth_image.width * mScale, mouth_image.height * mScale);
+        pop();
+    }
+    else {
+        image(mouth_image, x, y, mouth_image.width * mScale, mouth_image.height * mScale);
+    }
+    imageMode(CORNER);
 }
 //# sourceMappingURL=../src/src/main.js.map
