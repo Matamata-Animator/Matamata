@@ -3,6 +3,7 @@ interface Pose {
   image: string;
   x: number;
   y: number;
+  scale?: number;
 }
 
 function addPose() {
@@ -22,6 +23,9 @@ function addPose() {
     image: img_name,
     x: mouth_pos[0],
     y: mouth_pos[1],
+    scale: mScale,
   };
+  json["facesFolder"] = gc.get("facesFolder");
+
   json[gc.get("pose_name")] = pose;
 }
