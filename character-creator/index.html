@@ -8,16 +8,31 @@
   <script src="build/main.js"></script>
 </head>
 <body>
-  <p id="dropzone">Drag your file here.</p>
+  <p class="drop" id="dropzone">
+    Drag your json (optional) and pose-image files here.
+  </p>
+  <p class="drop" id="mdrop">Drag your mouth (optional) image file here</p>
 
   <div class="row">
     <div id="canvas"></div>
     <div id="form_parent">
       <form id="form" action="javascript:void(0);" onsubmit="addPose()">
+        <b>Pose Settings:</b><br />
         Pose Name:
-        <input type="text" name="pose_name" value="Talking-1" /><br />
+        <input type="text" name="pose_name" value="Talking_1" /><br />
+        <input type="checkbox" id="facingLeft" name="facingLeft" />
+        <label for="facingLeft"> Facing Left?</label><br />
+        <br />
+        <b>JSON Settings:</b><br />
+        Faces Folder:
+        <input type="text" name="facesFolder" value="SampleFace/" /><br />
 
-        <input type="submit" value="Submit" />
+        <br />
+        <b>Advanced Settings:</b><br />
+        Default Mouth:
+        <input type="text" name="closed_mouth" value="" /><br />
+
+        <input type="submit" value="Add Pose" />
       </form>
     </div>
   </div>
