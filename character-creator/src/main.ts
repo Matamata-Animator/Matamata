@@ -1,6 +1,8 @@
-var dropzone: p5.Element;
+let dropzone: p5.Element;
+let mdrop: p5.Element;
+
 let cnv: p5.Renderer;
-var json_made: boolean = false;
+let json_made: boolean = false;
 
 let border = 10;
 
@@ -10,6 +12,8 @@ let json_name: string;
 let json: any;
 
 let mouth_pos: [number, number] = [0, 0];
+
+let mouth_image: p5.Image;
 
 function setup() {
   cnv = createCanvas(0, 0);
@@ -23,8 +27,15 @@ function setup() {
   dropzone.dragOver(highlight);
   dropzone.dragLeave(unhighlight);
   dropzone.drop(gotFile, unhighlight);
+
+  //@ts-ignore
+  mdrop = select("#mdrop");
+  mdrop.dragOver(highlight);
+  mdrop.dragLeave(unhighlight);
+  mdrop.drop(gotFile, unhighlight);
   rectMode(CENTER);
 
+  mouth_image = loadImage("mouths/Adown.png");
   // alert("If you upload an image and it does not properly display, upload it again.");
 }
 
@@ -78,7 +89,7 @@ function mousePressed() {
 }
 
 function target(x: number, y: number) {
-  fill(0, 200, 0);
-  rect(x, y, 40, 3);
-  rect(x, y, 3, 20);
+  imageMode(CENTER);
+  image(mouth_image, x, y);
+  imageMode(CORNER);
 }

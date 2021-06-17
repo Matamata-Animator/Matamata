@@ -18,15 +18,17 @@ function addPose() {
     };
     json[gc.get("pose_name")] = pose;
 }
-var dropzone;
+let dropzone;
+let mdrop;
 let cnv;
-var json_made = false;
+let json_made = false;
 let border = 10;
 let character;
 let img_name;
 let json_name;
 let json;
 let mouth_pos = [0, 0];
+let mouth_image;
 function setup() {
     cnv = createCanvas(0, 0);
     cnv.parent("canvas");
@@ -36,7 +38,12 @@ function setup() {
     dropzone.dragOver(highlight);
     dropzone.dragLeave(unhighlight);
     dropzone.drop(gotFile, unhighlight);
+    mdrop = select("#mdrop");
+    mdrop.dragOver(highlight);
+    mdrop.dragLeave(unhighlight);
+    mdrop.drop(gotFile, unhighlight);
     rectMode(CENTER);
+    mouth_image = loadImage("mouths/Adown.png");
 }
 function draw() {
     if (character) {
@@ -79,8 +86,8 @@ function mousePressed() {
     }
 }
 function target(x, y) {
-    fill(0, 200, 0);
-    rect(x, y, 40, 3);
-    rect(x, y, 3, 20);
+    imageMode(CENTER);
+    image(mouth_image, x, y);
+    imageMode(CORNER);
 }
 //# sourceMappingURL=../src/src/main.js.map
