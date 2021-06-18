@@ -1,4 +1,5 @@
 import json
+import math
 
 import cv2
 import numpy as np
@@ -107,7 +108,7 @@ def get_face_path(pose, phone_reference):
 def get_dimensions(path, scaler) -> str:
     face = cv2.imread(path)
     w, h = face.shape[1::-1]
-    return f'{int(w * scaler)}:{int(h * scaler)}'
+    return f'{math.ceil(w * scaler / 2) * 2}:{math.ceil(h * scaler / 2) * 2}'
 
 
 class FrameRequest:
