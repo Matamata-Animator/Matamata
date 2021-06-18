@@ -13,9 +13,6 @@ from bar import print_bar
 import copy
 import threading
 
-from functools import lru_cache
-
-from memo import memoize
 import colorsys
 
 threads = []
@@ -102,9 +99,6 @@ def get_face_path(pose, phone_reference):
     }
 
 
-# get_face_path = memoize(get_face_path)
-
-
 def get_dimensions(path, scaler) -> str:
     face = cv2.imread(path)
     w, h = face.shape[1::-1]
@@ -163,9 +157,6 @@ def gen_frame(frame_req: FrameRequest) -> list:
     return face
 
 
-gen_frame = memoize(gen_frame)
-
-
 def write_frames(frame_req: FrameRequest, d):
     global q
     global frames
@@ -197,7 +188,7 @@ def ablend(a, fg, bg) -> list:
 
 def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose, phone_references):
     for p in range(len(timestamps)):
-        if frame.frame >= timestamps[p]['time'] and timestamps[p]['time'] != 0:
+        if frame.frame >= timestamps[p]['time']:
 
             pose = get_face_path(timestamps[p]['pose'], phone_references)
             frame.face_path = pose['face_path']
@@ -285,7 +276,6 @@ def gen_vid(req: VideoRequest):
         word = gentle_out['words'][w]
         if word['case'] == 'success' and 'phones' in word:
             # keep mouth closed between last word and this word
-            # duration = word['start'] - last_animated_word_end
             duration = word['start'] - total_time
 
             if duration > 0:
@@ -297,9 +287,7 @@ def gen_vid(req: VideoRequest):
                 total_time += frame.duration
 
                 frame_counter = write_frames(frame, q)
-                # threads.append(threading.Thread(target=gen_frames, args=(copy.deepcopy(frame), q, )))
-                # threads[-1].start()
-                # frame_counter += num_frames(frame)
+
 
             # if using timestamps, see if pose should be swapped
             frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps,
