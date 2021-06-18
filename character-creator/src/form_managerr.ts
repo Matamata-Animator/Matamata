@@ -4,7 +4,7 @@ interface Pose {
   x: number;
   y: number;
   scale?: number;
-  facingLeft?: boolean;
+  facingRight?: boolean;
   closed_mouth?: string;
 }
 
@@ -25,8 +25,8 @@ function addPose() {
     image: img_name,
     x: mouth_pos[0],
     y: mouth_pos[1],
-    scale: mScale,
-    facingLeft: mirror_mouth,
+    scale: int(mScale.value()) / 100,
+    facingRight: !mirror_mouth,
   };
 
   if (gc.get("closed_mouth")! + "") {

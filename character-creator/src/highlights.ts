@@ -23,7 +23,7 @@ function hovering() {
 }
 function mouseWheel(event: WheelEvent) {
   if (hovering()) {
-    mScale -= event.deltaY / 1000;
+    mScale.value(int(mScale.value()) - event.deltaY / 10);
   }
 }
 

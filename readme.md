@@ -19,8 +19,8 @@ This is the auto-lip-sync tool created by AI Spawn.
 * [Usage](#usage)
      * [Flags and Arguments](#flags-and-arguments)
      * [Additional Features](#Emotion-Detection)
-     * [Windows](#Windows)
-     * [Ubuntu](#Ubuntu-Usage)
+     * [Windows](#Windows---Usage)
+     * [Ubuntu](#Ubuntu---Usage)
      * [Mac](#Mac)
 * [Contributing](#Contributing)
 
@@ -129,7 +129,9 @@ If poses are provided via a timestamps file, then no poses will be read from the
 
 ### Characters
 
-For an example of a character file, refer to *characters.json*
+The easiest way to create the character file is by using [the character creator](https://aispawn.com/Auto-Lip-Sync/character-creator/). 
+
+If you decide to create one manually, for an example of a character file, refer to *characters.json*
 
 For each pose you want to animate, create a duplicate of *characters.json*. Change the variable *facesFolder* to be the directory of the character's poses. Set *defaultScale* to be how much the mouth images of the character should be scaled up or down.
 
@@ -163,6 +165,8 @@ More advance users can edit or create their own *phonemes*.json, however that is
 
 ### Flags and Arguments
 
+Any flags/arguments can be used every time by creating a config file (`config.txt`will be loaded by default if it exists)
+
 This covers the most important flags and arguments. For the complete list, go to [Flags and Arguments](flags_and_arguments.md). 
 
 | Shortcut | Command                 | Required | Default           | Type | Description                                                  |
@@ -174,8 +178,9 @@ This covers the most important flags and arguments. For the complete list, go to
 | -m       | --mouths                |          | "phonemes.json"   | str  | The mouth pack and phonemes list                             |
 | -d       | --dimensions            |          | "1920:1080"       | str  | The resolution of the final video                            |
 | -v       | --verbose               |          |                   | flag | Dump process outputs to the shell                            |
-|          | --crumple_zone          |          |                   | flag | Add 10 seconds to the end of the video of the character with their mouth shut, in the last pose they were in. Useful for exporting to a video editor while working with another framerate. |
+|          | --crumple_zone          |          |                   | flag | Add 10 seconds to the end of the video of the character with their mouth shut, in the last pose they were in. Useful for exporting to a video editor while working with another frame rate. |
 | -em      | --emotion_detection_env |          |                   | str  | The name of the environment file to load for emotion detection. Mutually exclusive with `-ts`. More info in the README. |
+|          | --config                |          | "config.txt"      | str  | The path to the config file                                  |
 
 ### Other features
 
@@ -194,7 +199,7 @@ credentials. To get your credentials, do the following:
 
 You can now provide the name of this file to the tool by using the `-em` argument.
 
-### Windows
+### Windows - Usage
 
 Launch *Docker Desktop*
 
@@ -204,7 +209,7 @@ python animate.py -a audio.wav [flags]
 ```
 
 
-### Ubuntu-Usage
+### Ubuntu - Usage
 
 Launch Terminal
 

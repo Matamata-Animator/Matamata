@@ -14,7 +14,7 @@ body {
 
 .row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(900px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   place-items: center;
   gap: 1rem;
   grid-auto-columns: 900px;
