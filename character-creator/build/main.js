@@ -13,10 +13,10 @@ function addPose() {
     }
     let pose = {
         image: img_name,
-        x: mouth_pos[0],
-        y: mouth_pos[1],
+        x: mouth_pos[0] - border,
+        y: mouth_pos[1] - border,
         scale: int(mScale.value()) / 100,
-        facingLeft: mirror_mouth,
+        facingRight: !mirror_mouth,
     };
     if (gc.get("closed_mouth") + "") {
         pose["closed_mouth"] = gc.get("closed_mouth");
