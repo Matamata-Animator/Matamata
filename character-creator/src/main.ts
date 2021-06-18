@@ -53,10 +53,7 @@ function draw() {
   }
 
   if (mouse_down && hovering()) {
-    mouth_pos = [
-      mouseX - mouth_image.width / 2,
-      mouseY - mouth_image.height / 2,
-    ];
+    mouth_pos = [mouseX, mouseY];
   }
 
   //@ts-ignore
@@ -97,6 +94,7 @@ function mgotFile(file: p5.File) {
 }
 
 function drawMouth(x: number, y: number) {
+  imageMode(CENTER);
   if (mirror_mouth) {
     push();
     scale(-1, 1);
@@ -117,4 +115,5 @@ function drawMouth(x: number, y: number) {
       (mouth_image.height * int(mScale.value())) / 100
     );
   }
+  imageMode(CORNER);
 }
