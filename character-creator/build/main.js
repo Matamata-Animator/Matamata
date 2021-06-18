@@ -15,7 +15,7 @@ function addPose() {
         image: img_name,
         x: mouth_pos[0],
         y: mouth_pos[1],
-        scale: mScale,
+        scale: int(mScale.value()) / 100,
         facingLeft: mirror_mouth,
     };
     if (gc.get("closed_mouth") + "") {
@@ -44,7 +44,7 @@ function hovering() {
 }
 function mouseWheel(event) {
     if (hovering()) {
-        mScale -= event.deltaY / 1000;
+        mScale.value(int(mScale.value()) - event.deltaY / 10);
     }
 }
 function mousePressed() {
@@ -66,8 +66,10 @@ let json = {};
 let mouth_pos = [0, 0];
 let mouth_image;
 let mirror_mouth = false;
-let mScale = 1;
+let mScale;
 function setup() {
+    mScale = createSlider(1, 1000, 100);
+    mScale.parent("canvas");
     cnv = createCanvas(0, 0);
     cnv.parent("canvas");
     stroke(0);
@@ -127,11 +129,11 @@ function drawMouth(x, y) {
     if (mirror_mouth) {
         push();
         scale(-1, 1);
-        image(mouth_image, -x, y, mouth_image.width * mScale, mouth_image.height * mScale);
+        image(mouth_image, -x, y, (mouth_image.width * int(mScale.value())) / 100, (mouth_image.height * int(mScale.value())) / 100);
         pop();
     }
     else {
-        image(mouth_image, x, y, mouth_image.width * mScale, mouth_image.height * mScale);
+        image(mouth_image, x, y, (mouth_image.width * int(mScale.value())) / 100, (mouth_image.height * int(mScale.value())) / 100);
     }
     imageMode(CORNER);
 }

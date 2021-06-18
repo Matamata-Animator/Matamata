@@ -16,8 +16,10 @@ let mouth_pos: [number, number] = [0, 0];
 
 let mouth_image: any;
 let mirror_mouth: boolean = false;
-let mScale: number = 1;
+let mScale: p5.Element;
 function setup() {
+  mScale = createSlider(1, 1000, 100);
+  mScale.parent("canvas");
   cnv = createCanvas(0, 0);
   cnv.parent("canvas");
 
@@ -51,7 +53,10 @@ function draw() {
   }
 
   if (mouse_down && hovering()) {
-    mouth_pos = [mouseX, mouseY];
+    mouth_pos = [
+      mouseX - mouth_image.width / 2,
+      mouseY - mouth_image.height / 2,
+    ];
   }
 
   //@ts-ignore
@@ -92,7 +97,6 @@ function mgotFile(file: p5.File) {
 }
 
 function drawMouth(x: number, y: number) {
-  imageMode(CENTER);
   if (mirror_mouth) {
     push();
     scale(-1, 1);
@@ -100,8 +104,8 @@ function drawMouth(x: number, y: number) {
       mouth_image,
       -x,
       y,
-      mouth_image.width * mScale,
-      mouth_image.height * mScale
+      (mouth_image.width * int(mScale.value())) / 100,
+      (mouth_image.height * int(mScale.value())) / 100
     );
     pop();
   } else {
@@ -109,9 +113,8 @@ function drawMouth(x: number, y: number) {
       mouth_image,
       x,
       y,
-      mouth_image.width * mScale,
-      mouth_image.height * mScale
+      (mouth_image.width * int(mScale.value())) / 100,
+      (mouth_image.height * int(mScale.value())) / 100
     );
   }
-  imageMode(CORNER);
 }

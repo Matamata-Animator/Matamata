@@ -70,13 +70,14 @@ def get_face_path(pose, phone_reference):
     mirror_pose = False
     mirror_mouth = False
 
-    looking_left = True
+    looking_right = True
     if len(split_pose) == 2:
-        if split_pose[1].lower() == 'right' or split_pose[1].lower() == 'r':
-            looking_left = False
-        if 'facingLeft' in pose and looking_left != pose['facingLeft']:
+        if split_pose[1].lower() == 'left' or split_pose[1].lower() == 'l':
+            looking_right = True
+
+        if 'facingRight' in pose and looking_right != pose['facingRight']:
             mirror_pose = True
-    if 'facingLeft' in pose and not pose['facingLeft']:
+    if 'facingRight' in pose and not pose['facingRight']:
         mirror_mouth = True
 
     scale = 1
