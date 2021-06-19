@@ -18,3 +18,4 @@ generate/
 __pycache__/
 venv/
 
+!config.txt
