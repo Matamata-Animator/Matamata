@@ -1,6 +1,7 @@
 # Auto Lip Sync
 
 This is the auto-lip-sync tool created by AI Spawn.
+For basic usage, feel free to refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
 
 ## Table of Contents
 
