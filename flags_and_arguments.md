@@ -17,3 +17,4 @@
 | -em      | --emotion_detection_env |          |                                  | str   | The name of the environment file to load for emotion detection. Mutually exclusive with `-ts`. More info in the README. |
 | -nd      | --no_docker |          |                                  | flag   | Don't start docker automatically |
 | -cd      | --codec |          |                                  | str   | The video codec used for the VideoWriter |
+|  | --container_name | | "gentle" | str | The name of the gentle container |

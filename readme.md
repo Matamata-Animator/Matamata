@@ -30,8 +30,6 @@ For basic usage, feel free to refer to the [video tutorial](https://youtu.be/KnW
 
 ### Windows
 
-This tool was made to be more convenient for people, and since the majority of people, including me, only use Windows on a daily basis, it was essential for this to be able to run on Windows. That being said, there are a few external programs required to make this run.
-
 Install:
 * [Docker Desktop](https://www.docker.com/get-started)
 
@@ -213,14 +211,8 @@ python animate.py -a audio.wav [flags]
 ### Ubuntu - Usage
 
 Launch Terminal
-
-Start docker
-```angular2html
-sudo systemctl start docker
-sudo docker run --name gentle -p 8765:8765 lowerquality/gentle &
 ```
-```
-sudo python3 animate.py -a audio.wav -nd -cd FMP4 [flags]
+sudo python3 animate.py -a audio.wav --codec FMP4 [flags]
 ```
 
 
