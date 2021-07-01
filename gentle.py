@@ -6,23 +6,28 @@ import docker
 
 from typing import Union
 
+import time
+
 try:
     client: docker.DockerClient = docker.from_env()
 except docker.errors.DockerException:
     raise Exception('Make sure Docker Desktop is running')
 
 
-def init() -> docker.DockerClient.containers:
-    container = client.containers.run('lowerquality/gentle', ports={'8765/tcp': 8765}, detach=True, name='gentle')
+def init(name: str, port: int) -> docker.DockerClient.containers:
+    container = client.containers.run('lowerquality/gentle', ports={f'{port}/tcp': port}, detach=True, name=name)
 
     # wait until image is running
     while container.status != 'created':
         pass
+    while not is_ready(port):
+        time.sleep(1)
+
     return container
 
 
-def isReady() -> bool:
-    url = 'http://localhost:8765'
+def is_ready(port: int) -> bool:
+    url = f'http://localhost:{port}'
     try:
         r = requests.get(url)
     except requests.exceptions.ConnectionError:
@@ -30,7 +35,7 @@ def isReady() -> bool:
     return r.status_code == 200
 
 
-def terminate(container: Union[type(docker.DockerClient.containers), str], name='gentle') -> None:
+def terminate(container: Union[type(docker.DockerClient.containers), str], name) -> None:
     if isinstance(container, type(docker.DockerClient.containers)):
         container.kill()
         container.remove()
@@ -41,7 +46,7 @@ def terminate(container: Union[type(docker.DockerClient.containers), str], name=
                 c.remove()
 
 
-def align(audio, text) -> dict:
+def align(audio, text, port) -> dict:
     colorama.init(convert=True)
     while not os.path.isfile(audio):
         pass
@@ -49,7 +54,7 @@ def align(audio, text) -> dict:
         pass
 
     # get output from gentle
-    url = 'http://localhost:8765/transcriptions?async=false'
+    url = f'http://localhost:{port}/transcriptions?async=false'
     files = {'audio': open(audio, 'rb'),
              'transcript': open('generate/script.txt', 'rb')}
     try:

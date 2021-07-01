@@ -249,7 +249,7 @@ def gen_vid(req: VideoRequest):
 
 
     #Wait for gentle to be ready
-    while not gentle.isReady():
+    while not gentle.is_ready():
         time.sleep(0.1)
     # get gentle of text
     gentle_out = gentle.align(req.audio, req.text)
