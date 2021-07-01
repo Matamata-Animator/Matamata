@@ -21,6 +21,15 @@ def init() -> docker.DockerClient.containers:
     return container
 
 
+def isReady() -> bool:
+    url = 'http://localhost:8765'
+    try:
+        r = requests.get(url)
+    except requests.exceptions.ConnectionError:
+        return False
+    return r.status_code == 200
+
+
 def terminate(container: Union[type(docker.DockerClient.containers), str], name='gentle') -> None:
     if isinstance(container, type(docker.DockerClient.containers)):
         container.kill()

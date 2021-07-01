@@ -1,5 +1,6 @@
 import json
 import math
+import time
 
 import cv2
 import numpy as np
@@ -246,6 +247,10 @@ def gen_vid(req: VideoRequest):
     verbose = req.verbose
     phone_reference = json.load(open(str(req.mouths), encoding='utf8'))
 
+
+    #Wait for gentle to be ready
+    while not gentle.isReady():
+        time.sleep(0.1)
     # get gentle of text
     gentle_out = gentle.align(req.audio, req.text)
     v_out(gentle_out)
