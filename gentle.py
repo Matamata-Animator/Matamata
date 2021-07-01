@@ -20,8 +20,7 @@ def init(name: str, port: int) -> docker.DockerClient.containers:
     # wait until image is running
     while container.status != 'created':
         pass
-    while not is_ready(port):
-        time.sleep(1)
+
 
     return container
 
@@ -35,15 +34,16 @@ def is_ready(port: int) -> bool:
     return r.status_code == 200
 
 
-def terminate(container: Union[type(docker.DockerClient.containers), str], name) -> None:
-    if isinstance(container, type(docker.DockerClient.containers)):
-        container.kill()
-        container.remove()
-    if isinstance(container, str):
-        for c in client.containers.list():
-            if c.name == name:
+def terminate(container: type(docker.DockerClient.containers)) -> None:
+    container.kill()
+    container.remove()
+
+def remove_old(name):
+    for c in client.containers.list(all=True):
+        if c.name == name:
+            if c.status != 'exited':
                 c.kill()
-                c.remove()
+            c.remove()
 
 
 def align(audio, text, port) -> dict:

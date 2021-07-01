@@ -233,6 +233,8 @@ class VideoRequest:
 
     cache: bool = False
 
+    port: int = 8765
+
 
 def gen_vid(req: VideoRequest):
     # set up process vars
@@ -248,11 +250,9 @@ def gen_vid(req: VideoRequest):
     phone_reference = json.load(open(str(req.mouths), encoding='utf8'))
 
 
-    #Wait for gentle to be ready
-    while not gentle.is_ready():
-        time.sleep(0.1)
+
     # get gentle of text
-    gentle_out = gentle.align(req.audio, req.text)
+    gentle_out = gentle.align(req.audio, req.text, req.port)
     v_out(gentle_out)
 
     frame = FrameRequest()

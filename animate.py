@@ -48,11 +48,6 @@ parser.add('-r', '--framerate', required=False, default=100, type=int)
 
 parser.add('-em', '--emotion_detection_env', required=False, type=str)
 
-parser.add('--container_name', required=False,
-           default=f'gentle-{"".join(random.choice(string.ascii_lowercase) for i in range(10))}', type=str)
-parser.add('--container_port', required=False,
-           default=int("".join(random.choice(string.digits) for i in range(4))), type=int)
-
 # Flags
 parser.add('--no_delete', required=False, default=False, action='store_true')
 
@@ -61,6 +56,8 @@ parser.add('--crumple_zone', required=False, default=False, action='store_true')
 parser.add('-nd', '--no_docker', required=False, default=False, action='store_true')
 
 args = parser.parse_args()
+port = 8765
+args.container_name = 'gentle'
 
 if args.emotion_detection_env and args.timestamps:
     parser.error("Emotion detection and timestamp mode are currently mutually exclusive. Sorry!")
@@ -85,15 +82,18 @@ def init():
     print(Style.RESET_ALL)
 
     client = None
+    gentle.remove_old(args.container_name)
     if not args.no_docker:
         print("Booting Gentle...")
-        client = gentle.init(args.container_name, args.container_port)
+        client = gentle.init(args.container_name, port)
 
     # Delete old folder, then create the new ones
     shutil.rmtree('generate', ignore_errors=True)
     while os.path.isdir('generate'):
         shutil.rmtree('generate', ignore_errors=True)
         time.sleep(0.01)
+
+    os.makedirs('generate/')
 
     return client
 
@@ -191,13 +191,17 @@ if __name__ == '__main__':
         print('Generating Timestamps...')
         timestamps = gen_timestamps(args.timestamps)
 
+    while not gentle.is_ready(port):
+        print("Waiting for gentle...")
+
+
     # Generate the feeder script, get poses list, and where each pose should go in the script.
     print('Analyzing Text...')
     script_blocks = find_poses()
     poses_list = script_blocks['poses_list']
 
     # Get gentle v_out
-    stamps = gentle.align(args.audio, 'generate/script.txt', args.container_port)
+    stamps = gentle.align(args.audio, 'generate/script.txt', port)
     num_names = num_frames(stamps)
     ig.init(num_names)
 
@@ -208,6 +212,7 @@ if __name__ == '__main__':
         gentle_file.close()
 
     req_vid: ig.VideoRequest = args
+    req_vid.port = port
     req_vid.timestamps = timestamps
     req_vid.poses_list = poses_list
     req_vid.poses_loc = script_blocks['poses_loc']
