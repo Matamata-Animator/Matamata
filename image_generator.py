@@ -235,6 +235,8 @@ class VideoRequest:
 
     port: int = 8765
 
+    stamps = {}
+
 
 def gen_vid(req: VideoRequest):
     # set up process vars
@@ -252,7 +254,8 @@ def gen_vid(req: VideoRequest):
 
 
     # get gentle of text
-    gentle_out = gentle.align(req.audio, req.text, req.port)
+    gentle_out = req.stamps
+    # gentle_out = gentle.align(req.audio, req.text, req.port)
     v_out(gentle_out)
 
     frame = FrameRequest()

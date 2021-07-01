@@ -212,6 +212,7 @@ if __name__ == '__main__':
         gentle_file.close()
 
     req_vid: ig.VideoRequest = args
+    req_vid.stamps = stamps
     req_vid.port = port
     req_vid.timestamps = timestamps
     req_vid.poses_list = poses_list
