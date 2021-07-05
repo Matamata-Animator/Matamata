@@ -82,8 +82,8 @@ def init():
     print(Style.RESET_ALL)
 
     client = None
-    gentle.remove_old(args.container_name)
     if not args.no_docker:
+        gentle.remove_old(args.container_name)
         print("Booting Gentle...")
         client = gentle.init(args.container_name, port)
 
