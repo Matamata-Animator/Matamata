@@ -41,6 +41,12 @@ num_phonemes = 1
 
 
 def init(phones):
+    """
+    Init image generator
+
+    :param phones: Gentle output
+    :return:
+    """
     global num_phonemes
     global frames
     num_phonemes = phones
@@ -155,7 +161,7 @@ def num_frames(frame_req: FrameRequest) -> int:
 
 def overlay(base, top, x, y, scale):
     """
-    Place on image onto another
+    Place an image onto another
 
     :param numpy.ndarray base: Base image
     :param numpy.ndarray top: Overlayed image
@@ -180,6 +186,12 @@ def overlay(base, top, x, y, scale):
 
 
 def gen_frame(frame_req: FrameRequest) -> list:
+    """
+    Create a single frame from a frame request
+
+    :param FrameRequest frame_req: Frame request
+    :return: frame
+    """
     face = cv2.imread(frame_req.face_path)
 
     size = frame_req.dimensions.split(':')
@@ -201,7 +213,14 @@ def gen_frame(frame_req: FrameRequest) -> list:
     return face
 
 
-def write_frames(frame_req: FrameRequest, d):
+def write_frames(frame_req: FrameRequest, d=None):
+    """
+    Create frames from a frame request and write them to the array of frames
+
+    :param frame_req: Frame Request
+    :param None d: None
+    :return: Frame counter after the current frames are written
+    """
     global q
     global frames
 
@@ -218,6 +237,14 @@ def write_frames(frame_req: FrameRequest, d):
 
 
 def ablend(a, fg, bg) -> list:
+    """
+    Blend the colors of two pixels
+
+    :param int a: Opacity
+    :param numpy.ndarray fg: Foreground pixel
+    :param numpy.ndarray bg: Base pixel
+    :return numpy.ndarray: Blended pixel
+    """
     a /= 255
 
     fhsv = np.array(colorsys.rgb_to_hsv(*fg[:3]))
@@ -230,7 +257,18 @@ def ablend(a, fg, bg) -> list:
     return blend
 
 
-def update_pose_from_timestamps(frame, timestamps, poses_loc, fc, pose, phone_references):
+def update_pose_from_timestamps(frame: FrameRequest, timestamps, poses_loc, fc, pose, phone_references):
+    """
+    Get the current pose from the timestamps array
+
+    :param FrameRequest frame: Current frame requesrt
+    :param list timestamps: Timestamps array
+    :param list poses_loc:
+    :param int fc: Frame Counter
+    :param pose: Current pose
+    :param phone_references: phonemes.json
+    :return: new frame request, poses_loc, new pose
+    """
     for p in range(len(timestamps)):
         if frame.frame >= timestamps[p]['time']:
 
@@ -282,6 +320,13 @@ class VideoRequest:
 
 
 def gen_vid(req: VideoRequest):
+    """
+    Generate video from frame request
+
+    :param VideoRequest req: Video Request
+    :return: Array of frames
+    """
+
     # set up process vars
     global verbose
     global characters
