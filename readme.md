@@ -1,7 +1,9 @@
-# Auto Lip Sync
+# Matamata Core
 
-This is the auto-lip-sync tool created by AI Spawn.
-For basic usage, feel free to refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
+Matamata (an acronym for "Matamata attempts to animate mouths at times, accurately") is a tool to automatically create lip-synced animations. 
+For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
+
+<img src="logo.png" alt="logo" style="zoom:25%;" />
 
 ## Table of Contents
 
