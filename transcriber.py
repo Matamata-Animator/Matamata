@@ -8,6 +8,13 @@ import json
 
 
 def transcribe(file_name):
+    """
+    Transcribe audio into text
+
+    :param str file_name: Path to wav file
+    :return str: Transcribed text
+    """
+
     sound = AudioSegment.from_wav(file_name)
     sound = sound.set_channels(1)
     sound.export("generate/audio.wav", format="wav")
@@ -43,11 +50,14 @@ def transcribe(file_name):
     return r['text']
 
 
-def create_script(file_name):
-    script = open('generated_script.txt', 'w+')
+def create_script(file_name, out='generated_script.txt'):
+    """
+    Writa transcribe audio to a file
+
+    :param str file_name: Path to wav file
+    :param str out: Path to output transcribe file
+    :return None:
+    """
+    script = open(out, 'w+')
     text = transcribe(file_name)
     script.write(text)
-
-
-if __name__ == '__main__':
-    print(transcribe('custom/test.wav'))
