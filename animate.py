@@ -85,7 +85,7 @@ def init():
     if not args.no_docker:
         gentle.remove_old(args.container_name)
         print("Booting Gentle...")
-        client = gentle.init(args.container_name, port)
+        client = gentle.init('lowerquality/gentle', args.container_name, port)
 
     # Delete old folder, then create the new ones
     shutil.rmtree('generate', ignore_errors=True)
