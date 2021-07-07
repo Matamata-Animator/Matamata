@@ -130,7 +130,7 @@ If poses are provided via a timestamps file, then no poses will be read from the
 
 ### Characters
 
-The easiest way to create the character file is by using [the character creator](http://matamata.aispawn.com/Character-Creator/). 
+The easiest way to create the character file is by using [the character creator](https://matamata.aispawn.com/Character-Creator/). 
 
 If you decide to create one manually, for an example of a character file, refer to *characters.json*
 
