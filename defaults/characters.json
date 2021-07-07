@@ -1,5 +1,5 @@
 {
-  "facesFolder": "SampleFace/",
+  "facesFolder": "defaults/SampleFace/",
   "default_scale": 1.2,
   "default": {
     "image": "happy.png",

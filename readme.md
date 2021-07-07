@@ -1,7 +1,9 @@
-# Auto Lip Sync
+# Matamata Core
 
-This is the auto-lip-sync tool created by AI Spawn.
-For basic usage, feel free to refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
+Matamata (an acronym for "Matamata attempts to animate mouths at times, accurately") is a tool to automatically create lip-synced animations. 
+For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
+
+<img src="defaults/logo.png" alt="logo" width="200" height="200"/>
 
 ## Table of Contents
 
@@ -128,7 +130,7 @@ If poses are provided via a timestamps file, then no poses will be read from the
 
 ### Characters
 
-The easiest way to create the character file is by using [the character creator](https://aispawn.com/Auto-Lip-Sync/character-creator/). 
+The easiest way to create the character file is by using [the character creator](http://matamata.aispawn.com/Character-Creator/). 
 
 If you decide to create one manually, for an example of a character file, refer to *characters.json*
 
