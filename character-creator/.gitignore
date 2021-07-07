@@ -1,6 +1,0 @@
-node_modules/
-.vscode/
-**/*.js
-**/*.js.map
-package-lock.json
-!build/main.js

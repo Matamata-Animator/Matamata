@@ -26,7 +26,7 @@ import random
 parser = configargparse.ArgParser()
 
 # Arguments
-parser.add('--config', required=False, is_config_file=True, default='config.txt', help='config file path')
+parser.add('--config', required=False, is_config_file=True, default='defaults/config.txt', help='config file path')
 
 parser.add('-a', '--audio', required=True, type=str)
 
@@ -38,8 +38,8 @@ parser.add('-cd', '--codec', required=False, default='avc1', type=str)
 
 parser.add('-s', '--offset', required=False, default='0.00', type=float)
 
-parser.add('-c', '--character', required=False, default='characters.json', type=str)
-parser.add('-m', '---mouths', required=False, default='phonemes.json', type=str)
+parser.add('-c', '--character', required=False, default='defaults/characters.json', type=str)
+parser.add('-m', '---mouths', required=False, default='defaults/phonemes.json', type=str)
 
 parser.add('-d', '--dimensions', required=False, default='TBD', type=str)
 parser.add('-ds', '--dimension_scaler', required=False, default='1', type=float)
@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     if args.text == '':
         print('Transcribing Audio...')
-        args.text = 'generated_script.txt'
+        args.text = 'generate/generated_script.txt'
         transcriber.create_script(args.audio)
 
     if args.emotion_detection_env:

@@ -50,7 +50,7 @@ def transcribe(file_name):
     return r['text']
 
 
-def create_script(file_name, out='generated_script.txt'):
+def create_script(file_name, out='generate/generated_script.txt'):
     """
     Writa transcribe audio to a file
 
