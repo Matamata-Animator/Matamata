@@ -59,6 +59,20 @@ def progress_bar(frames_completed):
 
 
 def get_face_path(pose, phone_reference):
+    """
+    Get pose information from pose name.
+
+    :param str pose: Pose name
+    :param dict phone_reference: Phonemes.json
+    :return:
+    face_path,
+        mouth_pos,
+        scale,
+        mirror_face,
+        mirror_mouth,
+        closed_mouth
+
+    """
     split_pose = pose[1:-1].split('-')
     if split_pose[0] in characters:
         pose = characters[split_pose[0]]  # splits to remove directional tag
@@ -101,6 +115,13 @@ def get_face_path(pose, phone_reference):
 
 
 def get_dimensions(path, scaler) -> str:
+    """
+    Get scaled dimensions of an image.
+
+    :param str path: Path to image
+    :param float scaler: Amount to scale by (default=1)
+    :return str: width:height
+    """
     face = cv2.imread(path)
     w, h = face.shape[1::-1]
     return f'{math.ceil(w * scaler / 2) * 2}:{math.ceil(h * scaler / 2) * 2}'
@@ -123,7 +144,39 @@ class FrameRequest:
 
 
 def num_frames(frame_req: FrameRequest) -> int:
+    """
+    Get the number of frames that should be in the video
+
+    :param frame_req: Frame Request
+    :return int: num_frames
+    """
     return int(frame_req.duration * 100)
+
+
+def overlay(base, top, x, y, scale):
+    """
+    Place on image onto another
+
+    :param numpy.ndarray base: Base image
+    :param numpy.ndarray top: Overlayed image
+    :param int x: x coord of top
+    ":param int y: y coord of top
+    :param float scale:
+    :return:
+    """
+    centered_x = int(x * scale)
+    centered_y = int(y * scale)
+    height, width = top.shape[:2]
+
+    for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
+        for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
+            fp = base[y, x]
+            mp = top[my, mx]
+            if mp[-1] == 255 or len(mp) <= 3:
+                fp[:3] = mp[:3]
+            elif mp[-1] != 0:
+                fp[:3] = ablend(mp[-1], mp, fp)
+    return base
 
 
 def gen_frame(frame_req: FrameRequest) -> list:
@@ -143,18 +196,8 @@ def gen_frame(frame_req: FrameRequest) -> list:
     if frame_req.mirror_mouth:
         face = cv2.flip(face, 1)
 
-    centered_x = int(frame_req.mouth_x * frame_req.scaler)
-    centered_y = int(frame_req.mouth_y * frame_req.scaler)
-    height, width = mouth.shape[:2]
+    face = overlay(face, mouth, frame_req.mouth_x, frame_req.mouth_y, frame_req.scaler)
 
-    for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
-        for mx, x in enumerate(range(centered_x - int(width / 2), centered_x + int(width / 2))):
-            fp = face[y, x]
-            mp = mouth[my, mx]
-            if mp[-1] == 255 or len(mp) <= 3:
-                fp[:3] = mp[:3]
-            elif mp[-1] != 0:
-                fp[:3] = ablend(mp[-1], mp, fp)
     return face
 
 
@@ -251,8 +294,6 @@ def gen_vid(req: VideoRequest):
     verbose = req.verbose
     phone_reference = json.load(open(str(req.mouths), encoding='utf8'))
 
-
-
     # get gentle of text
     gentle_out = req.stamps
     # gentle_out = gentle.align(req.audio, req.text, req.port)
@@ -295,7 +336,6 @@ def gen_vid(req: VideoRequest):
                 total_time += frame.duration
 
                 frame_counter = write_frames(frame, q)
-
 
             # if using timestamps, see if pose should be swapped
             frame, req.poses_loc, pose = update_pose_from_timestamps(frame, req.timestamps,

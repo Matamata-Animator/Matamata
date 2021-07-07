@@ -60,7 +60,7 @@ def remove_old(name):
 
     :param str name: Container name
     :return None:
-    """
+   """
     for c in client.containers.list(all=True):
         if c.name == name:
             if c.status != 'exited':
