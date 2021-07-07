@@ -143,8 +143,8 @@ def gen_frame(frame_req: FrameRequest) -> list:
     if frame_req.mirror_mouth:
         face = cv2.flip(face, 1)
 
-    centered_x = int((frame_req.mouth_x) * frame_req.scaler)
-    centered_y = int((frame_req.mouth_y) * frame_req.scaler)
+    centered_x = int(frame_req.mouth_x * frame_req.scaler)
+    centered_y = int(frame_req.mouth_y * frame_req.scaler)
     height, width = mouth.shape[:2]
 
     for my, y in enumerate(range(centered_y - int(height / 2), centered_y + int(height / 2))):
