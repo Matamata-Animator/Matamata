@@ -4,28 +4,37 @@ import colorama
 
 import docker
 
-from typing import Union
-
-import time
-
 try:
     client: docker.DockerClient = docker.from_env()
 except docker.errors.DockerException:
     raise Exception('Make sure Docker Desktop is running')
 
 
-def init(name: str, port: int) -> docker.DockerClient.containers:
-    container = client.containers.run('lowerquality/gentle', ports={f'{port}/tcp': port}, detach=True, name=name)
+def init(tag: str, name: str, port: int) -> docker.DockerClient.containers:
+    """
+    Launch docker container
+
+    ":param tag:
+    :param name:
+    :param port:
+    :return:
+    """
+    container = client.containers.run(tag, ports={f'{port}/tcp': port}, detach=True, name=name)
 
     # wait until image is running
     while container.status != 'created':
         pass
 
-
     return container
 
 
 def is_ready(port: int) -> bool:
+    """
+    Check to see if gentle is ready for usage
+
+    :param port: Port gentle is running on
+    :return bool:
+    """
     url = f'http://localhost:{port}'
     try:
         r = requests.get(url)
@@ -35,10 +44,23 @@ def is_ready(port: int) -> bool:
 
 
 def terminate(container: type(docker.DockerClient.containers)) -> None:
+    """
+    Kill and remove a live docker container
+
+    :param container: Docker container
+    :return None:
+    """
     container.kill()
     container.remove()
 
+
 def remove_old(name):
+    """
+    Kill and remove a docker container by name
+
+    :param str name: Container name
+    :return None:
+   """
     for c in client.containers.list(all=True):
         if c.name == name:
             if c.status != 'exited':
@@ -46,7 +68,15 @@ def remove_old(name):
             c.remove()
 
 
-def align(audio, text, port) -> dict:
+def align(audio, text, port=8765) -> dict:
+    """
+    Get aligned gentle output
+
+    :param audio: Path to audio
+    :param text: Path to text transcript
+    :param port: Port of gentle (default=8765)
+    :return dict: JSON phonemes and timestamps
+    """
     colorama.init(convert=True)
     while not os.path.isfile(audio):
         pass
@@ -56,7 +86,7 @@ def align(audio, text, port) -> dict:
     # get output from gentle
     url = f'http://localhost:{port}/transcriptions?async=false'
     files = {'audio': open(audio, 'rb'),
-             'transcript': open('generate/script.txt', 'rb')}
+             'transcript': open(text, 'rb')}
     try:
         r = requests.post(url, files=files)
     except requests.exceptions.RequestException as e:
@@ -64,3 +94,4 @@ def align(audio, text, port) -> dict:
             colorama.Fore.RED + '[ERR 503] Failed to post to Gentle: Make sure Docker Desktop is running...')
 
     return r.json()
+
