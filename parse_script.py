@@ -1,4 +1,12 @@
 def parse_script(text, start_character='[', end_character=']'):  # Parse script to identify pose tags
+    """
+    Identify poses from script
+
+    :param text: Script
+    :param start_character: Character that indicated the start of a pose (default='[')
+    :param end_character: Character that indicated the end of a pose (default=']')
+    :return:
+    """
     text = text.replace('\n', ' ')
     start_character = start_character[0]
     end_character = end_character[0]
