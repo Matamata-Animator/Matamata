@@ -26,7 +26,7 @@ import random
 parser = configargparse.ArgParser()
 
 # Arguments
-parser.add('--config', required=False, is_config_file=True, default='defaults/config.txt', help='config file path')
+parser.add('--config', required=False, is_config_file=True, default='config.txt', help='config file path')
 
 parser.add('-a', '--audio', required=True, type=str)
 
