@@ -55,6 +55,10 @@ parser.add('-v', '--verbose', required=False, default=False, action='store_true'
 parser.add('--crumple_zone', required=False, default=False, action='store_true')
 parser.add('-nd', '--no_docker', required=False, default=False, action='store_true')
 
+# Added for desktop
+parser.add('--gen_dir', required=False, default='generate', type=str)
+
+
 args = parser.parse_args()
 port = 8765
 args.container_name = 'gentle'
@@ -86,12 +90,12 @@ def init():
         client = gentle.init('lowerquality/gentle', args.container_name, port)
 
     # Delete old folder, then create the new ones
-    shutil.rmtree('generate', ignore_errors=True)
-    while os.path.isdir('generate'):
-        shutil.rmtree('generate', ignore_errors=True)
+    shutil.rmtree(f'{args.gen_dir}', ignore_errors=True)
+    while os.path.isdir(f'{args.gen_dir}'):
+        shutil.rmtree(f'{args.gen_dir}', ignore_errors=True)
         time.sleep(0.01)
 
-    os.makedirs('generate/')
+    os.makedirs(f'{args.gen_dir}/')
 
     return client
 
@@ -103,7 +107,7 @@ def shutdown(frames, container) -> None:
     print('\nCombining Frames...')
     size = frames[0].shape[1], frames[0].shape[0]
     fourcc = cv2.VideoWriter_fourcc(*args.codec)
-    video = cv2.VideoWriter("generate/cv.mp4", fourcc, 100.0, size)
+    video = cv2.VideoWriter(f'{args.gen_dir}/cv.mp4', fourcc, 100.0, size)
     i = 0
 
     for c, f in enumerate(frames):
@@ -123,14 +127,14 @@ def shutdown(frames, container) -> None:
         os.remove(args.output)
     print('\nFinishing Up...')
 
-    export_video = ffmpeg.input('generate/cv.mp4', )
+    export_video = ffmpeg.input(f'{args.gen_dir}/cv.mp4', )
     export_audio = ffmpeg.input(args.audio)
     ffmpeg.concat(export_video, export_audio, v=1, a=1).output(args.output, loglevel='quiet').run()
 
     while not os.path.isfile(args.output):
         pass
     if not args.no_delete:
-        shutil.rmtree('generate')
+        shutil.rmtree(f'{args.gen_dir}')
     colorama.init(convert=True)
     print(f'{Style.RESET_ALL}Done')
 
@@ -146,7 +150,7 @@ def find_poses() -> dict:
     # Parse script, output parsed script to generate
     raw_script = open(args.text, 'r').read()
     parsed_script = parse_script(raw_script)
-    feeder_script = 'generate/script.txt'
+    feeder_script = f'{args.gen_dir}/script.txt'
     script_file = open(feeder_script, 'w+')
     script_file.write(parsed_script['feeder_script'])
     script_file.flush()
@@ -169,8 +173,8 @@ if __name__ == '__main__':
 
     if args.text == '':
         print('Transcribing Audio...')
-        args.text = 'generate/generated_script.txt'
-        transcriber.create_script(args.audio)
+        args.text = f'{args.gen_dir}/generated_script.txt'
+        transcriber.create_script(args.audio, f'{args.gen_dir}')
 
     if args.emotion_detection_env:
         print('Detecting Emotions...')
@@ -199,12 +203,12 @@ if __name__ == '__main__':
     poses_list = script_blocks['poses_list']
 
     # Get gentle v_out
-    stamps = gentle.align(args.audio, 'generate/script.txt', port)
+    stamps = gentle.align(args.audio, f'{args.gen_dir}/script.txt', port)
     num_names = num_frames(stamps)
     ig.init(num_names)
 
     if args.no_delete:
-        gentle_file = open('generate/gentle.json', 'w+')
+        gentle_file = open(f'{args.gen_dir}/gentle.json', 'w+')
         gentle_file.write(json.dumps(stamps, indent=4))
         gentle_file.flush()
         gentle_file.close()

@@ -7,7 +7,7 @@ from pydub import AudioSegment
 import json
 
 
-def transcribe(file_name):
+def transcribe(file_name, gen_dir):
     """
     Transcribe audio into text
 
@@ -17,7 +17,7 @@ def transcribe(file_name):
 
     sound = AudioSegment.from_wav(file_name)
     sound = sound.set_channels(1)
-    sound.export("generate/audio.wav", format="wav")
+    sound.export(f'{gen_dir}/audio.wav', format="wav")
 
     SetLogLevel(-1)
 
@@ -26,7 +26,7 @@ def transcribe(file_name):
             "Please download the model from https://alphacephei.com/vosk/models and unpack as 'model' in the current folder.")
         exit(1)
 
-    wf = wave.open('generate/audio.wav', "rb")
+    wf = wave.open(f'{gen_dir}/audio.wav', "rb")
     if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
         print("Audio file must be WAV format mono PCM.")
         exit(1)
@@ -50,7 +50,7 @@ def transcribe(file_name):
     return r['text']
 
 
-def create_script(file_name, out='generate/generated_script.txt'):
+def create_script(file_name, gen_dir):
     """
     Writa transcribe audio to a file
 
@@ -58,6 +58,6 @@ def create_script(file_name, out='generate/generated_script.txt'):
     :param str out: Path to output transcribe file
     :return None:
     """
-    script = open(out, 'w+')
-    text = transcribe(file_name)
+    script = open(f'{gen_dir}/generated_script.txt', 'w+')
+    text = transcribe(file_name, gen_dir)
     script.write(text)
