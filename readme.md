@@ -32,28 +32,10 @@ For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1
 
 ### Windows
 
-Install:
-* [Docker Desktop](https://www.docker.com/get-started)
-
-* [Anaconda](https://www.anaconda.com/products/individual#Downloads), or a similar python environment that allows you to use pip. This is  just the one I recommend.
-
-  
-
-Download this repo and open Anaconda Prompt in the folder. If you have Git installed, that can be done via:
-
-```
-git clone https://github.com/AI-Spawn/Auto-Lip-Sync
-cd Auto-Lip-Sync
-```
-Otherwise, use the download button on GitHub, extract files from the zip, and open Anaconda Prompt in that folder.
-
-Install required packages
-```
-pip install -r requirements.txt
-conda install ffmpeg
-```
-
-Launch Docker if it isn't launched already
+* Please follow the instructions [here](Windows_Install_Instructions.md) to set up your python environment
+* Install [Docker Desktop](https://www.docker.com/get-started)
+* Launch Docker Desktop if it isn't already running
+* Pull the Gentle container:
 
 ```
 docker pull lowerquality/gentle
@@ -204,7 +186,7 @@ You can now provide the name of this file to the tool by using the `-em` argumen
 
 Launch *Docker Desktop*
 
-Launch *Anaconda Prompt*
+Launch terminal in the Matamata-Core folder
 ```
 python animate.py -a audio.wav [flags]
 ```

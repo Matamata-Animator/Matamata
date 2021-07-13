@@ -1,3 +1,0 @@
-audio=custom/intro.wav
-timestamps=custom/intro.txt
-character=custom/mychar.json
