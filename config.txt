@@ -1,2 +1,3 @@
-audio=custom/test/test.wav
-codec=FMP4
+audio=custom/intro.wav
+timestamps=custom/intro.txt
+character=custom/mychar.json
