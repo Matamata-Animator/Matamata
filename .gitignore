@@ -18,6 +18,6 @@ generate/
 __pycache__/
 venv/
 
-!config.txt
+config.txt
 
 !logo.png
