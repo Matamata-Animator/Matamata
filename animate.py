@@ -39,7 +39,7 @@ parser.add('-cd', '--codec', required=False, default='avc1', type=str)
 parser.add('-s', '--offset', required=False, default='0.00', type=float)
 
 parser.add('-c', '--character', required=False, default='defaults/characters.json', type=str)
-parser.add('-m', '---mouths', required=False, default='defaults/phonemes.json', type=str)
+parser.add('-m', '--mouths', required=False, default='defaults/phonemes.json', type=str)
 
 parser.add('-d', '--dimensions', required=False, default='TBD', type=str)
 parser.add('-ds', '--dimension_scaler', required=False, default='1', type=float)
