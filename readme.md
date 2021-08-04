@@ -1,6 +1,6 @@
 # Matamata Core
 
-Matamata (an acronym for "Matamata attempts to animate mouths at times, accurately") is a tool to automatically create lip-synced animations. 
+Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations. 
 For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
 
 <img src="https://raw.githubusercontent.com/Matamata-Animator/Branding/main/Logos-Icons/logo.png" alt="logo" width="200" height="200"/>
