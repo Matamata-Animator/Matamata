@@ -1,0 +1,70 @@
+{
+  "audio": {
+    "alias": "a",
+    "type": "string",
+    "description": "The path to the audio file being animated",
+    "required": true
+  },
+  "timestamps": {
+    "alias": "t",
+    "type": "string",
+    "description": "The path to the file containing pose timestamps"
+  },
+  "text": {
+    "type": "string",
+    "description": "The path to the script of the audio file"
+  },
+  "output": {
+    "alias": "o",
+    "type": "string",
+    "description": "The file output path",
+    "default": "output.mov"
+  },
+  "character": {
+    "alias": "c",
+    "type": "string",
+    "description": "The list of character poses",
+    "default": "characters.json"
+  },
+  "mouths": {
+    "alias": "m",
+    "type": "string",
+    "description": "The list of character poses",
+    "default": "phonemes.json"
+  },
+  "dimensions": {
+    "alias": "d",
+    "type": "string",
+    "description": "The resolution of the final video. Passed in the form, \"1920:1080\"",
+    "default": "TBD"
+  },
+  "dimension_scaler": {
+    "alias": "ds",
+    "type": "float",
+    "description": "Scales the final dimensions up or down. The lower this number, the lower res the output will be, but the faster image generation is",
+    "default": 1
+  },
+  "verbose": {
+    "alias": "V",
+    "type": "boolean",
+    "description": "Enable verbose mode",
+    "default": false
+  },
+  "no_docker": {
+    "alias": "nd",
+    "type": "boolean",
+    "description": "Don't start the docker container automatically",
+    "default": false
+  },
+  "codec": {
+    "alias": "cd",
+    "type": "string",
+    "description": "The video codec used for the VideoWriter",
+    "default": "avc1"
+  },
+  "container_name": {
+    "type": "string",
+    "description": "The name of the gentle container",
+    "default": "gentle"
+  }
+}
