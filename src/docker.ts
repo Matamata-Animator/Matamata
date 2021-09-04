@@ -70,11 +70,10 @@ export async function launchContainer(
   await docker.run(
     image_name,
     [],
-    process.stdout,
+    process.stdout, //TODO: change this to empty writeable stream
     { name: container_name },
     function (err: any, data: any, container: any) {
       // Do stuff
     }
   );
-  console.log("container moment");
 }
