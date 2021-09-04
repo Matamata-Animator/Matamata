@@ -1,0 +1,19 @@
+{
+  "name": "Matamata-Core",
+  "version": "4.0.0",
+  "main": "build/animate.js",
+  "repository": "https://github.com/Matamata-Animator/Matamata-Core.git",
+  "author": "AI-Spawn <50590465+AI-Spawn@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.7.10",
+    "nodemon": "^2.0.12"
+  },
+  "scripts": {
+    "start": "tsc && nodemon .",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "yargs": "^17.1.1"
+  }
+}
