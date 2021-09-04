@@ -1,5 +1,8 @@
 import { rejects } from "assert";
 
+import { createWriteStream } from "fs";
+export const gentle_log = createWriteStream("gentle.log");
+
 var figlet = require("figlet");
 let verboseLevel: number = 1;
 

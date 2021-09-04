@@ -2,8 +2,8 @@ import { getArgs } from "./argparse";
 import { setVerbose, banner, log } from "./loggger";
 
 import { removeOld, launchContainer } from "./docker";
-const args = getArgs();
 
+const args = getArgs();
 async function main() {
   setVerbose(args.verbose);
   await banner();
@@ -11,8 +11,8 @@ async function main() {
 
   await removeOld(args.container_name);
 
-  console.log("reeeeeeeee");
-
   await launchContainer(args.container_name, args.image_name);
+
+  console.log("based");
 }
 main();
