@@ -40,7 +40,7 @@
   },
   "dimension_scaler": {
     "alias": "ds",
-    "type": "float",
+    "type": "number",
     "description": "Scales the final dimensions up or down. The lower this number, the lower res the output will be, but the faster image generation is",
     "default": 1
   },

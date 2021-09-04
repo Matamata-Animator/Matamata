@@ -16,7 +16,22 @@ var argv = yargs(hideBin(process.argv))
 for (const option in default_args) {
   argv = argv.option(option, default_args[option]);
 }
-let args = argv.argv;
+let args = argv.argv as unknown as Args;
 export function getArgs() {
   return args;
+}
+
+export interface Args {
+  audio: string;
+  timestamps: string;
+  text: string;
+  output: string;
+  character: string;
+  mouths: string;
+  dimensions: string;
+  dimension_scaler: number;
+  verbose: boolean;
+  no_docker: boolean;
+  codec: string;
+  container_name: string;
 }
