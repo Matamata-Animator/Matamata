@@ -4,9 +4,15 @@ import { setVerbose, banner, log } from "./loggger";
 import { removeOld, launchContainer } from "./docker";
 const args = getArgs();
 
-setVerbose(args.verbose);
-banner();
-log("Full Verbose", 2);
+async function main() {
+  setVerbose(args.verbose);
+  await banner();
+  log("Full Verbose", 2);
 
-removeOld(args.container_name);
-launchContainer(args.container_name);
+  await removeOld(args.container_name);
+
+  console.log("reeeeeeeee");
+
+  await launchContainer(args.container_name, args.image_name);
+}
+main();

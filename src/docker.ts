@@ -1,10 +1,35 @@
 // var Docker = require("dockerode");
 import { rejects } from "assert";
 import Docker from "dockerode";
+import { resolve } from "path/posix";
 import { log } from "./loggger";
 
-var docker = new Docker(); //defaults to above if env variables are not used
-export async function removeOld(container_name: string) {}
+var docker = new Docker({ port: 8765 }); //defaults to above if env variables are not used
+
+async function findAndKill(
+  container_name: string,
+  containers: Docker.ContainerInfo[]
+) {
+  for (const containerInfo of containers) {
+    if (containerInfo.Names.includes(`/${container_name}`)) {
+      let c = docker.getContainer(containerInfo.Id);
+      await c.stop();
+      await c.remove();
+    }
+  }
+}
+
+export async function removeOld(container_name: string) {
+  let containerKilled = new Promise((resolve, reject) => {
+    docker.listContainers(
+      async (err: any, containers: Docker.ContainerInfo[]) => {
+        await findAndKill(container_name, containers);
+        resolve(0);
+      }
+    );
+  });
+  return containerKilled;
+}
 
 async function pullIfMissing(image_name: string) {
   let imagePulled = new Promise(async (resolve, reject) => {
@@ -21,32 +46,35 @@ async function pullIfMissing(image_name: string) {
       1
     );
 
-    await docker.pull(
-      "lowerquality/gentle:latest",
-      function (err: any, stream: any) {
-        docker.modem.followProgress(stream, onFinished, onProgress);
+    await docker.pull(image_name, function (err: any, stream: any) {
+      docker.modem.followProgress(stream, onFinished, onProgress);
 
-        function onFinished(err: any, output: any) {
-          resolve(100);
-        }
-        function onProgress(event: any) {}
+      function onFinished(err: any, output: any) {
+        resolve(100);
       }
-    );
+      function onProgress(event: any) {}
+    });
   });
   return imagePulled;
 }
 
-export async function launchContainer(container_name: string) {
-  let pull = await pullIfMissing("lowerquality/gentle:latest");
+export async function launchContainer(
+  container_name: string,
+  image_name: string
+) {
+  let pull = await pullIfMissing(image_name);
   if (pull == 100) {
     log("Pull Complete", 1);
   }
-  //   docker.run(
-  //     "lowerquality/gentle",
-  //     ["bash", "-c", "uname -a"],
-  //     process.stdout,
-  //     function (err: any, data: any, container: any) {
-  //       //   console.log(data.StatusCode);
-  //     }
-  //   );
+
+  await docker.run(
+    image_name,
+    [],
+    process.stdout,
+    { name: container_name },
+    function (err: any, data: any, container: any) {
+      // Do stuff
+    }
+  );
+  console.log("container moment");
 }
