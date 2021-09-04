@@ -6,6 +6,7 @@
   "author": "AI-Spawn <50590465+AI-Spawn@users.noreply.github.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/figlet": "^1.5.4",
     "@types/node": "^16.7.10",
     "@types/yargs": "^17.0.2",
     "nodemon": "^2.0.12"
@@ -15,6 +16,7 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
+    "figlet": "^1.5.2",
     "yargs": "^17.1.1"
   }
 }

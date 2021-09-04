@@ -46,9 +46,9 @@
   },
   "verbose": {
     "alias": "V",
-    "type": "boolean",
-    "description": "Enable verbose mode",
-    "default": false
+    "type": "number",
+    "description": "Verbose level",
+    "default": 1
   },
   "no_docker": {
     "alias": "nd",
