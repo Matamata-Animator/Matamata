@@ -1,9 +1,10 @@
 // var Docker = require("dockerode");
 import { rejects } from "assert";
 import Docker from "dockerode";
-import { resolve } from "path/posix";
-import { log } from "./loggger";
 
+import { resolve } from "path/posix";
+import { Writable } from "stream";
+import { log, gentle_log } from "./loggger";
 var docker = new Docker({ port: 8765 }); //defaults to above if env variables are not used
 
 async function findAndKill(
@@ -70,7 +71,8 @@ export async function launchContainer(
   await docker.run(
     image_name,
     [],
-    process.stdout, //TODO: change this to empty writeable stream
+    gentle_log,
+    // process.stdout, //TODO: change this to empty writeable stream
     { name: container_name },
     function (err: any, data: any, container: any) {
       // Do stuff
