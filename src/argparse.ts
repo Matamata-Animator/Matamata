@@ -34,4 +34,5 @@ export interface Args {
   no_docker: boolean;
   codec: string;
   container_name: string;
+  image_name: string;
 }
