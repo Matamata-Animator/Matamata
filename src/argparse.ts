@@ -30,7 +30,7 @@ export interface Args {
   mouths: string;
   dimensions: string;
   dimension_scaler: number;
-  verbose: boolean;
+  verbose: number;
   no_docker: boolean;
   codec: string;
   container_name: string;

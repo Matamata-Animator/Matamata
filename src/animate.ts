@@ -1,3 +1,7 @@
 import { getArgs } from "./argparse";
+import { setVerbose, banner, log } from "./loggger";
 const args = getArgs();
-console.log(args.audio);
+
+setVerbose(args.verbose);
+banner();
+log("Full Verbose", 2);
