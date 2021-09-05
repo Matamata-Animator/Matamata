@@ -4,7 +4,7 @@ import Docker from "dockerode";
 
 import { resolve } from "path/posix";
 import { Writable } from "stream";
-import { log, gentle_log } from "./loggger";
+import { log, gentle_log } from "./logger";
 var docker = new Docker({ port: 8765 }); //defaults to above if env variables are not used
 
 async function findAndKill(
@@ -37,7 +37,7 @@ async function pullIfMissing(image_name: string) {
     const images = await docker.listImages();
     for (const img of images) {
       if (img.RepoTags.includes(image_name)) {
-        log("Image Found", 3);
+        log("Image Found", 2);
         resolve(0);
         return 0;
       }
@@ -61,21 +61,43 @@ async function pullIfMissing(image_name: string) {
 
 export async function launchContainer(
   container_name: string,
-  image_name: string
+  image_name: string,
+  port = 8765
 ) {
   let pull = await pullIfMissing(image_name);
   if (pull == 100) {
     log("Pull Complete", 1);
   }
 
+  //   await docker.run(
+  //     image_name,
+  //     [],
+  //     gentle_log,
+  //     { name: container_name, port: port },
+  //     function (err: any, data: any, container: any) {
+  //       // Do stuff
+  //     }
+  //   );
   await docker.run(
     image_name,
     [],
-    gentle_log,
-    // process.stdout, //TODO: change this to empty writeable stream
-    { name: container_name },
+    process.stdout,
+    {
+      ExposedPorts: {
+        "80/tcp": {},
+      },
+      Hostconfig: {
+        PortBindings: {
+          "80/tcp": [
+            {
+              HostPort: port,
+            },
+          ],
+        },
+      },
+    },
     function (err: any, data: any, container: any) {
-      // Do stuff
+      console.log(data);
     }
   );
 }

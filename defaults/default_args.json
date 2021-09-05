@@ -12,7 +12,8 @@
   },
   "text": {
     "type": "string",
-    "description": "The path to the script of the audio file"
+    "description": "The path to the script of the audio file",
+    "default": ""
   },
   "output": {
     "alias": "o",
