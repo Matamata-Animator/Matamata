@@ -6,6 +6,7 @@
 *.mov
 *.env
 
+deepspeech-models
 !requirements.txt
 !mouths
 !character_creator
