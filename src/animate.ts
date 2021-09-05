@@ -22,6 +22,7 @@ async function main() {
   await removeOld(args.container_name);
 
   let gentle_launched = launchContainer(args.container_name, args.image_name);
+
   stupidpromisearray.push(gentle_launched);
 
   //TODO: Create generate folders if needed
