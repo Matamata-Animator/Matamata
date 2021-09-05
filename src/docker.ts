@@ -1,11 +1,11 @@
 // var Docker = require("dockerode");
 import { rejects } from "assert";
-import Docker from "dockerode";
-
+import { Docker } from "node-docker-api";
 import { resolve } from "path/posix";
 import { Writable } from "stream";
 import { log, gentle_log } from "./logger";
-var docker = new Docker({ port: 8765 }); //defaults to above if env variables are not used
+
+var docker = new Docker(); //defaults to above if env variables are not used
 
 async function findAndKill(
   container_name: string,

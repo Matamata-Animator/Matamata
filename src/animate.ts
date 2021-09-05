@@ -6,9 +6,14 @@ import { removeOld, launchContainer } from "./docker";
 import { transcribeAudio } from "./transcriber";
 import { json } from "stream/consumers";
 import { readFile } from "fs/promises";
+import { parseTimestamps, Timestamp } from "./poseParser";
 
 const args = getArgs();
 async function main() {
+  //////////////////////////////////////////////////////////////
+  // Create Banner, Load Audio, Load Script, Transcribe Audio //
+  //////////////////////////////////////////////////////////////
+
   let stupidpromisearray: Promise<any>[] = [];
   setVerbose(args.verbose);
   await banner();
@@ -18,7 +23,6 @@ async function main() {
 
   let gentle_launched = launchContainer(args.container_name, args.image_name);
   stupidpromisearray.push(gentle_launched);
-  log("Docker Ready...", 1);
 
   //TODO: Create generate folders if needed
   let scriptPromise: Promise<unknown>;
@@ -31,7 +35,19 @@ async function main() {
   }
 
   let script = (await Promise.all(stupidpromisearray))[1];
+  log("Docker Ready...", 1);
 
-  console.log(script);
+  log(`Script:${script}`, 2);
+
+  ///////////////////////////////
+  // Parse TestFile into Poses //
+  ///////////////////////////////
+  let timestamps: Timestamp[] = [];
+  if (args.timestamps != "") {
+    timestamps = await parseTimestamps(args.timestamps);
+  }
 }
-main();
+
+if (require.main === module) {
+  main();
+}
