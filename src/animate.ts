@@ -14,32 +14,28 @@ async function main() {
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
   //////////////////////////////////////////////////////////////
 
-  let stupidpromisearray: Promise<any>[] = [];
   setVerbose(args.verbose);
   await banner();
   log("Full Verbose", 2);
 
-  await removeOld(args.container_name);
-
-  let gentle_launched = launchContainer(args.container_name, args.image_name);
-
-  stupidpromisearray.push(gentle_launched);
+  let containerKilled = removeOld(args.container_name);
 
   //TODO: Create generate folders if needed
   let scriptPromise: Promise<unknown>;
   if (args.text == "") {
+    log("Transcribing Audio...", 1);
     scriptPromise = transcribeAudio(args.audio);
-    stupidpromisearray.push(scriptPromise);
   } else {
     scriptPromise = readFile(args.text);
-    stupidpromisearray.push(scriptPromise);
   }
 
-  let script = (await Promise.all(stupidpromisearray))[1];
-  log("Docker Ready...", 1);
+  await Promise.all([containerKilled, scriptPromise]);
+  let script = await scriptPromise;
 
   log(`Script:${script}`, 2);
 
+  await launchContainer(args.container_name, args.image_name);
+  log("Docker Ready...", 1);
   ///////////////////////////////
   // Parse TestFile into Poses //
   ///////////////////////////////

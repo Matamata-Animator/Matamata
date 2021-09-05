@@ -9,6 +9,7 @@
     "@types/dockerode": "^3.2.7",
     "@types/figlet": "^1.5.4",
     "@types/node": "^16.7.10",
+    "@types/wav": "^1.0.1",
     "@types/yargs": "^17.0.2",
     "nodemon": "^2.0.12"
   },

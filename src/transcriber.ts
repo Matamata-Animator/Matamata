@@ -1,14 +1,18 @@
 var vosk = require("vosk");
-const fs = require("fs");
-const { Readable } = require("stream");
-const wav = require("wav");
+import fs from "fs";
+import { Readable } from "stream";
+import wav from "wav";
 import { join } from "path";
 
 export async function transcribeAudio(audio_path: string) {
   let path_cache = audio_path;
-
+  // var p = __dirname;
+  // p = p.replace(/\\/g, "/");
+  // let path = p.split("/");
+  // var strippedPath = path.slice(0, path.length - 1).join("/");
+  // console.log(strippedPath);
   let model_path = join(__dirname, "..", "model");
-
+  // let model_path = path.join(strippedPath, "model/");
   if (!fs.existsSync(model_path)) {
     console.log(
       "Please download the model from https://alphacephei.com/vosk/models and unpack as " +
@@ -27,7 +31,7 @@ export async function transcribeAudio(audio_path: string) {
   const wfReadable = new Readable().wrap(wfReader);
 
   let transcribed = new Promise((resolve, reject) => {
-    wfReader.on("format", async (fileInfo: any) => {
+    wfReader.on("format", async (fileInfo: wav.Format) => {
       if (fileInfo.audioFormat != 1 || fileInfo.channels != 1) {
         console.error("Audio file must be WAV format mono PCM.");
         process.exit(1);
@@ -44,9 +48,8 @@ export async function transcribeAudio(audio_path: string) {
           rec.result();
         }
       }
-      // console.log();
       let json = rec.finalResult(rec);
-
+      console.log(json.alternatives[0].result);
       resolve(json.alternatives[0].text);
 
       rec.free();
