@@ -73,5 +73,10 @@
     "type": "string",
     "description": "The name of the gentle docker image",
     "default": "lowerquality/gentle:latest"
+  },
+  "vosk_model": {
+    "type": "string",
+    "description": "TH path to the Vosk model (obtainable from https://alphacephei.com/vosk/models)",
+    "default": "model"
   }
 }
