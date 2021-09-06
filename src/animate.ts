@@ -24,7 +24,7 @@ async function main() {
   let scriptPromise: Promise<unknown>;
   if (args.text == "") {
     log("Transcribing Audio...", 1);
-    scriptPromise = transcribeAudio(args.audio);
+    scriptPromise = transcribeAudio(args.audio, args.vosk_model);
   } else {
     scriptPromise = readFile(args.text);
   }

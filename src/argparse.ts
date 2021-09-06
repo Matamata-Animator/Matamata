@@ -35,4 +35,5 @@ export interface Args {
   codec: string;
   container_name: string;
   image_name: string;
+  vosk_model: string;
 }

@@ -4,15 +4,10 @@ import { Readable } from "stream";
 import wav from "wav";
 import { join } from "path";
 
-export async function transcribeAudio(audio_path: string) {
+export async function transcribeAudio(audio_path: string, model_path: string) {
   let path_cache = audio_path;
-  // var p = __dirname;
-  // p = p.replace(/\\/g, "/");
-  // let path = p.split("/");
-  // var strippedPath = path.slice(0, path.length - 1).join("/");
-  // console.log(strippedPath);
-  let model_path = join(__dirname, "..", "model");
-  // let model_path = path.join(strippedPath, "model/");
+
+  // let model_path = join(__dirname, "..", "model");
   if (!fs.existsSync(model_path)) {
     console.log(
       "Please download the model from https://alphacephei.com/vosk/models and unpack as " +
