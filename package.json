@@ -19,12 +19,10 @@
     "watch": "tsc --watch"
   },
   "dependencies": {
-    "@bottlenose/rxtranscribe": "^0.7.0",
-    "@solyarisoftware/voskjs": "^1.2.8",
-    "coquisttjs": "^0.1.1",
-    "deepspeech": "^0.9.3",
     "dockerode": "^3.3.0",
     "figlet": "^1.5.2",
+    "node-libcurl": "^2.3.3",
+    "sudo-prompt": "^9.2.1",
     "vosk": "^0.3.31",
     "yargs": "^17.1.1"
   }

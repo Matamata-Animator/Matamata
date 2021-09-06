@@ -1,9 +1,6 @@
-// const axios = require("axios").default;
-import fs from "fs";
+// import fs from "fs";
 
-// // import { curly, Curl } from "node-libcurl";
-// import axios from "axios";
-// import FormData from "form-data";
+import { curly, Curl } from "node-libcurl";
 
 let url = "http://localhost:8765/transcriptions?async=false";
 
