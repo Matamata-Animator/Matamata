@@ -3,21 +3,25 @@ import { rejects } from "assert";
 import Docker from "dockerode";
 import { resolve } from "path/posix";
 import { Writable } from "stream";
+import { gentleAlign } from "./gentle";
 import { log, gentle_log } from "./logger";
 
 const docker = new Docker(); //defaults to above if env variables are not used
 
 export async function removeOld(container_name: string) {
+  let killed = false;
   let containers = await docker.listContainers({ all: true });
   for (const container of containers) {
     if (container.Names.includes(`/${container_name}`)) {
       let old = docker.getContainer(container.Id);
-      if (container.State == "running") {
-        await old.stop();
+      if (container.State != "running") {
+        await old.kill();
+        await old.remove();
+        killed = true;
       }
-      await old.remove();
     }
   }
+  return killed;
 }
 
 export function launchContainer(container_name: string, image_name: string) {

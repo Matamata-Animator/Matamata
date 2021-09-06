@@ -15,7 +15,7 @@
   },
   "scripts": {
     "debug": "tsc && nodemon .",
-    "start": "tsc && node .",
+    "animate": "tsc && node .",
     "watch": "tsc --watch"
   },
   "dependencies": {

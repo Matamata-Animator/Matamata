@@ -8,9 +8,10 @@ import { json } from "stream/consumers";
 import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
+import { gentleAlign } from "./gentle";
 
 let generate_dir = "generate";
-
+var start = Date.now();
 const args = getArgs();
 async function main() {
   //////////////////////////////////////////////////////////////
@@ -40,9 +41,12 @@ async function main() {
   let script = await scriptPromise;
 
   log(`Script:${script}`, 2);
-  writeFileSync(`${generate_dir}/script.txt`, script as string);
+  writeFileSync(`${generate_dir}/script.txt`, String(script));
 
-  await launchContainer(args.container_name, args.image_name);
+  console.log(await containerKilled);
+  if (await containerKilled) {
+    await launchContainer(args.container_name, args.image_name);
+  }
   log("Docker Ready...", 1);
   ///////////////////////////////
   // Parse TestFile into Poses //
@@ -51,8 +55,17 @@ async function main() {
   if (args.timestamps != "") {
     timestamps = await parseTimestamps(args.timestamps);
   }
+
+  let gentle_aligned = await gentleAlign(
+    args.audio,
+    `${generate_dir}/script.txt`
+  );
+  log(gentle_aligned, 1);
 }
 
 if (require.main === module) {
-  main();
+  main().catch((err) => {
+    console.log("SOMETHING WENT WRONG");
+    console.log(err);
+  });
 }
