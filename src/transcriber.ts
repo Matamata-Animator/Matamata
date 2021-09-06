@@ -1,4 +1,5 @@
 var vosk = require("vosk");
+// import vosk from "vosk";
 import fs from "fs";
 import { Readable } from "stream";
 import wav from "wav";
@@ -44,7 +45,7 @@ export async function transcribeAudio(audio_path: string, model_path: string) {
         }
       }
       let json = rec.finalResult(rec);
-      console.log(json.alternatives[0].result);
+      // console.log(json.alternatives[0].result);
       resolve(json.alternatives[0].text);
 
       rec.free();

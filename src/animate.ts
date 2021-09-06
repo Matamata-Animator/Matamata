@@ -6,7 +6,10 @@ import { removeOld, launchContainer } from "./docker";
 import { transcribeAudio } from "./transcriber";
 import { json } from "stream/consumers";
 import { readFile } from "fs/promises";
+import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
+
+let generate_dir = "generate";
 
 const args = getArgs();
 async function main() {
@@ -20,7 +23,6 @@ async function main() {
 
   let containerKilled = removeOld(args.container_name);
 
-  //TODO: Create generate folders if needed
   let scriptPromise: Promise<unknown>;
   if (args.text == "") {
     log("Transcribing Audio...", 1);
@@ -29,10 +31,16 @@ async function main() {
     scriptPromise = readFile(args.text);
   }
 
+  if (existsSync(generate_dir)) {
+    rmSync(generate_dir, { recursive: true });
+  }
+  mkdirSync(generate_dir);
+
   await Promise.all([containerKilled, scriptPromise]);
   let script = await scriptPromise;
 
   log(`Script:${script}`, 2);
+  writeFileSync(`${generate_dir}/script.txt`, script as string);
 
   await launchContainer(args.container_name, args.image_name);
   log("Docker Ready...", 1);
