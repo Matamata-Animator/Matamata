@@ -55,6 +55,13 @@ async function main() {
   let timestamps: Timestamp[] = [];
   if (args.timestamps != "") {
     timestamps = await parseTimestamps(args.timestamps);
+  } else {
+    timestamps = [
+      {
+        time: 0,
+        pose_name: args.default_pose,
+      },
+    ];
   }
 
   let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);

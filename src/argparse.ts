@@ -36,4 +36,5 @@ export interface Args {
   container_name: string;
   image_name: string;
   vosk_model: string;
+  default_pose: string;
 }

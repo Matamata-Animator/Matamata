@@ -76,7 +76,12 @@
   },
   "vosk_model": {
     "type": "string",
-    "description": "TH path to the Vosk model (obtainable from https://alphacephei.com/vosk/models)",
+    "description": "The path to the Vosk model (obtainable from https://alphacephei.com/vosk/models)",
     "default": "model"
+  },
+  "default_pose": {
+    "type": "string",
+    "description": "The pose to use when no pose is specified",
+    "default": "default"
   }
 }
