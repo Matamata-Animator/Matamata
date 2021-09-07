@@ -9,7 +9,7 @@ import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
 import { gentleAlign } from "./gentle";
-import { VideoRequest } from "./videoGenerator";
+import { gen_video, VideoRequest } from "./videoGenerator";
 
 let generate_dir = "generate";
 var start = Date.now();
@@ -67,6 +67,7 @@ async function main() {
     characters_path: args.character,
     timestamps: timestamps,
   };
+  gen_video(video_request);
 }
 
 if (require.main === module) {

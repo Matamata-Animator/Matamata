@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { json } from "stream/consumers";
 import { GentleOut } from "./gentle";
 import { Timestamp } from "./poseParser";
 
@@ -11,4 +13,8 @@ export interface VideoRequest {
   timestamps: Timestamp[];
 }
 
-export async function gen_video(req: VideoRequest) {}
+export async function gen_video(req: VideoRequest) {
+  let character = JSON.parse(readFileSync(req.characters_path).toString());
+  let phonemes = JSON.parse(readFileSync(req.mouths_path).toString());
+  console.log(character);
+}
