@@ -26,13 +26,13 @@
     "alias": "c",
     "type": "string",
     "description": "The list of character poses",
-    "default": "characters.json"
+    "default": "defaults/characters.json"
   },
   "mouths": {
     "alias": "m",
     "type": "string",
     "description": "The list of character poses",
-    "default": "phonemes.json"
+    "default": "defaults/phonemes.json"
   },
   "dimensions": {
     "alias": "d",
