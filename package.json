@@ -22,7 +22,7 @@
     "dockerode": "^3.3.0",
     "figlet": "^1.5.2",
     "node-libcurl": "^2.3.3",
-    "sudo-prompt": "^9.2.1",
+    "opencv-wasm": "^4.3.0-10",
     "vosk": "^0.3.31",
     "yargs": "^17.1.1"
   }

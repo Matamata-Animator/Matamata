@@ -9,6 +9,7 @@ import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
 import { gentleAlign } from "./gentle";
+import { VideoRequest } from "./videoGenerator";
 
 let generate_dir = "generate";
 var start = Date.now();
@@ -56,11 +57,16 @@ async function main() {
     timestamps = await parseTimestamps(args.timestamps);
   }
 
-  let gentle_aligned = await gentleAlign(
-    args.audio,
-    `${generate_dir}/script.txt`
-  );
-  log(gentle_aligned, 1);
+  let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);
+  log(gentle_json, 3);
+
+  let video_request: VideoRequest = {
+    gentle_stamps: gentle_json,
+    audio_path: args.audio,
+    mouths_path: args.mouths,
+    characters_path: args.character,
+    timestamps: timestamps,
+  };
 }
 
 if (require.main === module) {
