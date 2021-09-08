@@ -3,7 +3,9 @@ import { json } from "stream/consumers";
 import { boolean } from "yargs";
 import { GentleOut } from "./gentle";
 import { Timestamp } from "./poseParser";
-
+import Jimp from "jimp";
+import { CurlVersionInfoNativeBindingObject } from "node-libcurl/dist/types";
+import path from "path";
 interface FrameRequest {
   face_path: string;
   mouth_path: string;
@@ -15,6 +17,7 @@ interface FrameRequest {
   mirror_mouth: boolean;
   frame: number;
   folder_name: string;
+  dimensions: number[];
 }
 export interface VideoRequest {
   gentle_stamps: GentleOut;
@@ -24,6 +27,8 @@ export interface VideoRequest {
   characters_path: string;
 
   timestamps: Timestamp[];
+
+  dimensions?: number[];
 }
 interface Pose {
   image: string;
@@ -32,6 +37,13 @@ interface Pose {
   facingLeft?: boolean;
   scale?: number;
   mirror?: boolean;
+}
+
+async function getDimensions(image_path: string) {
+  console.log(image_path);
+  let image = await Jimp.read(image_path);
+  console.log(`Image: ${image}`);
+  return [image.getHeight(), image.getWidth()];
 }
 
 async function getPose(pose_name: string, character: any) {
@@ -48,12 +60,12 @@ async function getPose(pose_name: string, character: any) {
   }
   pose.mirror = mirror;
 
+  pose.image = path.join(character.facesFolder ?? "", pose.image);
+
   if (!("scale" in pose)) {
     pose.scale = 1;
   }
   return pose;
-
-  // pose.scale = console.log(split);
 }
 
 export async function gen_video(video: VideoRequest) {
@@ -69,7 +81,9 @@ export async function gen_video(video: VideoRequest) {
   let frame_counter = 0;
 
   let pose = await getPose(video.timestamps[0].pose_name, character);
-  // let frame: FrameRequest={
 
-  // }
+  if (video.dimensions![0] == 0) {
+    video.dimensions = await getDimensions(pose.image);
+  }
+  console.log(`Dimensions: ${video.dimensions}`);
 }
