@@ -29,7 +29,6 @@ export interface Args {
   character: string;
   mouths: string;
   dimensions: string;
-  dimension_scaler: number;
   verbose: number;
   no_docker: boolean;
   codec: string;

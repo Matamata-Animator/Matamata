@@ -38,13 +38,7 @@
     "alias": "d",
     "type": "string",
     "description": "The resolution of the final video. Passed in the form, \"1920:1080\"",
-    "default": "TBD"
-  },
-  "dimension_scaler": {
-    "alias": "ds",
-    "type": "number",
-    "description": "Scales the final dimensions up or down. The lower this number, the lower res the output will be, but the faster image generation is",
-    "default": 1
+    "default": ""
   },
   "verbose": {
     "alias": "V",

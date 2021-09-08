@@ -21,7 +21,6 @@ export interface GentleOut {
 export async function gentleAlign(audio_path: string, script_path: string) {
   let gentle_out = new Promise<GentleOut>((resolve, reject) => {
     const curl = new Curl();
-    const close = curl.close.bind(curl);
 
     curl.setOpt(Curl.option.URL, url);
     curl.setOpt(Curl.option.HTTPPOST, [
@@ -32,7 +31,10 @@ export async function gentleAlign(audio_path: string, script_path: string) {
     curl.on("end", function (statusCode, data, headers) {
       resolve(data as unknown as GentleOut);
     });
-    curl.on("error", close);
+    curl.on("error", (err) => {
+      console.log(err);
+      curl.close.bind(curl);
+    });
     curl.perform();
   });
   return gentle_out;

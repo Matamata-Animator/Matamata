@@ -15,6 +15,7 @@ let generate_dir = "generate";
 var start = Date.now();
 const args = getArgs();
 async function main() {
+  console.log(args.dimensions);
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
   //////////////////////////////////////////////////////////////
@@ -24,7 +25,6 @@ async function main() {
   log("Full Verbose", 2);
 
   let containerKilled = removeOld(args.container_name);
-
   let scriptPromise: Promise<unknown>;
   if (args.text == "") {
     log("Transcribing Audio...", 1);
@@ -39,6 +39,8 @@ async function main() {
   mkdirSync(generate_dir);
 
   await Promise.all([containerKilled, scriptPromise]);
+  log(`Container Killed: ${await containerKilled}`, 3);
+
   let script = await scriptPromise;
 
   log(`Script:${script}`, 2);
@@ -74,6 +76,16 @@ async function main() {
     characters_path: args.character,
     timestamps: timestamps,
   };
+
+  video_request.dimensions = [0, 0];
+  if (args.dimensions != "") {
+    let dimensions_split = args.dimensions.split(":");
+    video_request.dimensions = [
+      Number(dimensions_split[1]),
+      Number(dimensions_split[0]),
+    ];
+  }
+  log("Starting Video Generation...", 1);
   gen_video(video_request);
 }
 
