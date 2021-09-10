@@ -7,6 +7,9 @@ import Jimp from "jimp";
 import { CurlVersionInfoNativeBindingObject } from "node-libcurl/dist/types";
 import path from "path";
 import { time } from "console";
+
+import { GifUtil } from "gifwrap";
+
 interface FrameRequest {
   face_path: string;
   mouth_path: string;
@@ -74,7 +77,6 @@ async function getPose(pose_name: string, character: any) {
 
 async function createFrameRequest(
   pose: Pose,
-  phonemes: any,
   dimensions: number[],
   duration: number,
   mouth_path: string
@@ -93,6 +95,18 @@ async function createFrameRequest(
   return frame;
 }
 
+async function generateFrame(frame: FrameRequest) {
+  let face = await Jimp.read(frame.face_path);
+  face.scaleToFit(frame.dimensions[1], frame.dimensions[0]);
+
+  let mouth = await Jimp.read(frame.mouth_path);
+  mouth.scale(frame.mouth_scale);
+
+  face.composite(mouth, frame.mouth_x, frame.mouth_y);
+
+  return face;
+}
+
 export async function gen_video(video: VideoRequest) {
   await cleanGentle(video.gentle_stamps);
 
@@ -102,9 +116,11 @@ export async function gen_video(video: VideoRequest) {
     character.default_scale = 1;
   }
 
-  let phonemes = JSON.parse(readFileSync(video.mouths_path).toString());
-
-  let frame_counter = 0;
+  let phonemes: {
+    closed: string;
+    phonemes: any;
+    mouthsPath: any;
+  } = JSON.parse(readFileSync(video.mouths_path).toString());
 
   let pose = await getPose(video.timestamps[0].pose_name, character);
 
@@ -112,15 +128,14 @@ export async function gen_video(video: VideoRequest) {
     video.dimensions = (await getDimensions(pose.image)) as number[];
   }
 
-  // let frame = await createFrameRequest(pose, phonemes, video.dimensions);
-
   let currentTime = 0;
-  let framePromises: Promise<FrameRequest>[] = [];
+  let frame_request_promises: Promise<FrameRequest>[] = [];
 
+  ///////////////////////////
+  // Create Frame Requests //
+  ///////////////////////////
   for (const word of video.gentle_stamps.words) {
-    ///////////////
     // Swap pose //
-    ///////////////
     let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
     for (const t of video.timestamps) {
       if (t.time <= currentTime) {
@@ -129,22 +144,52 @@ export async function gen_video(video: VideoRequest) {
     }
     pose = await getPose(timestamp.pose_name, character);
 
-    /////////////////
     // Rest Frames //
-    /////////////////
+    let mouth_path = path.join(phonemes.mouthsPath, phonemes.closed);
     let duration = word.start - currentTime;
     currentTime += duration;
     let frame = createFrameRequest(
       pose,
-      phonemes,
       video.dimensions,
       duration,
-      phonemes["closed"]
+      mouth_path
     );
-    framePromises.push(frame);
+    frame_request_promises.push(frame);
+
+    // Talking Frames //
+    for (const p of word.phones) {
+      p.phone = p.phone.split("_")[0];
+
+      mouth_path = path.join(
+        phonemes.mouthsPath,
+        phonemes.phonemes[p.phone].image
+      );
+
+      let frame = createFrameRequest(
+        pose,
+        video.dimensions,
+        p.duration,
+        mouth_path
+      );
+      frame_request_promises.push(frame);
+    }
+    currentTime += word.end - word.start;
+  }
+  let frame_requests = await Promise.all(frame_request_promises);
+
+  let frames_promises: Promise<Jimp>[] = [];
+  for (const frame_request of frame_requests) {
+    let frame = generateFrame(frame_request);
+    for (let i = 0; i < frame_request.duration * 100; i++) {
+      frames_promises.push(frame);
+    }
   }
 
-  ////////////////////
-  // Talking Frames //
-  ////////////////////
+  let frames = await Promise.all(frames_promises);
+
+  frames.forEach((frame, counter) => {
+    frame.quality(100).write(`generate/${counter}.png`);
+  });
+  // frames[0].quality(100).write(`generate/${0}.png`);
+  // console.log(frames[0].bitmap.);
 }
