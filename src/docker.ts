@@ -13,7 +13,6 @@ export async function removeOld(container_name: string) {
   let containers = await docker.listContainers({ all: true });
   for (const container of containers) {
     if (container.Names.includes(`/${container_name}`)) {
-      console.log(container);
       shouldLaunch = false;
       let old = docker.getContainer(container.Id);
       if (container.State != "running") {

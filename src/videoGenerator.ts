@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { json } from "stream/consumers";
 import { boolean } from "yargs";
-import { GentleOut } from "./gentle";
+import { cleanGentle, GentleOut } from "./gentle";
 import { Timestamp } from "./poseParser";
 import Jimp from "jimp";
 import { CurlVersionInfoNativeBindingObject } from "node-libcurl/dist/types";
@@ -9,7 +9,7 @@ import path from "path";
 interface FrameRequest {
   face_path: string;
   mouth_path: string;
-  mouth_scale: string;
+  mouth_scale: number;
   mouth_x: number;
   mouth_y: number;
   duration: number;
@@ -40,9 +40,7 @@ interface Pose {
 }
 
 async function getDimensions(image_path: string) {
-  console.log(image_path);
   let image = await Jimp.read(image_path);
-  console.log(`Image: ${image}`);
   return [image.getHeight(), image.getWidth()];
 }
 
@@ -69,6 +67,8 @@ async function getPose(pose_name: string, character: any) {
 }
 
 export async function gen_video(video: VideoRequest) {
+  await cleanGentle(video.gentle_stamps);
+
   let character = JSON.parse(readFileSync(video.characters_path).toString());
 
   if (!("default_scale" in character)) {
@@ -76,7 +76,6 @@ export async function gen_video(video: VideoRequest) {
   }
 
   let phonemes = JSON.parse(readFileSync(video.mouths_path).toString());
-  console.log(character);
 
   let frame_counter = 0;
 
@@ -85,5 +84,18 @@ export async function gen_video(video: VideoRequest) {
   if (video.dimensions![0] == 0) {
     video.dimensions = await getDimensions(pose.image);
   }
-  console.log(`Dimensions: ${video.dimensions}`);
+
+  // let frame: FrameRequest = {
+  //   face_path: pose.image,
+  //   mouth_path: phonemes['clolsed'],
+  //   mouth_scale: pose.scale ?? 1,
+  //   mouth_x: pose.x,
+  //   mouth_y: pose.y,
+  //   duration: video.gentle_stamps.words[0].,
+  //   mirror_face: boolean,
+  //   mirror_mouth: boolean,
+  //   frame: number,
+  //   folder_name: string,
+  //   dimensions: number[],
+  // }
 }
