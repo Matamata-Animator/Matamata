@@ -66,13 +66,14 @@ async function main() {
 
   let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);
 
-  log(gentle_json, 3);
+  log(gentle_json, 4);
   let video_request: VideoRequest = {
     gentle_stamps: gentle_json,
     audio_path: args.audio,
     mouths_path: args.mouths,
     characters_path: args.character,
     timestamps: timestamps,
+    default_pose: args.default_pose,
   };
 
   video_request.dimensions = [0, 0];

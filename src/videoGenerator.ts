@@ -6,6 +6,7 @@ import { Timestamp } from "./poseParser";
 import Jimp from "jimp";
 import { CurlVersionInfoNativeBindingObject } from "node-libcurl/dist/types";
 import path from "path";
+import { time } from "console";
 interface FrameRequest {
   face_path: string;
   mouth_path: string;
@@ -15,8 +16,6 @@ interface FrameRequest {
   duration: number;
   mirror_face: boolean;
   mirror_mouth: boolean;
-  frame: number;
-  folder_name: string;
   dimensions: number[];
 }
 export interface VideoRequest {
@@ -27,8 +26,9 @@ export interface VideoRequest {
   characters_path: string;
 
   timestamps: Timestamp[];
-
   dimensions?: number[];
+
+  default_pose: string;
 }
 interface Pose {
   image: string;
@@ -36,7 +36,8 @@ interface Pose {
   y: number;
   facingLeft?: boolean;
   scale?: number;
-  mirror?: boolean;
+  mirror_face?: boolean;
+  mirror_mouth?: boolean;
 }
 
 async function getDimensions(image_path: string) {
@@ -56,7 +57,12 @@ async function getPose(pose_name: string, character: any) {
     let left = split[1].toLowerCase() in ["l", "left"];
     mirror = !left == pose.facingLeft;
   }
-  pose.mirror = mirror;
+  pose.mirror_face = mirror;
+  let mirror_mouth = true;
+  if (pose.facingLeft || (!pose.facingLeft && pose.mirror_face)) {
+    mirror_mouth = true;
+  }
+  pose.mirror_mouth = mirror_mouth;
 
   pose.image = path.join(character.facesFolder ?? "", pose.image);
 
@@ -85,17 +91,35 @@ export async function gen_video(video: VideoRequest) {
     video.dimensions = await getDimensions(pose.image);
   }
 
-  // let frame: FrameRequest = {
-  //   face_path: pose.image,
-  //   mouth_path: phonemes['clolsed'],
-  //   mouth_scale: pose.scale ?? 1,
-  //   mouth_x: pose.x,
-  //   mouth_y: pose.y,
-  //   duration: video.gentle_stamps.words[0].,
-  //   mirror_face: boolean,
-  //   mirror_mouth: boolean,
-  //   frame: number,
-  //   folder_name: string,
-  //   dimensions: number[],
-  // }
+  let frame: FrameRequest = {
+    face_path: pose.image,
+    mouth_path: phonemes["closed"],
+    mouth_scale: pose.scale ?? 1,
+    mouth_x: pose.x,
+    mouth_y: pose.y,
+    duration: video.gentle_stamps.words[0].start,
+    mirror_face: pose.mirror_face!,
+    mirror_mouth: pose.mirror_mouth!,
+    dimensions: video.dimensions as number[],
+  };
+
+  let currentTime = 0;
+  let frames: any = [];
+  for (const word of video.gentle_stamps.words) {
+    ///////////////
+    // Swap pose //
+    ///////////////
+    let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
+    for (const t of video.timestamps) {
+      if (t.time <= currentTime) {
+        timestamp = t;
+      }
+    }
+    pose = await getPose(timestamp.pose_name, character);
+
+    /////////////////
+    // Rest Frames //
+    /////////////////
+    console.log(word);
+  }
 }
