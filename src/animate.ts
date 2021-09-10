@@ -66,7 +66,7 @@ async function main() {
 
   let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);
 
-  log(gentle_json, 4);
+  log(gentle_json, 3);
 
   let dimensions = [0, 0];
   if (args.dimensions != "") {

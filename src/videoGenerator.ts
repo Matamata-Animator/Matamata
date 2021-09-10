@@ -102,7 +102,11 @@ async function generateFrame(frame: FrameRequest) {
   let mouth = await Jimp.read(frame.mouth_path);
   mouth.scale(frame.mouth_scale);
 
-  face.composite(mouth, frame.mouth_x, frame.mouth_y);
+  face.composite(
+    mouth,
+    frame.mouth_x - mouth.getWidth() / 2,
+    frame.mouth_y - mouth.getHeight() / 2
+  );
 
   return face;
 }
@@ -146,8 +150,11 @@ export async function gen_video(video: VideoRequest) {
 
     // Rest Frames //
     let mouth_path = path.join(phonemes.mouthsPath, phonemes.closed);
-    let duration = word.start - currentTime;
+    let duration = Math.round(100 * (word.start - currentTime)) / 100;
+    console.log(`Rest: ${duration}`);
     currentTime += duration;
+    console.log(`Current Time: ${currentTime}`);
+
     let frame = createFrameRequest(
       pose,
       video.dimensions,
@@ -158,25 +165,38 @@ export async function gen_video(video: VideoRequest) {
 
     // Talking Frames //
     for (const p of word.phones) {
+      console.log(p);
       p.phone = p.phone.split("_")[0];
-
+      p.duration = Math.round(100 * p.duration) / 100;
       mouth_path = path.join(
         phonemes.mouthsPath,
         phonemes.phonemes[p.phone].image
       );
-
+      console.log(mouth_path);
       let frame = createFrameRequest(
         pose,
         video.dimensions,
         p.duration,
         mouth_path
       );
+      currentTime += p.duration;
+
       frame_request_promises.push(frame);
     }
-    currentTime += word.end - word.start;
   }
-  let frame_requests = await Promise.all(frame_request_promises);
+  // Final closed frame
+  let frame = createFrameRequest(
+    pose,
+    video.dimensions,
+    0.01,
+    path.join(phonemes.mouthsPath, phonemes.closed)
+  );
+  frame_request_promises.push(frame);
 
+  ///////////////////
+  // Create Frames //
+  ///////////////////
+  let frame_requests = await Promise.all(frame_request_promises);
   let frames_promises: Promise<Jimp>[] = [];
   for (const frame_request of frame_requests) {
     let frame = generateFrame(frame_request);
@@ -187,6 +207,9 @@ export async function gen_video(video: VideoRequest) {
 
   let frames = await Promise.all(frames_promises);
 
+  ////////////////////////////
+  // Write Frames to Folder //
+  ////////////////////////////
   frames.forEach((frame, counter) => {
     frame.quality(100).write(`generate/${counter}.png`);
   });

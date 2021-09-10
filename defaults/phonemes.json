@@ -70,10 +70,6 @@
       "actual": "p",
       "image": "m.png"
     },
-    "t": {
-      "actual": "t",
-      "image": "s.png"
-    },
     "n": {
       "actual": "n",
       "image": "s.png"
@@ -162,7 +158,7 @@
       "actual": "ng",
       "image": "r.png"
     },
-    "oov":{
+    "oov": {
       "image": "Adown.png"
     }
   }
