@@ -67,6 +67,12 @@ async function main() {
   let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);
 
   log(gentle_json, 4);
+
+  let dimensions = [0, 0];
+  if (args.dimensions != "") {
+    let dimensions_split = args.dimensions.split(":");
+    dimensions = [Number(dimensions_split[1]), Number(dimensions_split[0])];
+  }
   let video_request: VideoRequest = {
     gentle_stamps: gentle_json,
     audio_path: args.audio,
@@ -74,16 +80,9 @@ async function main() {
     characters_path: args.character,
     timestamps: timestamps,
     default_pose: args.default_pose,
+    dimensions: dimensions,
   };
 
-  video_request.dimensions = [0, 0];
-  if (args.dimensions != "") {
-    let dimensions_split = args.dimensions.split(":");
-    video_request.dimensions = [
-      Number(dimensions_split[1]),
-      Number(dimensions_split[0]),
-    ];
-  }
   log("Starting Video Generation...", 1);
   gen_video(video_request);
 }
