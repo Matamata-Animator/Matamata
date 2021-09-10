@@ -26,7 +26,7 @@ export interface VideoRequest {
   characters_path: string;
 
   timestamps: Timestamp[];
-  dimensions?: number[];
+  dimensions: number[];
 
   default_pose: string;
 }
@@ -72,6 +72,27 @@ async function getPose(pose_name: string, character: any) {
   return pose;
 }
 
+async function createFrameRequest(
+  pose: Pose,
+  phonemes: any,
+  dimensions: number[],
+  duration: number,
+  mouth_path: string
+) {
+  let frame: FrameRequest = {
+    face_path: pose.image,
+    mouth_path: mouth_path,
+    mouth_scale: pose.scale ?? 1,
+    mouth_x: pose.x,
+    mouth_y: pose.y,
+    duration: duration,
+    mirror_face: pose.mirror_face!,
+    mirror_mouth: pose.mirror_mouth!,
+    dimensions: dimensions,
+  };
+  return frame;
+}
+
 export async function gen_video(video: VideoRequest) {
   await cleanGentle(video.gentle_stamps);
 
@@ -87,24 +108,15 @@ export async function gen_video(video: VideoRequest) {
 
   let pose = await getPose(video.timestamps[0].pose_name, character);
 
-  if (video.dimensions![0] == 0) {
-    video.dimensions = await getDimensions(pose.image);
+  if (video.dimensions[0] == 0) {
+    video.dimensions = (await getDimensions(pose.image)) as number[];
   }
 
-  let frame: FrameRequest = {
-    face_path: pose.image,
-    mouth_path: phonemes["closed"],
-    mouth_scale: pose.scale ?? 1,
-    mouth_x: pose.x,
-    mouth_y: pose.y,
-    duration: video.gentle_stamps.words[0].start,
-    mirror_face: pose.mirror_face!,
-    mirror_mouth: pose.mirror_mouth!,
-    dimensions: video.dimensions as number[],
-  };
+  // let frame = await createFrameRequest(pose, phonemes, video.dimensions);
 
   let currentTime = 0;
-  let frames: any = [];
+  let framePromises: Promise<FrameRequest>[] = [];
+
   for (const word of video.gentle_stamps.words) {
     ///////////////
     // Swap pose //
@@ -120,6 +132,19 @@ export async function gen_video(video: VideoRequest) {
     /////////////////
     // Rest Frames //
     /////////////////
-    console.log(word);
+    let duration = word.start - currentTime;
+    currentTime += duration;
+    let frame = createFrameRequest(
+      pose,
+      phonemes,
+      video.dimensions,
+      duration,
+      phonemes["closed"]
+    );
+    framePromises.push(frame);
   }
+
+  ////////////////////
+  // Talking Frames //
+  ////////////////////
 }
