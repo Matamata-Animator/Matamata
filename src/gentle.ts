@@ -1,4 +1,5 @@
 import { Curl } from "node-libcurl";
+import { gentle_log } from "./logger";
 
 let url = "http://localhost:8765/transcriptions?async=false";
 
@@ -12,9 +13,12 @@ interface AlignedWord {
   end: number;
   endOffset: number;
   phones: Phoneme[];
+  start: number;
+  startOffset: number;
+  word: string;
 }
 export interface GentleOut {
-  transcript: string;
+  // transcript: string;
   words: AlignedWord[];
 }
 
@@ -29,7 +33,7 @@ export async function gentleAlign(audio_path: string, script_path: string) {
     ]);
 
     curl.on("end", function (statusCode, data, headers) {
-      resolve(data as unknown as GentleOut);
+      resolve(JSON.parse(data as unknown as string));
     });
     curl.on("error", (err) => {
       console.log(err);
@@ -37,5 +41,13 @@ export async function gentleAlign(audio_path: string, script_path: string) {
     });
     curl.perform();
   });
+
   return gentle_out;
+}
+
+export async function cleanGentle(gentle_stamps: GentleOut) {
+  gentle_stamps.words.filter((word) => {
+    return word.case == "success";
+  });
+  return gentle_stamps;
 }

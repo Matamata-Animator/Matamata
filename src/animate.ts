@@ -1,5 +1,5 @@
 import { getArgs } from "./argparse";
-import { setVerbose, banner, log } from "./logger";
+import { setVerbose, banner, log, gentle_log } from "./logger";
 
 import { removeOld, launchContainer } from "./docker";
 
@@ -15,7 +15,6 @@ let generate_dir = "generate";
 var start = Date.now();
 const args = getArgs();
 async function main() {
-  console.log(args.dimensions);
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
   //////////////////////////////////////////////////////////////
@@ -46,7 +45,6 @@ async function main() {
   log(`Script:${script}`, 2);
   writeFileSync(`${generate_dir}/script.txt`, String(script));
 
-  console.log(await containerKilled);
   if (await containerKilled) {
     await launchContainer(args.container_name, args.image_name);
   }
@@ -67,8 +65,8 @@ async function main() {
   }
 
   let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);
-  log(gentle_json, 3);
 
+  log(gentle_json, 3);
   let video_request: VideoRequest = {
     gentle_stamps: gentle_json,
     audio_path: args.audio,
