@@ -1,6 +1,6 @@
 // var Docker = require("dockerode");
 import { rejects } from "assert";
-import Docker from "dockerode";
+import Docker, { Container } from "dockerode";
 import { resolve } from "path/posix";
 import { Writable } from "stream";
 import { gentleAlign } from "./gentle";
@@ -13,10 +13,13 @@ export async function removeOld(container_name: string) {
   let containers = await docker.listContainers({ all: true });
   for (const container of containers) {
     if (container.Names.includes(`/${container_name}`)) {
+      console.log(container);
       shouldLaunch = false;
       let old = docker.getContainer(container.Id);
       if (container.State != "running") {
-        await old.kill();
+        if (container.State != "exited") {
+          await old.kill();
+        }
         await old.remove();
         shouldLaunch = true;
       }
