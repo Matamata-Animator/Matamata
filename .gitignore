@@ -1,27 +1,16 @@
 *.mp4
 *.txt
 *.ai
-*.mp3 
+*.mp3
 *.wav
 *.mov
 *.env
 
-model
-!requirements.txt
-!mouths
-!character_creator
+build/
+generate/
+model/
 
-.vs
-.idea
-custom/**
-generate
-__pycache__
-venv
-
-config.txt
-
-!logo.png
-
+*.log
 # Logs
 logs
 *.log
@@ -140,6 +129,3 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-
-build
-
