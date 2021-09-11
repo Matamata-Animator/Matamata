@@ -59,10 +59,11 @@ async function getPose(pose_name: string, character: any) {
   let mirror = false;
   if (split.length == 2) {
     let left = split[1].toLowerCase() in ["l", "left"];
-    mirror = !left == pose.facingLeft;
+    mirror = left == pose.facingLeft;
   }
   pose.mirror_face = mirror;
-  let mirror_mouth = true;
+  // console.log(mirror);
+  let mirror_mouth = false;
   if (pose.facingLeft || (!pose.facingLeft && pose.mirror_face)) {
     mirror_mouth = true;
   }
@@ -103,6 +104,13 @@ async function generateFrame(frame: FrameRequest) {
   let mouth = await Jimp.read(frame.mouth_path);
   mouth.scale(frame.mouth_scale);
 
+  if (frame.mirror_face) {
+    face = face.flip(true, false);
+  }
+  if (frame.mirror_mouth) {
+    mouth = mouth.flip(true, false);
+  }
+
   face.composite(
     mouth,
     frame.mouth_x - mouth.getWidth() / 2,
@@ -132,7 +140,8 @@ export async function combine_images(
     "libx264",
     "-pix_fmt",
     "yuv420p",
-    "out.mp4"
+    "out.mp4",
+    "-y"
   );
 
   await fs.promises.writeFile(output_path, ffmpeg.FS("readFile", "out.mp4"));

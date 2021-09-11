@@ -1,10 +1,10 @@
-import { getArgs } from "./argparse";
+import { Args, getArgs } from "./argparse";
 import { setVerbose, banner, log, gentle_log } from "./logger";
 
 import { removeOld, launchContainer } from "./docker";
 
 import { transcribeAudio } from "./transcriber";
-import { json } from "stream/consumers";
+
 import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
@@ -17,8 +17,7 @@ import {
 
 let generate_dir = "generate";
 var start = Date.now();
-const args = getArgs();
-async function main() {
+async function main(args: Args) {
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
   //////////////////////////////////////////////////////////////
@@ -96,12 +95,15 @@ async function main() {
     args.output,
     num_images
   );
+  return 0;
 }
 
 if (require.main === module) {
-  main()
+  const yargs = getArgs();
+
+  main(yargs)
     .then(() => {
-      log("Done", 1);
+      log(`Done in ${(Date.now() - start) / 1000} seconds`, 1);
     })
     .catch((err) => {
       console.log("SOMETHING WENT WRONG");
