@@ -8,7 +8,7 @@ import path from "path";
 import fs from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 
-const ffmpeg = createFFmpeg({ log: true });
+const ffmpeg = createFFmpeg({ log: false });
 let ffmpeg_loaded = ffmpeg.load();
 
 interface FrameRequest {
@@ -120,14 +120,6 @@ export async function combine_images(
 ) {
   await ffmpeg_loaded;
   ffmpeg.FS("writeFile", "audio.wav", await fetchFile(audio_path));
-
-  for (let i = 0; i < num_images; i++) {
-    ffmpeg.FS(
-      "writeFile",
-      `${i}.png`,
-      await fetchFile(`${generate_path}/${i}.png`)
-    );
-  }
 
   await ffmpeg.run(
     "-r",
@@ -243,9 +235,10 @@ export async function gen_image_sequence(video: VideoRequest) {
   // Write Frames to Folder //
   ////////////////////////////
   let c = 0;
-  frames.forEach((frame, counter) => {
-    //TODO: Maybe these can be written directly to wasm tmp storage?
-    frame.quality(100).write(`generate/${counter}.png`);
+  frames.forEach(async (frame, counter) => {
+    await ffmpeg_loaded;
+    let buffer = await frame.getBufferAsync(Jimp.MIME_PNG);
+    ffmpeg.FS("writeFile", `${counter}.png`, buffer);
     c = counter;
   });
 

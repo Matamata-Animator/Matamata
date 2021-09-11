@@ -96,12 +96,15 @@ async function main() {
     args.output,
     num_images
   );
-  console.log("yay");
 }
 
 if (require.main === module) {
-  main().catch((err) => {
-    console.log("SOMETHING WENT WRONG");
-    console.log(err);
-  });
+  main()
+    .then(() => {
+      log("Done", 1);
+    })
+    .catch((err) => {
+      console.log("SOMETHING WENT WRONG");
+      console.log(err);
+    });
 }
