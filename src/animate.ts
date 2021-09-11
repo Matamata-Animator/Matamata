@@ -9,7 +9,11 @@ import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
 import { gentleAlign } from "./gentle";
-import { gen_video, VideoRequest } from "./videoGenerator";
+import {
+  combine_images,
+  gen_image_sequence,
+  VideoRequest,
+} from "./videoGenerator";
 
 let generate_dir = "generate";
 var start = Date.now();
@@ -84,7 +88,15 @@ async function main() {
   };
 
   log("Starting Video Generation...", 1);
-  gen_video(video_request);
+  let num_images = await gen_image_sequence(video_request);
+  // await combine_images(generate_dir, args.audio, args.output);
+  await combine_images(
+    "C:/Users/human-w/Desktop/Matamata-Core/generate",
+    args.audio,
+    args.output,
+    num_images
+  );
+  console.log("yay");
 }
 
 if (require.main === module) {

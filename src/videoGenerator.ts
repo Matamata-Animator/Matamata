@@ -1,14 +1,15 @@
 import { readFileSync } from "fs";
-import { json } from "stream/consumers";
-import { boolean } from "yargs";
+
 import { cleanGentle, GentleOut } from "./gentle";
 import { Timestamp } from "./poseParser";
 import Jimp from "jimp";
-import { CurlVersionInfoNativeBindingObject } from "node-libcurl/dist/types";
 import path from "path";
-import { time } from "console";
 
-import { GifUtil } from "gifwrap";
+import fs from "fs";
+import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+
+const ffmpeg = createFFmpeg({ log: true });
+let ffmpeg_loaded = ffmpeg.load();
 
 interface FrameRequest {
   face_path: string;
@@ -111,7 +112,41 @@ async function generateFrame(frame: FrameRequest) {
   return face;
 }
 
-export async function gen_video(video: VideoRequest) {
+export async function combine_images(
+  generate_path: string,
+  audio_path: string,
+  output_path: string,
+  num_images: number
+) {
+  await ffmpeg_loaded;
+  ffmpeg.FS("writeFile", "audio.wav", await fetchFile(audio_path));
+
+  for (let i = 0; i < num_images; i++) {
+    ffmpeg.FS(
+      "writeFile",
+      `${i}.png`,
+      await fetchFile(`${generate_path}/${i}.png`)
+    );
+  }
+
+  await ffmpeg.run(
+    "-r",
+    "100",
+    "-i",
+    `%d.png`,
+    "-i",
+    `audio.wav`,
+    "-c:v",
+    "libx264",
+    "-pix_fmt",
+    "yuv420p",
+    "out.mp4"
+  );
+
+  await fs.promises.writeFile(output_path, ffmpeg.FS("readFile", "out.mp4"));
+}
+
+export async function gen_image_sequence(video: VideoRequest) {
   await cleanGentle(video.gentle_stamps);
 
   let character = JSON.parse(readFileSync(video.characters_path).toString());
@@ -151,9 +186,7 @@ export async function gen_video(video: VideoRequest) {
     // Rest Frames //
     let mouth_path = path.join(phonemes.mouthsPath, phonemes.closed);
     let duration = Math.round(100 * (word.start - currentTime)) / 100;
-    console.log(`Rest: ${duration}`);
     currentTime += duration;
-    console.log(`Current Time: ${currentTime}`);
 
     let frame = createFrameRequest(
       pose,
@@ -165,14 +198,12 @@ export async function gen_video(video: VideoRequest) {
 
     // Talking Frames //
     for (const p of word.phones) {
-      console.log(p);
       p.phone = p.phone.split("_")[0];
       p.duration = Math.round(100 * p.duration) / 100;
       mouth_path = path.join(
         phonemes.mouthsPath,
         phonemes.phonemes[p.phone].image
       );
-      console.log(mouth_path);
       let frame = createFrameRequest(
         pose,
         video.dimensions,
@@ -191,6 +222,7 @@ export async function gen_video(video: VideoRequest) {
     0.01,
     path.join(phonemes.mouthsPath, phonemes.closed)
   );
+  currentTime += 0.1;
   frame_request_promises.push(frame);
 
   ///////////////////
@@ -210,9 +242,12 @@ export async function gen_video(video: VideoRequest) {
   ////////////////////////////
   // Write Frames to Folder //
   ////////////////////////////
+  let c = 0;
   frames.forEach((frame, counter) => {
+    //TODO: Maybe these can be written directly to wasm tmp storage?
     frame.quality(100).write(`generate/${counter}.png`);
+    c = counter;
   });
-  // frames[0].quality(100).write(`generate/${0}.png`);
-  // console.log(frames[0].bitmap.);
+
+  return c;
 }

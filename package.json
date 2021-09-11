@@ -14,14 +14,15 @@
     "nodemon": "^2.0.12"
   },
   "scripts": {
-    "debug": "tsc && nodemon .",
-    "animate": "tsc && node .",
+    "debug": "tsc && nodemon . --experimental-wasm-threads --experimental-wasm-bulk-memory",
+    "animate": "tsc && node . --experimental-wasm-threads --experimental-wasm-bulk-memory",
     "watch": "tsc --watch"
   },
   "dependencies": {
+    "@ffmpeg/core": "^0.10.0",
+    "@ffmpeg/ffmpeg": "^0.10.1",
     "dockerode": "^3.3.0",
     "figlet": "^1.5.2",
-    "gifwrap": "^0.9.2",
     "jimp": "^0.16.1",
     "node-libcurl": "^2.3.3",
     "vosk": "^0.3.31",
