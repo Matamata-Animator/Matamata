@@ -130,7 +130,7 @@ export async function combine_images(
   ffmpeg.FS("writeFile", "audio.wav", await fetchFile(audio_path));
 
   await ffmpeg.run(
-    "-r",
+    "-framerate",
     "100",
     "-i",
     `%d.png`,
@@ -162,7 +162,13 @@ export async function gen_image_sequence(video: VideoRequest) {
     mouthsPath: any;
   } = JSON.parse(readFileSync(video.mouths_path).toString());
 
-  let pose = await getPose(video.timestamps[0].pose_name, character);
+  let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
+  for (const t of video.timestamps) {
+    if (t.time <= 0) {
+      timestamp = t;
+    }
+  }
+  let pose = await getPose(timestamp.pose_name, character);
 
   if (video.dimensions[0] == 0) {
     video.dimensions = (await getDimensions(pose.image)) as number[];
@@ -175,6 +181,20 @@ export async function gen_image_sequence(video: VideoRequest) {
   // Create Frame Requests //
   ///////////////////////////
   for (const word of video.gentle_stamps.words) {
+    // Rest Frames //
+    let mouth_path = path.join(phonemes.mouthsPath, phonemes.closed);
+    let duration = Math.round(100 * (word.start - currentTime)) / 100;
+    if (duration > 0) {
+      currentTime += duration;
+    }
+    let frame = createFrameRequest(
+      pose,
+      video.dimensions,
+      duration,
+      mouth_path
+    );
+    frame_request_promises.push(frame);
+
     // Swap pose //
     let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
     for (const t of video.timestamps) {
@@ -183,19 +203,6 @@ export async function gen_image_sequence(video: VideoRequest) {
       }
     }
     pose = await getPose(timestamp.pose_name, character);
-
-    // Rest Frames //
-    let mouth_path = path.join(phonemes.mouthsPath, phonemes.closed);
-    let duration = Math.round(100 * (word.start - currentTime)) / 100;
-    currentTime += duration;
-
-    let frame = createFrameRequest(
-      pose,
-      video.dimensions,
-      duration,
-      mouth_path
-    );
-    frame_request_promises.push(frame);
 
     // Talking Frames //
     for (const p of word.phones) {
@@ -215,6 +222,7 @@ export async function gen_image_sequence(video: VideoRequest) {
 
       frame_request_promises.push(frame);
     }
+    // console.log(currentTime);
   }
   // Final closed frame
   let frame = createFrameRequest(
@@ -233,7 +241,7 @@ export async function gen_image_sequence(video: VideoRequest) {
   let frames_promises: Promise<Jimp>[] = [];
   for (const frame_request of frame_requests) {
     let frame = generateFrame(frame_request);
-    for (let i = 0; i < frame_request.duration * 100; i++) {
+    for (let i = 0; i < Math.round(frame_request.duration * 100); i++) {
       frames_promises.push(frame);
     }
   }

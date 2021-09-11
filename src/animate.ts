@@ -1,3 +1,5 @@
+var start = Date.now();
+
 import { Args, getArgs } from "./argparse";
 import { setVerbose, banner, log, gentle_log } from "./logger";
 
@@ -16,7 +18,6 @@ import {
 } from "./videoGenerator";
 
 let generate_dir = "generate";
-var start = Date.now();
 async function main(args: Args) {
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
