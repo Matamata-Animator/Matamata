@@ -222,7 +222,6 @@ export async function gen_image_sequence(video: VideoRequest) {
 
       frame_request_promises.push(frame);
     }
-    // console.log(currentTime);
   }
   // Final closed frame
   let frame = createFrameRequest(
