@@ -1,7 +1,6 @@
 # Matamata Core
 
 Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations. 
-For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
 
 <img src="https://raw.githubusercontent.com/Matamata-Animator/Branding/main/Logos-Icons/logo.png" alt="logo" width="200" height="200"/>
 
@@ -32,14 +31,39 @@ For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1
 
 ### Windows
 
-* Please follow the instructions [here](Windows_Install_Instructions.md) to set up your python environment
 * Install [Docker Desktop](https://www.docker.com/get-started)
 * Launch Docker Desktop if it isn't already running
 * Pull the Gentle container:
 
-```
+```bash
 docker pull lowerquality/gentle
 ```
+* Install [NodeJS](https://nodejs.org/en/) 14+
+  * Make sure to include the optional addons
+* Install yarn
+
+```bash
+npm install --global yarn
+```
+
+* Download the code using git or the button in the top right
+
+```bash
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+```
+
+* Open the folder and install the dependencies
+
+```
+yarn
+```
+
+* Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+
+```bash
+yarn downloadModel
+```
+
 ### Ubuntu
 
 Clone the repo
