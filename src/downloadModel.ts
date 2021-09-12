@@ -1,5 +1,3 @@
-console.log("REEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-
 import download from "download";
 import { rm, move, existsSync } from "fs-extra";
 

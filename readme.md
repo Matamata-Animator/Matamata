@@ -19,7 +19,6 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
      * [Mouths](#mouths)
 * [Usage](#usage)
      * [Flags and Arguments](#flags-and-arguments)
-     * [Additional Features](#Emotion-Detection)
      * [Windows](#Windows---Usage)
      * [Ubuntu](#Ubuntu---Usage)
 * [Contributing](#Contributing)
@@ -37,11 +36,11 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 docker pull lowerquality/gentle
 ```
 * Install [NodeJS](https://nodejs.org/en/) 14+
-  * Make sure to include the optional addons
-* Install yarn
+  * Make sure to include the optional add-ons
+* Install yarn and typescript
 
 ```bash
-npm install --global yarn
+npm install --global yarn typescript
 ```
 
 * Download the code using git or the button in the top right
@@ -65,19 +64,38 @@ yarn downloadModel
 ### Ubuntu
 
 Clone the repo
-```
+```shell
 git clone https://github.com/AI-Spawn/Auto-Lip-Sync
 cd Auto-Lip-Sync
 ```
 Install required packages
-```
-sudo apt install ffmpeg python3-pip python3-opencv docker.io
-sudo pip3 install -r requirements.txt
+```shell
+sudo apt install docker.io nodejs
 ```
 Pull the lowerquality/gentle container
-```
+```shell
 sudo docker pull lowerquality/gentle
 ```
+
+* Install yarn and typescript
+
+```bash
+sudo npm install --global yarn typescript
+```
+
+* Open the folder and install the dependencies
+
+```
+yarn
+```
+
+* Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+
+```bash
+yarn downloadModel
+```
+
+### 
 
 ## Setup
 
@@ -143,8 +161,6 @@ More advance users can edit or create their own *phonemes*.json, however that is
 
 ### Flags and Arguments
 
-Any flags/arguments can be used every time by creating a config file (`config.txt`will be loaded by default if it exists)
-
 This covers the most important flags and arguments. For the complete list, go to [Default Arguments](defaults/default_args.json). 
 
 
@@ -166,7 +182,7 @@ Launch *Docker Desktop*
 
 Launch terminal in the Matamata-Core folder
 ```
-python animate.py -a audio.wav [flags]
+yarn animate --a audio.wav [arguments]
 ```
 
 
@@ -174,19 +190,9 @@ python animate.py -a audio.wav [flags]
 
 Launch Terminal
 ```
-sudo python3 animate.py -a audio.wav --codec FMP4 [flags]
+sudo docker run --name gentle -p 8765:8765 lowerquality/gentle &
+sudo yarn animate --a audio.wav [arguments]
 ```
-
-
-### Mac
-
-Launch *Docker Desktop*
-
-Launch *Anaconda Prompt*
-```
-python animate.py -a audio.wav [flags]
-```
-This may need to be accompanied by a *sudo* beforehand.
 
 
 
