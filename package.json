@@ -16,7 +16,7 @@
     "nodemon": "^2.0.12"
   },
   "scripts": {
-    "downloadModel": "node build/downloadModel.js",
+    "downloadModel": "tsc && node build/downloadModel.js",
     "debug": "tsc && nodemon . --experimental-wasm-threads --experimental-wasm-bulk-memory",
     "animate": "tsc && node . --experimental-wasm-threads --experimental-wasm-bulk-memory",
     "watch": "tsc --watch"
