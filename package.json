@@ -7,14 +7,16 @@
   "license": "MIT",
   "devDependencies": {
     "@types/dockerode": "^3.2.7",
+    "@types/download": "^8.0.1",
     "@types/figlet": "^1.5.4",
+    "@types/fs-extra": "^9.0.12",
     "@types/node": "^16.7.10",
     "@types/wav": "^1.0.1",
     "@types/yargs": "^17.0.2",
     "nodemon": "^2.0.12"
   },
   "scripts": {
-    "downloadModel": "node build/install.js",
+    "downloadModel": "node build/downloadModel.js",
     "debug": "tsc && nodemon . --experimental-wasm-threads --experimental-wasm-bulk-memory",
     "animate": "tsc && node . --experimental-wasm-threads --experimental-wasm-bulk-memory",
     "watch": "tsc --watch"
@@ -22,14 +24,11 @@
   "dependencies": {
     "@ffmpeg/core": "^0.10.0",
     "@ffmpeg/ffmpeg": "^0.10.1",
-    "@types/download": "^8.0.1",
-    "@types/fs-extra": "^9.0.12",
     "dockerode": "^3.3.0",
     "download": "^8.0.0",
     "extract-zip": "^2.0.1",
     "figlet": "^1.5.2",
     "fs-extra": "^10.0.0",
-    "fstream": "^1.0.12",
     "jimp": "^0.16.1",
     "node-libcurl": "^2.3.3",
     "vosk": "^0.3.31",

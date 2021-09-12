@@ -10,17 +10,17 @@ let baseUrl = "http://alphacephei.com/vosk/models/";
 let large = "vosk-model-en-us-0.21";
 let small = "vosk-model-small-en-us-0.15";
 async function downloadModel(downloadPath: string, zipName: string) {
+  let temp = "modeltmp";
   console.log(process.cwd());
-  await download(`${baseUrl}${zipName}.zip`, downloadPath);
+  await download(`${baseUrl}${zipName}.zip`, temp);
 
-  await extract(path.join(downloadPath, `${zipName}.zip`), {
-    dir: path.join(process.cwd(), `${downloadPath}2`),
+  await extract(path.join(temp, `${zipName}.zip`), {
+    dir: path.join(process.cwd(), `${temp}2`),
   });
 
   await move(
-    path.join(process.cwd(), `${downloadPath}2/${zipName}/`),
-    `model/`,
-
+    path.join(process.cwd(), `${temp}2/${zipName}/`),
+    path.join(downloadPath),
     { overwrite: true }
   );
 
@@ -29,5 +29,5 @@ async function downloadModel(downloadPath: string, zipName: string) {
 }
 
 if (require.main === module) {
-  downloadModel("modeltmp", small);
+  downloadModel("model", large);
 }
