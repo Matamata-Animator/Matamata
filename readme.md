@@ -95,7 +95,7 @@ yarn
 yarn downloadModel
 ```
 
-### 
+
 
 ## Setup
 
@@ -123,7 +123,7 @@ If poses are provided via a timestamps file, then no poses will be read from the
 
 ### Characters
 
-The easiest way to create the character file is by using  the character creator in [Matamata Studio](https://github.com/Matamata-Animator/Matamata-Studio).
+The easiest way to create the character file is by using the character creator in [Matamata Studio](https://github.com/Matamata-Animator/Matamata-Studio).
 
 ~~Alternatively, you can use the [online character creator](https://matamata.aispawn.com/Character-Creator/) tool (DEPRECATED)~~
 
@@ -159,11 +159,11 @@ More advance users can edit or create their own *phonemes*.json, however that is
 
 ## Usage
 
-### Flags and Arguments
+### Arguments
+
+#### Default Arguments
 
 This covers the most important flags and arguments. For the complete list, go to [Default Arguments](defaults/default_args.json). 
-
-
 
 | Shortcut | Command      | Required | Default                    | Type | Description                                       |
 | -------- | ------------ | -------- | -------------------------- | ---- | ------------------------------------------------- |
@@ -174,7 +174,15 @@ This covers the most important flags and arguments. For the complete list, go to
 | --m      | --mouths     |          | "defaults/phonemes.json"   | str  | The mouth pack and phonemes list                  |
 | --V      | --verbose    |          | 1                          | int  | Dump process outputs to the shell                 |
 
+#### Custom Defaults
 
+You can set custom default arguments by creating a file `config.json` in the main folder. In this file, the key is the command and the value is what you want the new default to be. For instance, if you wanted to always be set to verbose mode 3, your file will be:
+
+```json
+{
+	"verbose": 3
+}
+```
 
 ### Windows - Usage
 
