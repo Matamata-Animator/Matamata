@@ -10,7 +10,7 @@ build/
 generate/
 model/
 custom/
-
+config.json
 *.log
 # Logs
 logs
