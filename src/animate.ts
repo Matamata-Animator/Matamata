@@ -18,6 +18,12 @@ import {
 } from "./videoGenerator";
 
 let generate_dir = "generate";
+
+async function removeGenerateFolder(generate_dir: string) {
+  if (existsSync(generate_dir)) {
+    rmSync(generate_dir, { recursive: true });
+  }
+}
 async function main(args: Args) {
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
@@ -36,9 +42,7 @@ async function main(args: Args) {
     scriptPromise = readFile(args.text);
   }
 
-  if (existsSync(generate_dir)) {
-    rmSync(generate_dir, { recursive: true });
-  }
+  await removeGenerateFolder(generate_dir);
   mkdirSync(generate_dir);
 
   await Promise.all([containerKilled, scriptPromise]);
@@ -96,6 +100,8 @@ async function main(args: Args) {
     args.output,
     num_images
   );
+  await removeGenerateFolder(generate_dir);
+
   return 0;
 }
 

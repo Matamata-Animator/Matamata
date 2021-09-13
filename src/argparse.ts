@@ -1,3 +1,4 @@
+import { existsSync, fstat, readFileSync } from "fs";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -13,10 +14,22 @@ var argv = yargs(hideBin(process.argv))
 
   .alias("h", "help");
 
+let config_path = "config.json";
+let config: any = {};
+if (existsSync(config_path)) {
+  config = JSON.parse(readFileSync(config_path).toString());
+}
+
 for (const option in default_args) {
+  if (option in config) {
+    default_args[option].default = config[option];
+    default_args[option].required = false;
+  }
   argv = argv.option(option, default_args[option]);
 }
+
 let args = argv.argv as unknown as Args;
+
 export function getArgs() {
   return args;
 }
@@ -36,4 +49,5 @@ export interface Args {
   image_name: string;
   vosk_model: string;
   default_pose: string;
+  config: string;
 }
