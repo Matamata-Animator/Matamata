@@ -31,7 +31,7 @@ async function main(args: Args) {
 
   setVerbose(args.verbose);
   await banner();
-  log("Full Verbose", 2);
+  log("Full Verbose", 3);
 
   let containerKilled = removeOld(args.container_name);
   let scriptPromise: Promise<unknown>;
@@ -68,6 +68,7 @@ async function main(args: Args) {
       {
         time: 0,
         pose_name: args.default_pose,
+        type: "poses",
       },
     ];
   }

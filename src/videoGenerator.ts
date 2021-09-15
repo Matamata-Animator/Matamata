@@ -161,9 +161,13 @@ export async function gen_image_sequence(video: VideoRequest) {
     mouthsPath: any;
   } = JSON.parse(readFileSync(video.mouths_path).toString());
 
-  let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
+  let timestamp: Timestamp = {
+    time: 0,
+    pose_name: video.default_pose,
+    type: "poses",
+  };
   for (const t of video.timestamps) {
-    if (t.time <= 0) {
+    if (t.time <= 0 && t.type == "poses") {
       timestamp = t;
     }
   }
@@ -195,7 +199,6 @@ export async function gen_image_sequence(video: VideoRequest) {
     frame_request_promises.push(frame);
 
     // Swap pose //
-    let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
     for (const t of video.timestamps) {
       if (t.time / 1000 <= currentTime) {
         timestamp = t;
