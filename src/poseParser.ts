@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 export interface Timestamp {
   time: number;
+  type: string;
   pose_name: string;
 }
 
@@ -15,9 +16,20 @@ export async function parseTimestamps(text: string) {
 
   for (const line of lines) {
     let s = line.split(" ");
+
+    let time = Number(s[0]);
+
+    let name = s[1];
+    let type = "poses";
+
+    if (s.length >= 3) {
+      type = s[2];
+    }
+
     timestamps.push({
-      time: Number(s[0]),
-      pose_name: s[1],
+      time: time,
+      pose_name: name,
+      type: type,
     });
   }
 
