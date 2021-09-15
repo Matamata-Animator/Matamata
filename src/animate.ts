@@ -71,6 +71,7 @@ async function main(args: Args) {
       },
     ];
   }
+  log(timestamps, 2);
 
   let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);
 
