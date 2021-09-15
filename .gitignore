@@ -12,6 +12,8 @@ model/
 custom/
 config.json
 *.log
+
+
 # Logs
 logs
 *.log

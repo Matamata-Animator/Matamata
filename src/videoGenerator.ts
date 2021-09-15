@@ -7,6 +7,7 @@ import path from "path";
 
 import fs from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+import { Console } from "console";
 
 const ffmpeg = createFFmpeg({ log: false });
 let ffmpeg_loaded = ffmpeg.load();
@@ -50,10 +51,10 @@ async function getDimensions(image_path: string) {
 }
 
 async function getPose(pose_name: string, character: any) {
-  if (!character.hasOwnProperty(pose_name)) {
+  if (!character.poses.hasOwnProperty(pose_name)) {
     throw `Pose "${pose_name}" does not exist`;
   }
-  let pose: Pose = JSON.parse(JSON.stringify(character[pose_name])); //creates an unlinked copy of pose
+  let pose: Pose = JSON.parse(JSON.stringify(character.poses[pose_name])); //creates an unlinked copy of pose
 
   let split = pose_name.split("-");
   let mirror = false;
@@ -62,15 +63,13 @@ async function getPose(pose_name: string, character: any) {
     mirror = left == pose.facingLeft;
   }
   pose.mirror_face = mirror;
-  // console.log(mirror);
   let mirror_mouth = false;
   if (pose.facingLeft || (!pose.facingLeft && pose.mirror_face)) {
     mirror_mouth = true;
   }
   pose.mirror_mouth = mirror_mouth;
 
-  pose.image = path.join(character.facesFolder ?? "", pose.image);
-
+  pose.image = path.join(character.poses.imagesFolder ?? "", pose.image);
   if (!("scale" in pose)) {
     pose.scale = 1;
   }
@@ -198,7 +197,7 @@ export async function gen_image_sequence(video: VideoRequest) {
     // Swap pose //
     let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
     for (const t of video.timestamps) {
-      if (t.time <= currentTime) {
+      if (t.time / 1000 <= currentTime) {
         timestamp = t;
       }
     }
