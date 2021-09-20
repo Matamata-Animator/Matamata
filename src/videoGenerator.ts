@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 
-import { cleanGentle, GentleOut } from "./gentle";
+import { cleanGentle, GentleOut } from "./align";
 import { Timestamp } from "./poseParser";
 import Jimp from "jimp";
 import path from "path";

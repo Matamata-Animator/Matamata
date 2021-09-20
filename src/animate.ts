@@ -10,7 +10,7 @@ import { transcribeAudio } from "./transcriber";
 import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
-import { gentleAlign } from "./gentle";
+import { gentleAlign } from "./align";
 import {
   combine_images,
   gen_image_sequence,

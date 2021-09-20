@@ -77,5 +77,10 @@
     "type": "string",
     "description": "The pose to use when no pose is specified",
     "default": "default"
+  },
+  "aligningAlgorithm": {
+    "type": "string",
+    "description": "The algorithm used to extraact the phonemes from the audio (allosaurus/gentle)",
+    "default": "allosaurus"
   }
 }
