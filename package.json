@@ -16,6 +16,7 @@
     "nodemon": "^2.0.12"
   },
   "scripts": {
+    "install": "python3 -m pip install allosaurus && python3 -m allosaurus.bin.download_model -m eng2102",
     "downloadModel": "tsc && node build/downloadModel.js",
     "debug": "tsc && nodemon . --experimental-wasm-threads --experimental-wasm-bulk-memory",
     "animate": "tsc && node . --experimental-wasm-threads --experimental-wasm-bulk-memory",
