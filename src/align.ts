@@ -1,6 +1,8 @@
 import { Curl } from "node-libcurl";
 import { gentle_log } from "./logger";
 
+import { exec } from "child_process";
+
 let url = "http://localhost:8765/transcriptions?async=false";
 
 interface Phoneme {
@@ -51,3 +53,5 @@ export async function cleanGentle(gentle_stamps: GentleOut) {
   });
   return gentle_stamps;
 }
+
+export async function allosaurusAlign(audio_path: string) {}

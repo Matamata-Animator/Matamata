@@ -33,30 +33,33 @@ async function main(args: Args) {
   await banner();
   log("Full Verbose", 3);
 
-  let containerKilled = removeOld(args.container_name);
   let scriptPromise: Promise<unknown>;
-  if (args.text == "") {
-    log("Transcribing Audio...", 1);
-    scriptPromise = transcribeAudio(args.audio, args.vosk_model);
-  } else {
-    scriptPromise = readFile(args.text);
+
+  if (args.aligningAlgorithm == "gentle") {
+    let containerKilled = removeOld(args.container_name);
+    if (args.text == "") {
+      log("Transcribing Audio...", 1);
+      scriptPromise = transcribeAudio(args.audio, args.vosk_model);
+    } else {
+      scriptPromise = readFile(args.text);
+    }
+
+    await removeGenerateFolder(generate_dir);
+    mkdirSync(generate_dir);
+
+    await Promise.all([containerKilled, scriptPromise]);
+    log(`Container Killed: ${await containerKilled}`, 3);
+
+    let script = await scriptPromise;
+
+    log(`Script:${script}`, 2);
+    writeFileSync(`${generate_dir}/script.txt`, String(script));
+
+    if (await containerKilled) {
+      await launchContainer(args.container_name, args.image_name);
+    }
+    log("Docker Ready...", 1);
   }
-
-  await removeGenerateFolder(generate_dir);
-  mkdirSync(generate_dir);
-
-  await Promise.all([containerKilled, scriptPromise]);
-  log(`Container Killed: ${await containerKilled}`, 3);
-
-  let script = await scriptPromise;
-
-  log(`Script:${script}`, 2);
-  writeFileSync(`${generate_dir}/script.txt`, String(script));
-
-  if (await containerKilled) {
-    await launchContainer(args.container_name, args.image_name);
-  }
-  log("Docker Ready...", 1);
   ///////////////////////////////
   // Parse TestFile into Poses //
   ///////////////////////////////

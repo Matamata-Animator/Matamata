@@ -28,15 +28,11 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 ### Windows
 
-* Install [Docker Desktop](https://www.docker.com/get-started)
-* Launch Docker Desktop if it isn't already running
-* Pull the Gentle container:
-
-```bash
-docker pull lowerquality/gentle
-```
+* Install Python 3.8+
+  * During the installation select the add to path option
 * Install [NodeJS](https://nodejs.org/en/) 14+
   * Make sure to include the optional add-ons
+
 * Install yarn and typescript
 
 ```bash
@@ -49,53 +45,63 @@ npm install --global yarn typescript
 git clone https://github.com/Matamata-Animator/Matamata-Core.git
 ```
 
-* Open the folder and install the dependencies
+* Open the folder In command prompt and install the dependencies
 
 ```
 yarn
 ```
 
-* Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
-
-```bash
-yarn downloadModel
-```
-
 ### Ubuntu
 
-Clone the repo
+* Clone the repo
+
 ```shell
 git clone https://github.com/AI-Spawn/Auto-Lip-Sync
 cd Auto-Lip-Sync
 ```
-Install required packages
+* Install required packages
+
 ```shell
 sudo apt install docker.io nodejs
 ```
-Pull the lowerquality/gentle container
-```shell
-sudo docker pull lowerquality/gentle
-```
-
 * Install yarn and typescript
 
 ```bash
 sudo npm install --global yarn typescript
 ```
 
-* Open the folder and install the dependencies
+* Open the folder in the terminal and install the dependencies
 
 ```
 yarn
 ```
 
-* Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+### Mac 
 
-```bash
-yarn downloadModel
+* (Not Required for Intel Macs) Install [Anaconda Navigator](https://www.anaconda.com/products/individual)
+* Install Homebrew
+
+```zsh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
+* Install node, yarn
 
+``` 
+brew install node yarn
+```
+
+* Download the code using git or the button in the top right
+
+```bash
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+```
+
+* Open the folder in the terminal and install the dependencies
+
+```
+yarn
+```
 
 ## Setup
 
