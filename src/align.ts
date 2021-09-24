@@ -1,7 +1,7 @@
 import { Curl } from "node-libcurl";
 import { gentle_log } from "./logger";
 
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 
 let url = "http://localhost:8765/transcriptions?async=false";
 
@@ -54,4 +54,13 @@ export async function cleanGentle(gentle_stamps: GentleOut) {
   return gentle_stamps;
 }
 
-export async function allosaurusAlign(audio_path: string) {}
+export async function allosaurusAlign(audio_path: string) {
+  const stdout = execSync(
+    `python -m allosaurus.run -i ${audio_path} --lang eng --model eng2102 --timestamp=True`
+  ).toString();
+  console.log("stdout:", stdout);
+}
+
+if (require.main === module) {
+  allosaurusAlign("/Users/human/Desktop/test.wav");
+}
