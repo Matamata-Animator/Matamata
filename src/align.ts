@@ -2,6 +2,9 @@ import { Curl } from "node-libcurl";
 import { gentle_log } from "./logger";
 
 import { exec, execSync } from "child_process";
+import { transcribeAudio } from "./transcriber";
+import { time } from "console";
+import { TIMEOUT } from "dns";
 
 let url = "http://localhost:8765/transcriptions?async=false";
 
@@ -13,10 +16,10 @@ interface AlignedWord {
   alignedWord: string;
   case: string;
   end: number;
-  endOffset: number;
+  endOffset?: number;
   phones: Phoneme[];
   start: number;
-  startOffset: number;
+  startOffset?: number;
   word: string;
 }
 export interface GentleOut {
@@ -54,13 +57,75 @@ export async function cleanGentle(gentle_stamps: GentleOut) {
   return gentle_stamps;
 }
 
-export async function allosaurusAlign(audio_path: string) {
-  const stdout = execSync(
-    `python -m allosaurus.run -i ${audio_path} --lang eng --model eng2102 --timestamp=True`
-  ).toString();
-  console.log("stdout:", stdout);
+interface AlloPhone {
+  start: number;
+  phoneme: string;
+}
+
+export async function allosaurusAlign(audio_path: string, model_path: string) {
+  let command = `python3 -m allosaurus.run -i ${audio_path} --lang eng --model eng2102 --timestamp=True`;
+  let timestampsPromise = transcribeAudio(audio_path, model_path);
+
+  let phonesStrings = execSync(command).toString().split(/\n/g);
+  phonesStrings.pop();
+  let phones: AlloPhone[] = [];
+  phonesStrings.forEach((str) => {
+    let parts = str.split(" ");
+    let phone: AlloPhone = {
+      start: Number(parts[0]),
+      phoneme: parts[2],
+    };
+    phones.push(phone);
+  });
+
+  let timestamps = (await timestampsPromise).result;
+
+  let words: AlignedWord[] = [];
+  for (
+    let wordCounter = 0;
+    wordCounter < timestamps.length && phones.length > 0;
+    wordCounter++
+  ) {
+    let word: AlignedWord = {
+      alignedWord: timestamps[wordCounter].word,
+      word: timestamps[wordCounter].word,
+      start: timestamps[wordCounter].start,
+      end: timestamps[wordCounter].end,
+      case: "success",
+      phones: [],
+    };
+
+    // Find which phonemes are in the word
+    let includedPhones: AlloPhone[] = [];
+    for (let p = 0; p < phones.length && phones[p].start < word.end; p++) {
+      includedPhones.push(phones[p]);
+    }
+
+    for (let p = 0; p < includedPhones.length - 1; p++) {
+      let phone: Phoneme = {
+        phone: includedPhones[p].phoneme,
+        duration: includedPhones[p + 1].start - includedPhones[p].start,
+      };
+      word.phones.push(phone);
+    }
+    let last = includedPhones.pop();
+    word.phones.push({
+      phone: last!.phoneme,
+      duration: word.end - last!.start,
+    });
+
+    phones = phones.slice(word.phones.length);
+
+    words.push(word);
+  }
+
+  let gentleOut: GentleOut = {
+    words: words,
+  };
+  return gentleOut;
+  console.log(JSON.stringify(words, null, 4));
 }
 
 if (require.main === module) {
-  allosaurusAlign("/Users/human/Desktop/test.wav");
+  allosaurusAlign("/Users/human/Desktop/test.wav", "model");
 }

@@ -5,7 +5,11 @@ import { Readable } from "stream";
 import wav from "wav";
 import { join } from "path";
 
-interface VoskTimestamp {}
+interface VoskTimestamp {
+  start: number;
+  end: number;
+  word: string;
+}
 interface VoskOut {
   confidence: number;
   result: VoskTimestamp[];
