@@ -5,19 +5,25 @@ import { Readable } from "stream";
 import wav from "wav";
 import { join } from "path";
 
-export async function transcribeAudio(audio_path: string, model_path: string) {
-  let path_cache = audio_path;
+interface VoskTimestamp {}
+interface VoskOut {
+  confidence: number;
+  result: VoskTimestamp[];
+  text: string;
+}
 
-  // let model_path = join(__dirname, "..", "model");
-  if (!fs.existsSync(model_path)) {
-    console.log(
-      "Please download the model from https://alphacephei.com/vosk/models and unpack as " +
-        model_path +
-        " in the current folder."
-    );
-    process.exit();
-  }
-
+export async function getTranscribedText(
+  audio_path: string,
+  model_path: string
+): Promise<string> {
+  return await (
+    await transcribeAudio(audio_path, model_path)
+  ).text;
+}
+export async function transcribeAudio(
+  audio_path: string,
+  model_path: string
+): Promise<VoskOut> {
   if (process.argv.length > 2) audio_path = process.argv[2];
 
   vosk.setLogLevel(-1);
@@ -26,38 +32,42 @@ export async function transcribeAudio(audio_path: string, model_path: string) {
   const wfReader = new wav.Reader();
   const wfReadable = new Readable().wrap(wfReader);
 
-  let transcribed = new Promise((resolve, reject) => {
-    wfReader.on("format", async (fileInfo: wav.Format) => {
-      if (fileInfo.audioFormat != 1 || fileInfo.channels != 1) {
+  let transcription: Promise<VoskOut> = new Promise((resolve, reject) => {
+    wfReader.on("format", async ({ audioFormat, sampleRate, channels }) => {
+      if (audioFormat != 1 || channels != 1) {
         console.error("Audio file must be WAV format mono PCM.");
         process.exit(1);
       }
-      const rec = new vosk.Recognizer({
-        model: model,
-        sampleRate: fileInfo.sampleRate,
-      });
-      rec.setMaxAlternatives(10);
+      const rec = new vosk.Recognizer({ model: model, sampleRate: sampleRate });
+      rec.setMaxAlternatives(1);
       rec.setWords(true);
+
+      let results: any[] = [];
       for await (const data of wfReadable) {
         const end_of_speech = rec.acceptWaveform(data);
         if (end_of_speech) {
-          rec.result();
+          results.push(rec.result());
+          // console.log(JSON.stringify(rec.result(), null, 4));
         }
       }
-      let json = rec.finalResult(rec);
-      // console.log(json.alternatives[0].result);
-      resolve(json.alternatives[0].text);
 
+      results.push(rec.finalResult(rec));
       rec.free();
+      resolve(results[0].alternatives[0]);
     });
   });
 
-  audio_path = path_cache;
   fs.createReadStream(audio_path, { highWaterMark: 4096 })
     .pipe(wfReader)
-    .on("finish", function (err: string) {
+    .on("finish", function (err) {
       model.free();
     });
 
-  return transcribed;
+  return transcription;
+}
+
+if (require.main === module) {
+  transcribeAudio("/Users/human/Desktop/test.wav", "model").then((t: any) =>
+    console.log(t)
+  );
 }
