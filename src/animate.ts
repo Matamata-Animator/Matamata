@@ -5,7 +5,7 @@ import { setVerbose, banner, log, gentle_log } from "./logger";
 
 import { removeOld, launchContainer } from "./docker";
 
-import { transcribeAudio } from "./transcriber";
+import { getTranscribedText, transcribeAudio } from "./transcriber";
 
 import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
@@ -39,7 +39,7 @@ async function main(args: Args) {
     let containerKilled = removeOld(args.container_name);
     if (args.text == "") {
       log("Transcribing Audio...", 1);
-      scriptPromise = transcribeAudio(args.audio, args.vosk_model);
+      scriptPromise = getTranscribedText(args.audio, args.vosk_model);
     } else {
       scriptPromise = readFile(args.text);
     }
@@ -50,7 +50,7 @@ async function main(args: Args) {
     await Promise.all([containerKilled, scriptPromise]);
     log(`Container Killed: ${await containerKilled}`, 3);
 
-    let script = await scriptPromise;
+    let script = scriptPromise;
 
     log(`Script:${script}`, 2);
     writeFileSync(`${generate_dir}/script.txt`, String(script));
