@@ -1,4 +1,3 @@
-import { Curl } from "node-libcurl";
 import { gentle_log } from "./logger";
 
 import { exec, execSync } from "child_process";
@@ -28,6 +27,8 @@ export interface GentleOut {
 }
 
 export async function gentleAlign(audio_path: string, script_path: string) {
+  const { Curl } = require("node-libcurl");
+
   let gentle_out = new Promise<GentleOut>((resolve, reject) => {
     const curl = new Curl();
 
@@ -37,10 +38,10 @@ export async function gentleAlign(audio_path: string, script_path: string) {
       { name: "transcript", file: script_path },
     ]);
 
-    curl.on("end", function (statusCode, data, headers) {
+    curl.on("end", function (statusCode: any, data: any, headers: any) {
       resolve(JSON.parse(data as unknown as string));
     });
-    curl.on("error", (err) => {
+    curl.on("error", (err: any) => {
       console.log(err);
       curl.close.bind(curl);
     });
@@ -108,13 +109,21 @@ export async function allosaurusAlign(audio_path: string, model_path: string) {
       };
       word.phones.push(phone);
     }
-    let last = includedPhones.pop();
-    word.phones.push({
-      phone: last!.phoneme,
-      duration: word.end - last!.start,
-    });
 
-    phones = phones.slice(word.phones.length);
+    if (includedPhones.length > 0) {
+      let last = includedPhones.pop();
+      word.phones.push({
+        phone: last!.phoneme,
+        duration: word.end - last!.start,
+      });
+      phones = phones.slice(word.phones.length);
+    } else {
+      let fillerPhone: Phoneme = {
+        duration: word.end - word.start,
+        phone: "ʌ",
+      };
+      word.phones.push(fillerPhone);
+    }
 
     words.push(word);
   }
