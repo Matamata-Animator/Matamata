@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 
-import { cleanGentle, GentleOut } from "./gentle";
+import { cleanGentle, GentleOut } from "./align";
 import { Timestamp } from "./poseParser";
 import Jimp from "jimp";
 import path from "path";
@@ -210,6 +210,8 @@ export async function gen_image_sequence(video: VideoRequest) {
     for (const p of word.phones) {
       p.phone = p.phone.split("_")[0];
       p.duration = Math.round(100 * p.duration) / 100;
+
+      console.log("phone", p.phone);
       mouth_path = path.join(
         phonemes.mouthsPath,
         phonemes.phonemes[p.phone].image
