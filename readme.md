@@ -1,7 +1,6 @@
 # Matamata Core
 
 Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations. 
-For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
 
 <img src="https://raw.githubusercontent.com/Matamata-Animator/Branding/main/Logos-Icons/logo.png" alt="logo" width="200" height="200"/>
 
@@ -13,7 +12,6 @@ For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1
 * [Installation](#Installation)
      * [Windows](#Windows)
      * [Ubuntu](#Ubuntu)
-     * [Mac](#Mac---Untested)
 * [Setup](#setup)
      * [Timestamps](#timestamps)
      * [Script](#script)
@@ -21,10 +19,8 @@ For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1
      * [Mouths](#mouths)
 * [Usage](#usage)
      * [Flags and Arguments](#flags-and-arguments)
-     * [Additional Features](#Emotion-Detection)
      * [Windows](#Windows---Usage)
      * [Ubuntu](#Ubuntu---Usage)
-     * [Mac](#Mac)
 * [Contributing](#Contributing)
 
 
@@ -32,59 +28,80 @@ For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1
 
 ### Windows
 
-* Please follow the instructions [here](Windows_Install_Instructions.md) to set up your python environment
-* Install [Docker Desktop](https://www.docker.com/get-started)
-* Launch Docker Desktop if it isn't already running
-* Pull the Gentle container:
+* Install Python 3.8+
+  * During the installation select the add to path option
+* Install [NodeJS](https://nodejs.org/en/) 14+
+  * Make sure to include the optional add-ons
+
+* Install yarn and typescript
+
+```bash
+npm install --global yarn typescript
+```
+
+* Download the code using git or the button in the top right
+
+```bash
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+```
+
+* Open the folder In command prompt and install the dependencies
 
 ```
-docker pull lowerquality/gentle
+yarn
 ```
+
 ### Ubuntu
 
-Clone the repo
-```
+* Clone the repo
+
+```shell
 git clone https://github.com/AI-Spawn/Auto-Lip-Sync
 cd Auto-Lip-Sync
 ```
-Install required packages
+* Install required packages
+
+```shell
+sudo apt install docker.io nodejs
 ```
-sudo apt install ffmpeg python3-pip python3-opencv docker.io
-sudo pip3 install -r requirements.txt
-```
-Pull the lowerquality/gentle container
-```
-sudo docker pull lowerquality/gentle
-```
-### Mac - Untested
+* Install yarn and typescript
 
-Download [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/)
-
-Download [Anaconda](https://www.anaconda.com/products/individual#Downloads)
-
-Download this repo:
-```
-git clone https://github.com/AI-Spawn/Auto-Lip-Sync
-```
-Open the anaconda prompt in the Auto-Lip-Sync folder.
-
-
-
-Install required packages
-```
-pip install -r requirements.txt
-conda install ffmpeg
-```
-Launch Docker if it isn't launched already
-
-
-
-Pull lowerquality/gentle from DockerHub:
-
-```
-docker pull lowerquality/gentle
+```bash
+sudo npm install --global yarn typescript
 ```
 
+* Open the folder in the terminal and install the dependencies
+
+```
+yarn
+```
+
+### Mac 
+
+* (Not Required for Intel Macs) Install [Anaconda Navigator](https://www.anaconda.com/products/individual)
+* Install Homebrew
+
+```zsh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+* Install node, yarn
+
+``` 
+brew install node yarn
+```
+
+* Download the code using git or the button in the top right
+
+```bash
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+```
+
+* Open the folder in the terminal and install the dependencies
+
+```
+yarn
+```
 
 ## Setup
 
@@ -112,9 +129,11 @@ If poses are provided via a timestamps file, then no poses will be read from the
 
 ### Characters
 
-The easiest way to create the character file is by using [the character creator](https://matamata.aispawn.com/Character-Creator/). 
+The easiest way to create the character file is by using the character creator in [Matamata Studio](https://github.com/Matamata-Animator/Matamata-Studio).
 
-If you decide to create one manually, for an example of a character file, refer to *characters.json*
+~~Alternatively, you can use the [online character creator](https://matamata.aispawn.com/Character-Creator/) tool (DEPRECATED)~~
+
+If you decide to create one manually, for an example of a character file, refer to *characters.json* as an example.
 
 For each pose you want to animate, create a duplicate of *characters.json*. Change the variable *facesFolder* to be the directory of the character's poses. Set *defaultScale* to be how much the mouth images of the character should be scaled up or down.
 
@@ -146,41 +165,30 @@ More advance users can edit or create their own *phonemes*.json, however that is
 
 ## Usage
 
-### Flags and Arguments
+### Arguments
 
-Any flags/arguments can be used every time by creating a config file (`config.txt`will be loaded by default if it exists)
+#### Default Arguments
 
-This covers the most important flags and arguments. For the complete list, go to [Flags and Arguments](flags_and_arguments.md). 
+This covers the most important flags and arguments. For the complete list, go to [Default Arguments](defaults/default_args.json). 
 
-| Shortcut | Command                 | Required | Default           | Type | Description                                                  |
-| -------- | ----------------------- | -------- | ----------------- | ---- | ------------------------------------------------------------ |
-| -a       | --audio                 | *        |                   | str  | The path to the audio file being animated                    |
-| -ts      | --timestamps            |          |                   | str  | The path to the file containing pose  timestamps.            |
-| -o       | --output                |          | "output.mp4"      | str  | The output of the program                                    |
-| -c       | --character             |          | "characters.json" | str  | The list of character poses                                  |
-| -m       | --mouths                |          | "phonemes.json"   | str  | The mouth pack and phonemes list                             |
-| -d       | --dimensions            |          | "1920:1080"       | str  | The resolution of the final video                            |
-| -v       | --verbose               |          |                   | flag | Dump process outputs to the shell                            |
-|          | --crumple_zone          |          |                   | flag | Add 10 seconds to the end of the video of the character with their mouth shut, in the last pose they were in. Useful for exporting to a video editor while working with another frame rate. |
-| -em      | --emotion_detection_env |          |                   | str  | The name of the environment file to load for emotion detection. Mutually exclusive with `-ts`. More info in the README. |
-|          | --config                |          | "config.txt"      | str  | The path to the config file                                  |
+| Shortcut | Command      | Required | Default                    | Type | Description                                       |
+| -------- | ------------ | -------- | -------------------------- | ---- | ------------------------------------------------- |
+| --a      | --audio      | *        |                            | str  | The path to the audio file being animated         |
+| --t      | --timestamps |          |                            | str  | The path to the file containing pose  timestamps. |
+| --o      | --output     |          | "defaults/output.mp4"      | str  | The output of the program                         |
+| --c      | --character  |          | "defaults/characters.json" | str  | The list of character poses                       |
+| --m      | --mouths     |          | "defaults/phonemes.json"   | str  | The mouth pack and phonemes list                  |
+| --V      | --verbose    |          | 1                          | int  | Dump process outputs to the shell                 |
 
-### Other features
+#### Custom Defaults
 
-#### Emotion Detection
-Emotion detection generates poses automatically from the perceived emotion of each sentence.
-It uses the free IBM Watson Tone Analyzer API, but you will still need to provide your own
-credentials. To get your credentials, do the following:
+You can set custom default arguments by creating a file `config.json` in the main folder. In this file, the key is the command and the value is what you want the new default to be. For instance, if you wanted to always be set to verbose mode 3, your file will be:
 
-1. [Create](https://cloud.ibm.com/registration) an IBM Cloud/IBM Watson account.
-2. Go to [your cloud dashboard](https://cloud.ibm.com/).
-3. Login if you haven't already.
-4. Click "Create Resource" and add the Watson Tone Analyzer API. The Lite plan is free.
-5. Open the sidebar and click "Resource List".
-6. Find the Tone Analyzer resource and click it.
-7. Download your credentials. They should come as a .env file.
-
-You can now provide the name of this file to the tool by using the `-em` argument.
+```json
+{
+	"verbose": 3
+}
+```
 
 ### Windows - Usage
 
@@ -188,7 +196,7 @@ Launch *Docker Desktop*
 
 Launch terminal in the Matamata-Core folder
 ```
-python animate.py -a audio.wav [flags]
+yarn animate --a audio.wav [arguments]
 ```
 
 
@@ -196,19 +204,9 @@ python animate.py -a audio.wav [flags]
 
 Launch Terminal
 ```
-sudo python3 animate.py -a audio.wav --codec FMP4 [flags]
+sudo docker run --name gentle -p 8765:8765 lowerquality/gentle &
+sudo yarn animate --a audio.wav [arguments]
 ```
-
-
-### Mac
-
-Launch *Docker Desktop*
-
-Launch *Anaconda Prompt*
-```
-python animate.py -a audio.wav [flags]
-```
-This may need to be accompanied by a *sudo* beforehand.
 
 
 
