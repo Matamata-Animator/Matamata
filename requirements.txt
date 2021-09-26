@@ -1,0 +1,17 @@
+ConfigArgParse
+argparse
+colorama
+requests
+python_dotenv
+
+opencv-python
+numpy
+ffmpeg-python
+
+pydub
+vosk
+
+docker
+
+ibm_watson
+

@@ -2,69 +2,6 @@
   "mouthsPath": "defaults/mouths/",
   "closed": "closed.png",
   "phonemes": {
-    "ɑ": {
-      "image": "Adown.png"
-    },
-    "ɡ": {
-      "image": "k.png"
-    },
-    "θ": {
-      "image": "th.png"
-    },
-    "ʌ": {
-      "image": "Adown.png"
-    },
-    "ɛ": {
-      "image": "Adown.png"
-    },
-    "h": {
-      "image": "k.png"
-    },
-    "ə": {
-      "image": "oo.png"
-    },
-    "ð": {
-      "image": "k.png"
-    },
-    "ɔ": {
-      "image": "oo.png"
-    },
-    "ʃ": {
-      "image": "s.png"
-    },
-    "u": {
-      "image": "oo.png"
-    },
-    "ŋ": {
-      "image": "k.png"
-    },
-    "ɹ̩": {
-      "image": "r.png"
-    },
-    "ɹ": {
-      "image": "r.png"
-    },
-    "ɪ": {
-      "image": "ee.png"
-    },
-    "a": {
-      "image": "Adown.png"
-    },
-    "æ": {
-      "image": "Adown.png"
-    },
-    "i": {
-      "image": "ee.png"
-    },
-    "j": {
-      "image": "Adown.png"
-    },
-    "e": {
-      "image": "Adown.png"
-    },
-    "o": {
-      "image": "oo.png"
-    },
     "dh": {
       "actual": "T͟H",
       "image": "th.png"
@@ -123,7 +60,7 @@
     },
     "ah": {
       "actual": "ə",
-      "image": "oo.png"
+      "image": "Adown.png"
     },
     "m": {
       "actual": "m",
@@ -132,6 +69,10 @@
     "p": {
       "actual": "p",
       "image": "m.png"
+    },
+    "t": {
+      "actual": "t",
+      "image": "s.png"
     },
     "n": {
       "actual": "n",
@@ -221,7 +162,7 @@
       "actual": "ng",
       "image": "r.png"
     },
-    "oov": {
+    "oov":{
       "image": "Adown.png"
     }
   }
