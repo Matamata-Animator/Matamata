@@ -158,7 +158,6 @@ export async function gen_image_sequence(video: VideoRequest) {
   let phonemes: {
     closed: string;
     phonemes: any;
-    mouthsPath: any;
   } = JSON.parse(readFileSync(video.mouths_path).toString());
 
   let timestamp: Timestamp = {
@@ -185,7 +184,7 @@ export async function gen_image_sequence(video: VideoRequest) {
   ///////////////////////////
   for (const word of video.gentle_stamps.words) {
     // Rest Frames //
-    let mouth_path = path.join(phonemes.mouthsPath, phonemes.closed);
+    let mouth_path = path.join(character.mouthsPath, phonemes.closed);
     let duration = Math.round(100 * (word.start - currentTime)) / 100;
     if (duration > 0) {
       currentTime += duration;
@@ -213,7 +212,7 @@ export async function gen_image_sequence(video: VideoRequest) {
 
       console.log("phone", p.phone);
       mouth_path = path.join(
-        phonemes.mouthsPath,
+        character.mouthsPath,
         phonemes.phonemes[p.phone].image
       );
       let frame = createFrameRequest(
@@ -232,7 +231,7 @@ export async function gen_image_sequence(video: VideoRequest) {
     pose,
     video.dimensions,
     0.01,
-    path.join(phonemes.mouthsPath, phonemes.closed)
+    path.join(character.mouthsPath, phonemes.closed)
   );
   currentTime += 0.1;
   frame_request_promises.push(frame);
