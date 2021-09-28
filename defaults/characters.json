@@ -1,4 +1,5 @@
 {
+  "mouthsPath": "defaults/mouths/",
   "poses": {
     "imagesFolder": "defaults/SampleFace/",
     "default_scale": 1.2,
