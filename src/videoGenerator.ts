@@ -165,9 +165,19 @@ export async function gen_image_sequence(video: VideoRequest) {
     pose_name: video.default_pose,
     type: "poses",
   };
+
+  let placeableParts: Map<string, string> = new Map();
+
   for (const t of video.timestamps) {
-    if (t.time <= 0 && t.type == "poses") {
-      timestamp = t;
+    if (t.time <= 0) {
+      if (t.type == "poses") {
+        timestamp = t;
+      } else {
+        placeableParts.set(t.type, t.pose_name);
+        if (t.pose_name == "None") {
+          placeableParts.delete(t.type);
+        }
+      }
     }
   }
   let pose = await getPose(timestamp.pose_name, character);
@@ -199,10 +209,21 @@ export async function gen_image_sequence(video: VideoRequest) {
 
     // Swap pose //
     for (const t of video.timestamps) {
-      if (t.time / 1000 <= currentTime) {
-        timestamp = t;
+      console.log(t.time);
+      console.log(currentTime * 1000);
+      if (t.time <= currentTime * 1000) {
+        if (t.type == "poses") {
+          timestamp = t;
+        } else {
+          console.log(t);
+          placeableParts.set(t.type, t.pose_name);
+          if (t.pose_name == "None") {
+            placeableParts.delete(t.type);
+          }
+        }
       }
     }
+    console.log(placeableParts);
     pose = await getPose(timestamp.pose_name, character);
 
     // Talking Frames //
