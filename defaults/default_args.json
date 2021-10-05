@@ -81,6 +81,6 @@
   "aligningAlgorithm": {
     "type": "string",
     "description": "The algorithm used to extraact the phonemes from the audio (allosaurus/gentle)",
-    "default": "allosaurus"
+    "default": "gentle"
   }
 }
