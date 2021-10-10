@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { Console } from "console";
+import { string } from "yargs";
 
 const ffmpeg = createFFmpeg({ log: false });
 let ffmpeg_loaded = ffmpeg.load();
@@ -23,6 +24,7 @@ interface FrameRequest {
   mirror_mouth: boolean;
   dimensions: number[];
   placeableParts: Map<string, string>;
+  character: any;
 }
 export interface VideoRequest {
   gentle_stamps: GentleOut;
@@ -82,7 +84,8 @@ async function createFrameRequest(
   dimensions: number[],
   duration: number,
   mouth_path: string,
-  placeableParts: Map<string, string>
+  placeableParts: Map<string, string>,
+  character: unknown
 ) {
   let frame: FrameRequest = {
     face_path: pose.image,
@@ -94,7 +97,8 @@ async function createFrameRequest(
     mirror_face: pose.mirror_face!,
     mirror_mouth: pose.mirror_mouth!,
     dimensions: dimensions,
-    placeableParts: placeableParts,
+    placeableParts: new Map(placeableParts),
+    character: character,
   };
   return frame;
 }
@@ -115,7 +119,18 @@ async function generateFrame(frame: FrameRequest) {
   if (frame.mirror_mouth) {
     mouth = mouth.flip(true, false);
   }
+  console.log(frame.placeableParts);
+  for (const [type, name] of frame.placeableParts) {
+    let partData = frame.character[type];
+    let basePath: string = partData.imagesFolder;
+    let specPath = partData.images[name];
 
+    let part = await Jimp.read(path.join(basePath, specPath));
+
+    let x: number = partData.x;
+    let y: number = partData.y;
+    overlayImage(face, part, x - part.getWidth() / 2, y - part.getHeight() / 2);
+  }
   overlayImage(
     face,
     mouth,
@@ -211,7 +226,8 @@ export async function gen_image_sequence(video: VideoRequest) {
       video.dimensions,
       duration,
       mouth_path,
-      placeableParts
+      placeableParts,
+      character
     );
     frame_request_promises.push(frame);
 
@@ -249,7 +265,8 @@ export async function gen_image_sequence(video: VideoRequest) {
         video.dimensions,
         p.duration,
         mouth_path,
-        placeableParts
+        placeableParts,
+        character
       );
       currentTime += p.duration;
 
@@ -262,7 +279,8 @@ export async function gen_image_sequence(video: VideoRequest) {
     video.dimensions,
     0.01,
     path.join(character.mouthsPath, phonemes.closed),
-    placeableParts
+    placeableParts,
+    character
   );
   currentTime += 0.1;
   frame_request_promises.push(frame);
