@@ -1,0 +1,39 @@
+{
+  "mouthsPath": "defaults/mouths/",
+  "poses": {
+    "imagesFolder": "defaults/SampleCharacter/faces/",
+    "default_scale": 1.2,
+    "default": {
+      "image": "purple.png",
+      "x": 640,
+      "y": 550,
+      "facingLeft": false,
+      "scale": 1
+    },
+    "green": {
+      "image": "green.png",
+      "x": 640,
+      "y": 550,
+      "facingLeft": false,
+      "scale": 1
+    },
+    "blue": {
+      "image": "blue.png",
+      "x": 640,
+      "y": 550,
+      "facingLeft": false,
+      "scale": 1
+    }
+  },
+  "eyes": {
+    "imagesFolder": "defaults/SampleCharacter/eyes/",
+    "default_scale": 1,
+    "x": 640,
+    "y": 300,
+    "images": {
+      "angry": "angry.png",
+      "normal": "normal.png",
+      "sad": "sad.png"
+    }
+  }
+}
