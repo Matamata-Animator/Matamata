@@ -85,12 +85,12 @@ async function createFrameRequest(
   duration: number,
   mouth_path: string,
   placeableParts: Map<string, string>,
-  character: unknown
+  character: any
 ) {
   let frame: FrameRequest = {
     face_path: pose.image,
     mouth_path: mouth_path,
-    mouth_scale: pose.scale ?? 1,
+    mouth_scale: (pose.scale ?? 1) * (character.poses.default_scale ?? 1),
     mouth_x: pose.x,
     mouth_y: pose.y,
     duration: duration,
@@ -126,6 +126,7 @@ async function generateFrame(frame: FrameRequest) {
     let specPath = partData.images[name];
 
     let part = await Jimp.read(path.join(basePath, specPath));
+    part.scale(partData.scale);
 
     let x: number = partData.x;
     let y: number = partData.y;
