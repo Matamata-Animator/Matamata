@@ -1,12 +1,14 @@
 import { readFileSync } from "fs";
 
-import { cleanGentle, GentleOut } from "./gentle";
+import { cleanGentle, GentleOut } from "./align";
 import { Timestamp } from "./poseParser";
 import Jimp from "jimp";
 import path from "path";
 
 import fs from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+import { Console } from "console";
+import { string } from "yargs";
 
 const ffmpeg = createFFmpeg({ log: false });
 let ffmpeg_loaded = ffmpeg.load();
@@ -21,6 +23,8 @@ interface FrameRequest {
   mirror_face: boolean;
   mirror_mouth: boolean;
   dimensions: number[];
+  placeableParts: Map<string, string>;
+  character: any;
 }
 export interface VideoRequest {
   gentle_stamps: GentleOut;
@@ -50,10 +54,10 @@ async function getDimensions(image_path: string) {
 }
 
 async function getPose(pose_name: string, character: any) {
-  if (!character.hasOwnProperty(pose_name)) {
+  if (!character.poses.hasOwnProperty(pose_name)) {
     throw `Pose "${pose_name}" does not exist`;
   }
-  let pose: Pose = JSON.parse(JSON.stringify(character[pose_name])); //creates an unlinked copy of pose
+  let pose: Pose = JSON.parse(JSON.stringify(character.poses[pose_name])); //creates an unlinked copy of pose
 
   let split = pose_name.split("-");
   let mirror = false;
@@ -62,15 +66,13 @@ async function getPose(pose_name: string, character: any) {
     mirror = left == pose.facingLeft;
   }
   pose.mirror_face = mirror;
-  // console.log(mirror);
   let mirror_mouth = false;
   if (pose.facingLeft || (!pose.facingLeft && pose.mirror_face)) {
     mirror_mouth = true;
   }
   pose.mirror_mouth = mirror_mouth;
 
-  pose.image = path.join(character.facesFolder ?? "", pose.image);
-
+  pose.image = path.join(character.poses.imagesFolder ?? "", pose.image);
   if (!("scale" in pose)) {
     pose.scale = 1;
   }
@@ -81,20 +83,27 @@ async function createFrameRequest(
   pose: Pose,
   dimensions: number[],
   duration: number,
-  mouth_path: string
+  mouth_path: string,
+  placeableParts: Map<string, string>,
+  character: any
 ) {
   let frame: FrameRequest = {
     face_path: pose.image,
     mouth_path: mouth_path,
-    mouth_scale: pose.scale ?? 1,
+    mouth_scale: (pose.scale ?? 1) * (character.poses.default_scale ?? 1),
     mouth_x: pose.x,
     mouth_y: pose.y,
     duration: duration,
     mirror_face: pose.mirror_face!,
     mirror_mouth: pose.mirror_mouth!,
     dimensions: dimensions,
+    placeableParts: new Map(placeableParts),
+    character: character,
   };
   return frame;
+}
+async function overlayImage(base: Jimp, top: Jimp, x: number, y: number) {
+  base.composite(top, x, y);
 }
 
 async function generateFrame(frame: FrameRequest) {
@@ -110,8 +119,21 @@ async function generateFrame(frame: FrameRequest) {
   if (frame.mirror_mouth) {
     mouth = mouth.flip(true, false);
   }
+  console.log(frame.placeableParts);
+  for (const [type, name] of frame.placeableParts) {
+    let partData = frame.character[type];
+    let basePath: string = partData.imagesFolder;
+    let specPath = partData.images[name];
 
-  face.composite(
+    let part = await Jimp.read(path.join(basePath, specPath));
+    part.scale(partData.scale);
+
+    let x: number = partData.x;
+    let y: number = partData.y;
+    overlayImage(face, part, x - part.getWidth() / 2, y - part.getHeight() / 2);
+  }
+  overlayImage(
+    face,
     mouth,
     frame.mouth_x - mouth.getWidth() / 2,
     frame.mouth_y - mouth.getHeight() / 2
@@ -159,13 +181,26 @@ export async function gen_image_sequence(video: VideoRequest) {
   let phonemes: {
     closed: string;
     phonemes: any;
-    mouthsPath: any;
   } = JSON.parse(readFileSync(video.mouths_path).toString());
 
-  let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
+  let timestamp: Timestamp = {
+    time: 0,
+    pose_name: video.default_pose,
+    type: "poses",
+  };
+
+  let placeableParts: Map<string, string> = new Map();
+
   for (const t of video.timestamps) {
     if (t.time <= 0) {
-      timestamp = t;
+      if (t.type == "poses") {
+        timestamp = t;
+      } else {
+        placeableParts.set(t.type, t.pose_name);
+        if (t.pose_name == "None") {
+          placeableParts.delete(t.type);
+        }
+      }
     }
   }
   let pose = await getPose(timestamp.pose_name, character);
@@ -182,7 +217,7 @@ export async function gen_image_sequence(video: VideoRequest) {
   ///////////////////////////
   for (const word of video.gentle_stamps.words) {
     // Rest Frames //
-    let mouth_path = path.join(phonemes.mouthsPath, phonemes.closed);
+    let mouth_path = path.join(character.mouthsPath, phonemes.closed);
     let duration = Math.round(100 * (word.start - currentTime)) / 100;
     if (duration > 0) {
       currentTime += duration;
@@ -191,32 +226,48 @@ export async function gen_image_sequence(video: VideoRequest) {
       pose,
       video.dimensions,
       duration,
-      mouth_path
+      mouth_path,
+      placeableParts,
+      character
     );
     frame_request_promises.push(frame);
 
     // Swap pose //
-    let timestamp: Timestamp = { time: 0, pose_name: video.default_pose };
     for (const t of video.timestamps) {
-      if (t.time <= currentTime) {
-        timestamp = t;
+      console.log(t.time);
+      console.log(currentTime * 1000);
+      if (t.time <= currentTime * 1000) {
+        if (t.type == "poses") {
+          timestamp = t;
+        } else {
+          console.log(t);
+          placeableParts.set(t.type, t.pose_name);
+          if (t.pose_name == "None") {
+            placeableParts.delete(t.type);
+          }
+        }
       }
     }
+    console.log(placeableParts);
     pose = await getPose(timestamp.pose_name, character);
 
     // Talking Frames //
     for (const p of word.phones) {
       p.phone = p.phone.split("_")[0];
       p.duration = Math.round(100 * p.duration) / 100;
+
+      console.log("phone", p.phone);
       mouth_path = path.join(
-        phonemes.mouthsPath,
+        character.mouthsPath,
         phonemes.phonemes[p.phone].image
       );
       let frame = createFrameRequest(
         pose,
         video.dimensions,
         p.duration,
-        mouth_path
+        mouth_path,
+        placeableParts,
+        character
       );
       currentTime += p.duration;
 
@@ -228,7 +279,9 @@ export async function gen_image_sequence(video: VideoRequest) {
     pose,
     video.dimensions,
     0.01,
-    path.join(phonemes.mouthsPath, phonemes.closed)
+    path.join(character.mouthsPath, phonemes.closed),
+    placeableParts,
+    character
   );
   currentTime += 0.1;
   frame_request_promises.push(frame);
