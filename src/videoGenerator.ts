@@ -22,6 +22,7 @@ interface FrameRequest {
   mirror_face: boolean;
   mirror_mouth: boolean;
   dimensions: number[];
+  placeableParts: Map<string, string>;
 }
 export interface VideoRequest {
   gentle_stamps: GentleOut;
@@ -80,7 +81,8 @@ async function createFrameRequest(
   pose: Pose,
   dimensions: number[],
   duration: number,
-  mouth_path: string
+  mouth_path: string,
+  placeableParts: Map<string, string>
 ) {
   let frame: FrameRequest = {
     face_path: pose.image,
@@ -92,8 +94,12 @@ async function createFrameRequest(
     mirror_face: pose.mirror_face!,
     mirror_mouth: pose.mirror_mouth!,
     dimensions: dimensions,
+    placeableParts: placeableParts,
   };
   return frame;
+}
+async function overlayImage(base: Jimp, top: Jimp, x: number, y: number) {
+  base.composite(top, x, y);
 }
 
 async function generateFrame(frame: FrameRequest) {
@@ -110,7 +116,8 @@ async function generateFrame(frame: FrameRequest) {
     mouth = mouth.flip(true, false);
   }
 
-  face.composite(
+  overlayImage(
+    face,
     mouth,
     frame.mouth_x - mouth.getWidth() / 2,
     frame.mouth_y - mouth.getHeight() / 2
@@ -203,7 +210,8 @@ export async function gen_image_sequence(video: VideoRequest) {
       pose,
       video.dimensions,
       duration,
-      mouth_path
+      mouth_path,
+      placeableParts
     );
     frame_request_promises.push(frame);
 
@@ -240,7 +248,8 @@ export async function gen_image_sequence(video: VideoRequest) {
         pose,
         video.dimensions,
         p.duration,
-        mouth_path
+        mouth_path,
+        placeableParts
       );
       currentTime += p.duration;
 
@@ -252,7 +261,8 @@ export async function gen_image_sequence(video: VideoRequest) {
     pose,
     video.dimensions,
     0.01,
-    path.join(character.mouthsPath, phonemes.closed)
+    path.join(character.mouthsPath, phonemes.closed),
+    placeableParts
   );
   currentTime += 0.1;
   frame_request_promises.push(frame);
