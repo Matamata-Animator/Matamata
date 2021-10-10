@@ -16,6 +16,7 @@
     "nodemon": "^2.0.12"
   },
   "scripts": {
+    "install": "python3 -m pip install allosaurus && python3 -m allosaurus.bin.download_model -m eng2102",
     "downloadModel": "tsc && node build/downloadModel.js",
     "debug": "tsc && nodemon . --experimental-wasm-threads --experimental-wasm-bulk-memory",
     "animate": "tsc && node . --experimental-wasm-threads --experimental-wasm-bulk-memory",
@@ -30,8 +31,10 @@
     "figlet": "^1.5.2",
     "fs-extra": "^10.0.0",
     "jimp": "^0.16.1",
-    "node-libcurl": "^2.3.3",
     "vosk": "^0.3.31",
     "yargs": "^17.1.1"
+  },
+  "optionalDependencies": {
+    "node-libcurl": "^2.3.3"
   }
 }

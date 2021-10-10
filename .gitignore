@@ -12,6 +12,11 @@ model/
 custom/
 config.json
 *.log
+
+*.tar.gz
+__pycache__
+.DS_Store
+
 # Logs
 logs
 *.log

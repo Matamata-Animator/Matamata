@@ -12,6 +12,7 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 * [Installation](#Installation)
      * [Windows](#Windows)
      * [Ubuntu](#Ubuntu)
+     * [Mac](#Mac)
 * [Setup](#setup)
      * [Timestamps](#timestamps)
      * [Script](#script)
@@ -19,8 +20,8 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
      * [Mouths](#mouths)
 * [Usage](#usage)
      * [Flags and Arguments](#flags-and-arguments)
-     * [Windows](#Windows---Usage)
-     * [Ubuntu](#Ubuntu---Usage)
+     * [Custom Defaults](#Custom-Defaults)
+     * [Running](#Running)
 * [Contributing](#Contributing)
 
 
@@ -28,15 +29,11 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 ### Windows
 
-* Install [Docker Desktop](https://www.docker.com/get-started)
-* Launch Docker Desktop if it isn't already running
-* Pull the Gentle container:
-
-```bash
-docker pull lowerquality/gentle
-```
+* Install Python 3.8+
+  * During the installation select the add to path option
 * Install [NodeJS](https://nodejs.org/en/) 14+
   * Make sure to include the optional add-ons
+
 * Install yarn and typescript
 
 ```bash
@@ -49,53 +46,81 @@ npm install --global yarn typescript
 git clone https://github.com/Matamata-Animator/Matamata-Core.git
 ```
 
-* Open the folder and install the dependencies
+* Open the folder In command prompt and install the dependencies
 
 ```
 yarn
 ```
 
-* Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
 
-```bash
+```zsh
 yarn downloadModel
 ```
 
 ### Ubuntu
 
-Clone the repo
+* Clone the repo
+
 ```shell
 git clone https://github.com/AI-Spawn/Auto-Lip-Sync
 cd Auto-Lip-Sync
 ```
-Install required packages
+* Install required packages
+
 ```shell
 sudo apt install docker.io nodejs
 ```
-Pull the lowerquality/gentle container
-```shell
-sudo docker pull lowerquality/gentle
-```
-
 * Install yarn and typescript
 
 ```bash
 sudo npm install --global yarn typescript
 ```
 
-* Open the folder and install the dependencies
+* Open the folder in the terminal and install the dependencies
 
 ```
 yarn
 ```
 
-* Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
 
-```bash
+```zsh
 yarn downloadModel
 ```
 
+### Mac 
 
+* (Not required for Intel Macs) Install [Anaconda Navigator](https://www.anaconda.com/products/individual)
+* Install Homebrew
+
+```zsh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+* Install NodeJS, Yarn, and TypeScript
+
+``` zsh
+brew install node yarn typescript
+```
+
+* Download the code using git or the button in the top right
+
+```zsh
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+```
+
+* Open the folder in the terminal and install the dependencies
+
+```zsh
+yarn
+```
+
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+
+```zsh
+yarn downloadModel
+```
 
 ## Setup
 
@@ -184,22 +209,11 @@ You can set custom default arguments by creating a file `config.json` in the mai
 }
 ```
 
-### Windows - Usage
+### Running
 
-Launch *Docker Desktop*
-
-Launch terminal in the Matamata-Core folder
+The command to create an animation is the same for all supported platforms 
 ```
-yarn animate --a audio.wav [arguments]
-```
-
-
-### Ubuntu - Usage
-
-Launch Terminal
-```
-sudo docker run --name gentle -p 8765:8765 lowerquality/gentle &
-sudo yarn animate --a audio.wav [arguments]
+yarn animate --a audio.wav [optional arguments]
 ```
 
 

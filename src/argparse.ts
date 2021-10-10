@@ -50,4 +50,5 @@ export interface Args {
   vosk_model: string;
   default_pose: string;
   config: string;
+  aligningAlgorithm: "allosaurus" | "gentle"
 }

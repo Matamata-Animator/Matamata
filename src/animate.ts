@@ -5,12 +5,12 @@ import { setVerbose, banner, log, gentle_log } from "./logger";
 
 import { removeOld, launchContainer } from "./docker";
 
-import { transcribeAudio } from "./transcriber";
+import { getTranscribedText, transcribeAudio } from "./transcriber";
 
 import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
-import { gentleAlign } from "./gentle";
+import { allosaurusAlign, gentleAlign, GentleOut } from "./align";
 import {
   combine_images,
   gen_image_sequence,
@@ -24,6 +24,10 @@ async function removeGenerateFolder(generate_dir: string) {
     rmSync(generate_dir, { recursive: true });
   }
 }
+async function createGenerateFolder(generate_dir: string) {
+  await removeGenerateFolder(generate_dir);
+  mkdirSync(generate_dir);
+}
 async function main(args: Args) {
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
@@ -31,32 +35,41 @@ async function main(args: Args) {
 
   setVerbose(args.verbose);
   await banner();
-  log("Full Verbose", 2);
+  log("Full Verbose", 3);
 
-  let containerKilled = removeOld(args.container_name);
-  let scriptPromise: Promise<unknown>;
-  if (args.text == "") {
-    log("Transcribing Audio...", 1);
-    scriptPromise = transcribeAudio(args.audio, args.vosk_model);
-  } else {
-    scriptPromise = readFile(args.text);
+  await createGenerateFolder(generate_dir);
+  let gentlePromise: Promise<GentleOut>;
+  if (args.aligningAlgorithm == "allosaurus") {
+    gentlePromise = allosaurusAlign(args.audio, args.vosk_model);
+  } else if (args.aligningAlgorithm == "gentle") {
+    let containerKilled = removeOld(args.container_name);
+    let scriptPromise: Promise<unknown>;
+
+    if (args.text == "") {
+      log("Transcribing Audio...", 1);
+      scriptPromise = getTranscribedText(args.audio, args.vosk_model);
+    } else {
+      scriptPromise = readFile(args.text);
+    }
+
+    await removeGenerateFolder(generate_dir);
+    mkdirSync(generate_dir);
+
+    await Promise.all([containerKilled, scriptPromise]);
+    log(`Container Killed: ${await containerKilled}`, 3);
+
+    let script = scriptPromise;
+
+    log(`Script:${script}`, 2);
+    writeFileSync(`${generate_dir}/script.txt`, String(script));
+
+    if (await containerKilled) {
+      await launchContainer(args.container_name, args.image_name);
+    }
+    log("Docker Ready...", 1);
+
+    gentlePromise = gentleAlign(args.audio, `${generate_dir}/script.txt`);
   }
-
-  await removeGenerateFolder(generate_dir);
-  mkdirSync(generate_dir);
-
-  await Promise.all([containerKilled, scriptPromise]);
-  log(`Container Killed: ${await containerKilled}`, 3);
-
-  let script = await scriptPromise;
-
-  log(`Script:${script}`, 2);
-  writeFileSync(`${generate_dir}/script.txt`, String(script));
-
-  if (await containerKilled) {
-    await launchContainer(args.container_name, args.image_name);
-  }
-  log("Docker Ready...", 1);
   ///////////////////////////////
   // Parse TestFile into Poses //
   ///////////////////////////////
@@ -68,11 +81,12 @@ async function main(args: Args) {
       {
         time: 0,
         pose_name: args.default_pose,
+        type: "poses",
       },
     ];
   }
-
-  let gentle_json = await gentleAlign(args.audio, `${generate_dir}/script.txt`);
+  let gentle_json = await gentlePromise!;
+  log(timestamps, 2);
 
   log(gentle_json, 3);
 
