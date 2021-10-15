@@ -284,32 +284,24 @@ export async function gen_image_sequence(video: VideoRequest) {
   let frame_requests = await Promise.all(frame_request_promises);
   let frame_counter = 0;
   await ffmpeg_loaded;
-  for (const frame_request of frame_requests) {
-    writeFrame(frame_request, frame_counter);
-    frame_counter += frame_request.duration;
-  }
 
-  // ////////////////////////////
-  // // Write Frames to Folder //
-  // ////////////////////////////
-  // let c = 0;
-  // frames.forEach(async (frame, counter) => {
-  //   await ffmpeg_loaded;
-  //   console.log(Date.now());
-  //   let buffer = await frame.getBufferAsync(Jimp.MIME_PNG);
-  //   ffmpeg.FS("writeFile", `${counter}.png`, buffer);
-  //   c += frame.;
-  // });
+  let frames: Promise<void>[] = [];
+  for (const frame_request of frame_requests) {
+    let frame_promise = writeFrame(frame_request, frame_counter);
+    frames.push(frame_promise);
+    frame_counter += Math.round(frame_request.duration * 100);
+  }
+  await Promise.all(frames);
 
   return frame_counter;
 }
 
 async function writeFrame(frame_request: FrameRequest, frame_counter: number) {
   let rendered = await generateFrame(frame_request);
-  console.log(Date.now());
   let buffer = await rendered.getBufferAsync(Jimp.MIME_PNG);
 
   for (let i = 0; i < Math.round(frame_request.duration * 100); i++) {
+    console.log(frame_counter + i);
     ffmpeg.FS("writeFile", `${frame_counter + i}.png`, buffer);
   }
 }
