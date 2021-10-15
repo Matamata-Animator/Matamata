@@ -10,6 +10,7 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 * [Table of Contents](#table-of-contents)
 * [Installation](#Installation)
+     * [Read This First!!!](#Pick-Your-Poison)
      * [Windows](#Windows)
      * [Ubuntu](#Ubuntu)
      * [Mac](#Mac)
@@ -24,8 +25,41 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
      * [Running](#Running)
 * [Contributing](#Contributing)
 
-
 ## Installation
+
+### Pick Your Poison
+
+Matamata currently supports two methods of phoneme alignment, Allosaurus and Gentle. Allosaurus is easier to setup and it performs better in loud environments, however its alignment is often not as accurate. Gentle alignment requires Docker Desktop, which can be harder to install but does not require python and generally provides better alignment. Please install one (or both) of these options, **Gentle is currently the recommended option.** Keep in mind you can use either of these options by specifying  `--aligningAlgorithm allosaurus | gentle` when running the program. 
+
+
+
+Currently Allosaurus is in a development state and is not necessarily usable for large projects.
+
+#### Gentle
+
+This will not work on Macs with apple silicon.
+
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your operating system 
+
+Run `docker pull lower quality/gentle` in your command prompt/terminal
+
+#### Allosaurus
+
+All allosaurus requires is python. 
+
+##### Windows: 
+
+Download and install [python3](https://www.python.org/downloads/), make sure to select the option to add python3 to path during install. You can test to see if this worked by running `python3` in your terminal.
+
+##### Mac
+
+Install using [Homebrew]('https://brew.sh')
+
+`brew install python3`
+
+##### Ubuntu
+
+`sudo apt install python3`
 
 ### Windows
 
@@ -92,16 +126,22 @@ yarn downloadModel
 ### Mac 
 
 * (Not required for Intel Macs) Install [Anaconda Navigator](https://www.anaconda.com/products/individual)
-* Install Homebrew
+* Install the Node Version Manager (nvm)
 
 ```zsh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ```
 
-* Install NodeJS, Yarn, and TypeScript
+* Install Node 14+
+
+```
+nvm install 14
+```
+
+* Install Yarn and TypeScript
 
 ``` zsh
-brew install node yarn typescript
+npm install -g yarn typescript
 ```
 
 * Download the code using git or the button in the top right
@@ -116,7 +156,7 @@ git clone https://github.com/Matamata-Animator/Matamata-Core.git
 yarn
 ```
 
-- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.**
 
 ```zsh
 yarn downloadModel
@@ -190,14 +230,15 @@ More advance users can edit or create their own *phonemes*.json, however that is
 
 This covers the most important flags and arguments. For the complete list, go to [Default Arguments](defaults/default_args.json). 
 
-| Shortcut | Command      | Required | Default                    | Type | Description                                       |
-| -------- | ------------ | -------- | -------------------------- | ---- | ------------------------------------------------- |
-| --a      | --audio      | *        |                            | str  | The path to the audio file being animated         |
-| --t      | --timestamps |          |                            | str  | The path to the file containing pose  timestamps. |
-| --o      | --output     |          | "defaults/output.mp4"      | str  | The output of the program                         |
-| --c      | --character  |          | "defaults/characters.json" | str  | The list of character poses                       |
-| --m      | --mouths     |          | "defaults/phonemes.json"   | str  | The mouth pack and phonemes list                  |
-| --V      | --verbose    |          | 1                          | int  | Dump process outputs to the shell                 |
+| Shortcut | Command             | Required | Default                    | Type                 | Description                                       |
+| -------- | ------------------- | -------- | -------------------------- | -------------------- | ------------------------------------------------- |
+| --a      | --audio             | *        |                            | str                  | The path to the audio file being animated         |
+|          | --aligningAlgorithm |          | gentle                     | gentle \| allosaurus | The aligning algorithm to be used.                |
+| --t      | --timestamps        |          |                            | str                  | The path to the file containing pose  timestamps. |
+| --o      | --output            |          | "defaults/output.mp4"      | str                  | The output of the program                         |
+| --c      | --character         |          | "defaults/characters.json" | str                  | The list of character poses                       |
+| --m      | --mouths            |          | "defaults/phonemes.json"   | str                  | The mouth pack and phonemes list                  |
+| --V      | --verbose           |          | 1                          | int                  | Dump process outputs to the shell                 |
 
 #### Custom Defaults
 

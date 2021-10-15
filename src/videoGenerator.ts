@@ -7,8 +7,6 @@ import path from "path";
 
 import fs from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
-import { Console } from "console";
-import { string } from "yargs";
 
 const ffmpeg = createFFmpeg({ log: false });
 let ffmpeg_loaded = ffmpeg.load();
@@ -119,7 +117,6 @@ async function generateFrame(frame: FrameRequest) {
   if (frame.mirror_mouth) {
     mouth = mouth.flip(true, false);
   }
-  console.log(frame.placeableParts);
   for (const [type, name] of frame.placeableParts) {
     let partData = frame.character[type];
     let basePath: string = partData.imagesFolder;
@@ -234,13 +231,10 @@ export async function gen_image_sequence(video: VideoRequest) {
 
     // Swap pose //
     for (const t of video.timestamps) {
-      console.log(t.time);
-      console.log(currentTime * 1000);
       if (t.time <= currentTime * 1000) {
         if (t.type == "poses") {
           timestamp = t;
         } else {
-          console.log(t);
           placeableParts.set(t.type, t.pose_name);
           if (t.pose_name == "None") {
             placeableParts.delete(t.type);
@@ -248,7 +242,6 @@ export async function gen_image_sequence(video: VideoRequest) {
         }
       }
     }
-    console.log(placeableParts);
     pose = await getPose(timestamp.pose_name, character);
 
     // Talking Frames //
@@ -256,7 +249,6 @@ export async function gen_image_sequence(video: VideoRequest) {
       p.phone = p.phone.split("_")[0];
       p.duration = Math.round(100 * p.duration) / 100;
 
-      console.log("phone", p.phone);
       mouth_path = path.join(
         character.mouthsPath,
         phonemes.phonemes[p.phone].image
@@ -286,30 +278,38 @@ export async function gen_image_sequence(video: VideoRequest) {
   currentTime += 0.1;
   frame_request_promises.push(frame);
 
-  ///////////////////
-  // Create Frames //
-  ///////////////////
+  /////////////////////////////
+  // Render and Write Frames //
+  /////////////////////////////
   let frame_requests = await Promise.all(frame_request_promises);
-  let frames_promises: Promise<Jimp>[] = [];
+  let frame_counter = 0;
+  await ffmpeg_loaded;
   for (const frame_request of frame_requests) {
-    let frame = generateFrame(frame_request);
-    for (let i = 0; i < Math.round(frame_request.duration * 100); i++) {
-      frames_promises.push(frame);
-    }
+    writeFrame(frame_request, frame_counter);
+    frame_counter += frame_request.duration;
   }
 
-  let frames = await Promise.all(frames_promises);
+  // ////////////////////////////
+  // // Write Frames to Folder //
+  // ////////////////////////////
+  // let c = 0;
+  // frames.forEach(async (frame, counter) => {
+  //   await ffmpeg_loaded;
+  //   console.log(Date.now());
+  //   let buffer = await frame.getBufferAsync(Jimp.MIME_PNG);
+  //   ffmpeg.FS("writeFile", `${counter}.png`, buffer);
+  //   c += frame.;
+  // });
 
-  ////////////////////////////
-  // Write Frames to Folder //
-  ////////////////////////////
-  let c = 0;
-  frames.forEach(async (frame, counter) => {
-    await ffmpeg_loaded;
-    let buffer = await frame.getBufferAsync(Jimp.MIME_PNG);
-    ffmpeg.FS("writeFile", `${counter}.png`, buffer);
-    c = counter;
-  });
+  return frame_counter;
+}
 
-  return c;
+async function writeFrame(frame_request: FrameRequest, frame_counter: number) {
+  let rendered = await generateFrame(frame_request);
+  console.log(Date.now());
+  let buffer = await rendered.getBufferAsync(Jimp.MIME_PNG);
+
+  for (let i = 0; i < Math.round(frame_request.duration * 100); i++) {
+    ffmpeg.FS("writeFile", `${frame_counter + i}.png`, buffer);
+  }
 }
