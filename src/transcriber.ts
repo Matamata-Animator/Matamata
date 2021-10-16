@@ -29,8 +29,6 @@ export async function transcribeAudio(
   audio_path: string,
   model_path: string
 ): Promise<VoskOut> {
-  if (process.argv.length > 2) audio_path = process.argv[2];
-
   vosk.setLogLevel(-1);
   const model = new vosk.Model(model_path);
 
@@ -61,7 +59,6 @@ export async function transcribeAudio(
       resolve(results[0].alternatives[0]);
     });
   });
-
   fs.createReadStream(audio_path, { highWaterMark: 4096 })
     .pipe(wfReader)
     .on("finish", function (err) {
