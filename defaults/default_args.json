@@ -26,7 +26,7 @@
     "alias": "c",
     "type": "string",
     "description": "The list of character poses",
-    "default": "defaults/SampleCharacter/characters.json"
+    "default": "defaults/SampleCharacter/character.json"
   },
   "mouths": {
     "alias": "m",
