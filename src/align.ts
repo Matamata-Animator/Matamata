@@ -65,9 +65,11 @@ interface AlloPhone {
 
 export async function allosaurusAlign(audio_path: string, model_path: string) {
   let command = `python3 -m allosaurus.run -i ${audio_path} --lang eng --model eng2102 --timestamp=True`;
+  console.log(command);
   let timestampsPromise = transcribeAudio(audio_path, model_path);
 
   let phonesStrings = execSync(command).toString().split(/\n/g);
+
   phonesStrings.pop();
   let phones: AlloPhone[] = [];
   phonesStrings.forEach((str) => {

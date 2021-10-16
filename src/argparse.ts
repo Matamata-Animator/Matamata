@@ -27,7 +27,8 @@ for (const option in default_args) {
   }
   argv = argv.option(option, default_args[option]);
 }
-
+console.log(argv.argv);
+console.log("-------");
 let args = argv.argv as unknown as Args;
 
 export function getArgs() {
@@ -50,5 +51,5 @@ export interface Args {
   vosk_model: string;
   default_pose: string;
   config: string;
-  aligningAlgorithm: "allosaurus" | "gentle"
+  aligning_algorithm: "allosaurus" | "gentle";
 }
