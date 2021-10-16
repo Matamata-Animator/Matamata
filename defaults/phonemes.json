@@ -1,6 +1,18 @@
 {
   "closed": "closed.png",
   "phonemes": {
+    "ʒ": {
+      "image": "Adown.png"
+    },
+    "ʊ": {
+      "image": "Adown.png"
+    },
+    "t͡ʃ": {
+      "image": "s.png"
+    },
+    "d͡ʒ": {
+      "image": "s.png"
+    },
     "ɑ": {
       "image": "Adown.png"
     },
@@ -23,7 +35,7 @@
       "image": "oo.png"
     },
     "ð": {
-      "image": "k.png"
+      "image": "th.png"
     },
     "ɔ": {
       "image": "oo.png"
@@ -74,7 +86,7 @@
     },
     "ae": {
       "actual": "a",
-      "image": "Aup.png"
+      "image": "Adown.png"
     },
     "t": {
       "actual": "t",
