@@ -34,15 +34,16 @@ async function main(args: Args) {
   //////////////////////////////////////////////////////////////
 
   setVerbose(args.verbose);
+  log(args, 3);
 
   await banner();
   log("Full Verbose", 3);
 
   await createGenerateFolder(generate_dir);
   let gentlePromise: Promise<GentleOut>;
-  if (args.aligningAlgorithm == "allosaurus") {
+  if (args.aligning_algorithm == "allosaurus") {
     gentlePromise = allosaurusAlign(args.audio, args.vosk_model);
-  } else if (args.aligningAlgorithm == "gentle") {
+  } else if (args.aligning_algorithm == "gentle") {
     let containerKilled = removeOld(args.container_name);
     let scriptPromise: Promise<unknown>;
 
@@ -124,7 +125,6 @@ async function main(args: Args) {
 
 if (require.main === module) {
   const yargs = getArgs();
-
   main(yargs)
     .then(() => {
       log(`Done in ${(Date.now() - start) / 1000} seconds`, 1);
