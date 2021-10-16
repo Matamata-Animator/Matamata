@@ -301,7 +301,6 @@ async function writeFrame(frame_request: FrameRequest, frame_counter: number) {
   let buffer = await rendered.getBufferAsync(Jimp.MIME_PNG);
 
   for (let i = 0; i < Math.round(frame_request.duration * 100); i++) {
-    console.log(frame_counter + i);
     ffmpeg.FS("writeFile", `${frame_counter + i}.png`, buffer);
   }
 }
