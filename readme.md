@@ -6,8 +6,6 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 ## Table of Contents
 
-
-
 * [Table of Contents](#table-of-contents)
 * [Installation](#Installation)
      * [Read This First!!!](#Pick-Your-Poison)
@@ -15,9 +13,8 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
      * [Ubuntu](#Ubuntu)
      * [Mac](#Mac)
 * [Setup](#setup)
+     * [Character File](#character-file)
      * [Timestamps](#timestamps)
-     * [Script](#script)
-     * [Characters](#characters)
      * [Mouths](#mouths)
 * [Usage](#usage)
      * [Flags and Arguments](#flags-and-arguments)
@@ -31,11 +28,9 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 Matamata currently supports two methods of phoneme alignment, Allosaurus and Gentle. Allosaurus is easier to setup and it performs better in loud environments, however its alignment is often not as accurate. Gentle alignment requires Docker Desktop, which can be harder to install but does not require python and generally provides better alignment. Please install one (or both) of these options, **Gentle is currently the recommended option.** Keep in mind you can use either of these options by specifying  `--aligningAlgorithm allosaurus | gentle` when running the program. 
 
-
-
 Currently Allosaurus is in a development state and is not necessarily usable for large projects.
 
-#### Gentle
+**Gentle**
 
 This will not work on Macs with apple silicon.
 
@@ -43,22 +38,18 @@ Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for you
 
 Run `docker pull lower quality/gentle` in your command prompt/terminal
 
-#### Allosaurus
+**Allosaurus**
 
 All allosaurus requires is python. 
 
-##### Windows: 
-
+On Windows:
 Download and install [python3](https://www.python.org/downloads/), make sure to select the option to add python3 to path during install. You can test to see if this worked by running `python3` in your terminal.
 
-##### Mac
-
+On Mac:
 Install using [Homebrew]('https://brew.sh')
-
 `brew install python3`
 
-##### Ubuntu
-
+On Ubuntu:
 `sudo apt install python3`
 
 ### Windows
@@ -125,7 +116,6 @@ yarn downloadModel
 
 ### Mac 
 
-* (Not required for Intel Macs) Install [Anaconda Navigator](https://www.anaconda.com/products/individual)
 * Install the Node Version Manager (nvm)
 
 ```zsh
@@ -164,63 +154,90 @@ yarn downloadModel
 
 ## Setup
 
+### Character File
+
+Below is a barebones character file:
+
+```json
+{
+  "mouthsPath": "defaults/mouths/",
+  "poses": {
+    "imagesFolder": "defaults/SampleCharacter/faces/",
+    "default": {
+      "image": "purple.png",
+      "x": 640,
+      "y": 400
+    },
+   "green": {
+      "image": "blue.png",
+      "x": 640,
+      "y": 400
+    }
+  }
+}
+
+```
+
+`mouthsPath` specifies the path to a folder containing the mouth images. 
+
+`poses` contains two main elements. `imagesFolder` specifies the path to the folder which contains the pose images. `default` is a pose object. `image` refers to the name of the image inside the imagesFolder. `x` and `y` are the coordinates where the mouth should be placed. More poses can be created with more pose objects, as is shown with the  `green` pose.
+
+
+
+A more fleshed out character file could look like this:
+
+```json
+{
+  "mouthsPath": "defaults/mouths/",
+  "poses": {
+    "imagesFolder": "defaults/SampleCharacter/faces/",
+    "default_scale": 2,
+    "default": {
+      "image": "purple.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "scale": 2
+    },
+    "green": {
+      "image": "green.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "scale": 1
+    }
+  },
+  "eyes": {
+    "imagesFolder": "defaults/SampleCharacter/eyes/",
+    "scale": 0.8,
+    "x": 640,
+    "y": 300,
+    "images": {
+      "angry": "angry.png",
+      "normal": "normal.png",
+      "sad": "sad.png"
+    }
+  }
+}
+```
+
+`default_scale` says how much the mouth should be scaled up or down. `scale` is the same thing for a specific pose.  In this case, the mouths for the `default` pose with be 4x the image size, while the mouths for the `green` pose will only be 2x the size. 
+
+`eyes` specifies a "placeable part". The sample character pose images don't have eyes, as these are specified by placeable parts. Although this example has placeable eyes, you can have placeable pins, objects in the background, or even hats. The `imagesFolder` specifies the path to the folder contains the images for the placeable part. `scale` specifies how much the placeable part image should be scaled up or down. `x` and `y` specify the location on the pose where the part should be placed. `images` contained key-value pairs where the key is the name of the part, and the value is the image name. This section shows angry, normal, and sad eye selections. 
+
 ### Timestamps
 
 The timestamps file is composed of a list of pose changes along with how many milliseconds into the animation the pose should change. For instance, if you wanted to swap to the `happy` pose after 3.5 seconds, the timestamps file will look like:
 
 > 3500 happy
 
-### Script
+Additionally, you can change a placeable part by adding the type afterwards. 
 
- If no script is provided, the program will automatically generate a script for you. 
+> 0 angry eyes
 
-The script should be a text document with a transcript of audio, and poses in-between brackets. For instance, if the audio read:
+You can also remove a placeable part by using the name `None`
 
-> The quick brown fox jumps over the lazy dog
-
-Then the script could be:
-
-> [POSE_NAME] The quick brown fox jumps over the lazy dog
-
-If poses are provided via a timestamps file, then no poses will be read from the script. 
-
-
-
-### Characters
-
-The easiest way to create the character file is by using the character creator in [Matamata Studio](https://github.com/Matamata-Animator/Matamata-Studio).
-
-~~Alternatively, you can use the [online character creator](https://matamata.aispawn.com/Character-Creator/) tool (DEPRECATED)~~
-
-If you decide to create one manually, for an example of a character file, refer to *characters.json* as an example.
-
-For each pose you want to animate, create a duplicate of *characters.json*. Change the variable *facesFolder* to be the directory of the character's poses. Set *defaultScale* to be how much the mouth images of the character should be scaled up or down.
-
-For each pose the character can do, add the following:
-
-> "POSE_NAME": {
-> 
-> "image": "POSE_IMAGE.png",
-> 
->  "x": MOUTH_X_POSITION,
-> 
-> "y": MOUTH_Y_POSITION,
-> 
->  "scale": HOW MUCH THE MOUTH SHOULD SCALE UP OR DOWN,
->  
->  "facingLeft": OPTIONAL -- True if character is looking to the left,
-> 
->   "closed_mouth": OPTIONAL -- the name of the image in your mouths folder used as a closed mouth instead of the default 
-> 
->   },
-
-The final pose should not have a comma at the end.
-
-### Mouths
-
-Included in this repo is a mouth pack that I made. The mouth pack is licensed under the same license as the repo. To use your own mouth pack, create a new folder with your mouth images, and duplicate *phonemes.json*, and change the variable *mouthPath* to the path of your mouth pack.
-
-More advance users can edit or create their own *phonemes*.json, however that is significantly more difficult and probably not worth it. Replacing the mouth images is a significantly simpler solution.
+> 5000 None eyes
 
 ## Usage
 
@@ -253,7 +270,7 @@ You can set custom default arguments by creating a file `config.json` in the mai
 ### Running
 
 The command to create an animation is the same for all supported platforms 
-```
+```shell
 yarn animate --a audio.wav [optional arguments]
 ```
 
