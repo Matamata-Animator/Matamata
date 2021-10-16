@@ -32,6 +32,5 @@ export async function parseTimestamps(text: string) {
       type: type,
     });
   }
-  console.log(timestamps);
   return timestamps;
 }
