@@ -1,5 +1,4 @@
-import { rejects } from "assert";
-
+import { terminal } from "terminal-kit";
 import { createWriteStream } from "fs";
 export const gentle_log = createWriteStream("gentle.log");
 
@@ -19,7 +18,9 @@ export async function banner() {
         return;
       }
       if (verboseLevel >= 1) {
-        console.log(`${data}\n Version ${process.env.npm_package_version}`);
+        terminal.green(
+          `${data}\n Version ${process.env.npm_package_version}\n`
+        );
       }
       resolve(0);
     });

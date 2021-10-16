@@ -1,15 +1,21 @@
 import download from "download";
 import { rm, move, existsSync } from "fs-extra";
 
+import { terminal } from "terminal-kit";
+
 import path from "path/posix";
 import extract from "extract-zip";
 
 let baseUrl = "http://alphacephei.com/vosk/models/";
 let large = "vosk-model-en-us-0.21";
 let small = "vosk-model-small-en-us-0.15";
+
 async function downloadModel(downloadPath: string, zipName: string) {
+  terminal(
+    "^r^+This is downloading a 1.6gb voice model, this will take a while.^:^g Go grab a coffee, or enjoy some quality content: ^_^+https://youtube.com/c/AISpawn\n^:"
+  );
+
   let temp = "modeltmp";
-  console.log(process.cwd());
   await download(`${baseUrl}${zipName}.zip`, temp);
 
   await extract(path.join(temp, `${zipName}.zip`), {

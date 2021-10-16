@@ -11,6 +11,7 @@
     "@types/figlet": "^1.5.4",
     "@types/fs-extra": "^9.0.12",
     "@types/node": "^16.7.10",
+    "@types/terminal-kit": "^1.28.4",
     "@types/wav": "^1.0.1",
     "@types/yargs": "^17.0.2",
     "nodemon": "^2.0.12"
@@ -31,6 +32,7 @@
     "figlet": "^1.5.2",
     "fs-extra": "^10.0.0",
     "jimp": "^0.16.1",
+    "terminal-kit": "^2.1.8",
     "vosk": "^0.3.31",
     "yargs": "^17.1.1"
   },

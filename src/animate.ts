@@ -34,6 +34,7 @@ async function main(args: Args) {
   //////////////////////////////////////////////////////////////
 
   setVerbose(args.verbose);
+
   await banner();
   log("Full Verbose", 3);
 
