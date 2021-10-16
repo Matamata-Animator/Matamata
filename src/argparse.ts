@@ -27,11 +27,10 @@ for (const option in default_args) {
   }
   argv = argv.option(option, default_args[option]);
 }
-console.log(argv.argv);
-console.log("-------");
-let args = argv.argv as unknown as Args;
 
 export function getArgs() {
+  let args = argv.argv as unknown as Args;
+
   return args;
 }
 
