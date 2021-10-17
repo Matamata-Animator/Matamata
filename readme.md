@@ -1,92 +1,229 @@
 # Matamata Core
 
-Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations. 
-For basic usage, please refer to the [video tutorial](https://youtu.be/KnWKuSWu1qE).
+Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations.
 
 <img src="https://raw.githubusercontent.com/Matamata-Animator/Branding/main/Logos-Icons/logo.png" alt="logo" width="200" height="200"/>
 
 ## Table of Contents
 
-
-
-* [Table of Contents](#table-of-contents)
-* [Installation](#Installation)
-     * [Windows](#Windows)
-     * [Ubuntu](#Ubuntu)
-     * [Mac](#Mac---Untested)
-* [Setup](#setup)
-     * [Timestamps](#timestamps)
-     * [Script](#script)
-     * [Characters](#characters)
-     * [Mouths](#mouths)
-* [Usage](#usage)
-     * [Flags and Arguments](#flags-and-arguments)
-     * [Additional Features](#Emotion-Detection)
-     * [Windows](#Windows---Usage)
-     * [Ubuntu](#Ubuntu---Usage)
-     * [Mac](#Mac)
-* [Contributing](#Contributing)
-
+- [Table of Contents](#table-of-contents)
+- [Installation](#Installation)
+  - [Read This First!!!](#Pick-Your-Poison)
+  - [Windows](#Windows)
+  - [Ubuntu](#Ubuntu)
+  - [Mac](#Mac)
+- [Setup](#setup)
+  - [Character File](#character-file)
+  - [Timestamps](#timestamps)
+  - [Mouths](#mouths)
+- [Usage](#usage)
+  - [Flags and Arguments](#flags-and-arguments)
+  - [Custom Defaults](#Custom-Defaults)
+  - [Running](#Running)
+- [Contributing](#Contributing)
 
 ## Installation
 
+### Pick Your Poison
+
+Matamata currently supports two methods of phoneme alignment, Allosaurus and Gentle. Allosaurus is easier to setup and it performs better in loud environments, however its alignment is often not as accurate. Gentle alignment requires Docker Desktop, which can be harder to install but does not require python and generally provides better alignment. Please install one (or both) of these options, **Gentle is currently the recommended option.** Keep in mind you can use either of these options by specifying `--aligning_algorithm allosaurus | gentle` when running the program.
+
+Currently Allosaurus is in a development state and is not necessarily usable for large projects.
+
+**Gentle**
+
+This will not work on Macs with apple silicon.
+
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your operating system
+
+Run `docker pull lower quality/gentle` in your command prompt/terminal
+
+**Allosaurus**
+
+All allosaurus requires is python.
+
+On Windows:
+Download and install [python3](https://www.python.org/downloads/), make sure to select the option to add python3 to path during install. You can test to see if this worked by running `python3` in your terminal.
+
+On Mac:
+Install using [Homebrew]('https://brew.sh')
+`brew install python3`
+
+On Ubuntu:
+`sudo apt install python3`
+
 ### Windows
 
-* Please follow the instructions [here](Windows_Install_Instructions.md) to set up your python environment
-* Install [Docker Desktop](https://www.docker.com/get-started)
-* Launch Docker Desktop if it isn't already running
-* Pull the Gentle container:
+- Install Python 3.8+
+  - During the installation select the add to path option
+- Install [NodeJS](https://nodejs.org/en/) 16+
+
+  - Make sure to include the optional add-ons
+
+- Install yarn and typescript
+
+```bash
+npm install --global yarn typescript
+```
+
+- Download the code using git or the button in the top right
+
+```bash
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+```
+
+- Open the folder In command prompt and install the dependencies
 
 ```
-docker pull lowerquality/gentle
+yarn
 ```
+
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+
+```zsh
+yarn downloadModel
+```
+
 ### Ubuntu
 
-Clone the repo
-```
+- Clone the repo
+
+```shell
 git clone https://github.com/AI-Spawn/Auto-Lip-Sync
 cd Auto-Lip-Sync
 ```
-Install required packages
-```
-sudo apt install ffmpeg python3-pip python3-opencv docker.io
-sudo pip3 install -r requirements.txt
-```
-Pull the lowerquality/gentle container
-```
-sudo docker pull lowerquality/gentle
-```
-### Mac - Untested
 
-Download [Docker Desktop for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac/)
+- Install required packages
 
-Download [Anaconda](https://www.anaconda.com/products/individual#Downloads)
-
-Download this repo:
-```
-git clone https://github.com/AI-Spawn/Auto-Lip-Sync
-```
-Open the anaconda prompt in the Auto-Lip-Sync folder.
-
-
-
-Install required packages
-```
-pip install -r requirements.txt
-conda install ffmpeg
-```
-Launch Docker if it isn't launched already
-
-
-
-Pull lowerquality/gentle from DockerHub:
-
-```
-docker pull lowerquality/gentle
+```shell
+sudo apt install docker.io nodejs
 ```
 
+- Install yarn and typescript
+
+```bash
+sudo npm install --global yarn typescript
+```
+
+- Open the folder in the terminal and install the dependencies
+
+```
+yarn
+```
+
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+
+```zsh
+yarn downloadModel
+```
+
+### Mac
+
+- Install the Node Version Manager (nvm)
+
+```zsh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+- Install Node 6+
+
+```
+nvm install 16
+```
+
+- Install Yarn and TypeScript
+
+```zsh
+npm install -g yarn typescript
+```
+
+- Download the code using git or the button in the top right
+
+```zsh
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+```
+
+- Open the folder in the terminal and install the dependencies
+
+```zsh
+yarn
+```
+
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.**
+
+```zsh
+yarn downloadModel
+```
 
 ## Setup
+
+### Character File
+
+Below is a barebones character file:
+
+```json
+{
+  "mouthsPath": "defaults/mouths/",
+  "poses": {
+    "imagesFolder": "defaults/SampleCharacter/faces/",
+    "default": {
+      "image": "purple.png",
+      "x": 640,
+      "y": 400
+    },
+    "green": {
+      "image": "blue.png",
+      "x": 640,
+      "y": 400
+    }
+  }
+}
+```
+
+`mouthsPath` specifies the path to a folder containing the mouth images.
+
+`poses` contains two main elements. `imagesFolder` specifies the path to the folder which contains the pose images. `default` is a pose object. `image` refers to the name of the image inside the imagesFolder. `x` and `y` are the coordinates where the mouth should be placed. More poses can be created with more pose objects, as is shown with the `green` pose.
+
+A more fleshed out character file could look like this:
+
+```json
+{
+  "mouthsPath": "defaults/mouths/",
+  "poses": {
+    "imagesFolder": "defaults/SampleCharacter/faces/",
+    "default_scale": 2,
+    "default": {
+      "image": "purple.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "scale": 2
+    },
+    "green": {
+      "image": "green.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "scale": 1
+    }
+  },
+  "eyes": {
+    "imagesFolder": "defaults/SampleCharacter/eyes/",
+    "scale": 0.8,
+    "x": 640,
+    "y": 300,
+    "images": {
+      "angry": "angry.png",
+      "normal": "normal.png",
+      "sad": "sad.png"
+    }
+  }
+}
+```
+
+`default_scale` says how much the mouth should be scaled up or down. `scale` is the same thing for a specific pose. In this case, the mouths for the `default` pose with be 4x the image size, while the mouths for the `green` pose will only be 2x the size.
+
+`eyes` specifies a "placeable part". The sample character pose images don't have eyes, as these are specified by placeable parts. Although this example has placeable eyes, you can have placeable pins, objects in the background, or even hats. The `imagesFolder` specifies the path to the folder contains the images for the placeable part. `scale` specifies how much the placeable part image should be scaled up or down. `x` and `y` specify the location on the pose where the part should be placed. `images` contained key-value pairs where the key is the name of the part, and the value is the image name. This section shows angry, normal, and sad eye selections.
 
 ### Timestamps
 
@@ -94,128 +231,54 @@ The timestamps file is composed of a list of pose changes along with how many mi
 
 > 3500 happy
 
-### Script
+Additionally, you can change a placeable part by adding the type afterwards.
 
- If no script is provided, the program will automatically generate a script for you. 
+> 0 angry eyes
 
-The script should be a text document with a transcript of audio, and poses in-between brackets. For instance, if the audio read:
+You can also remove a placeable part by using the name `None`
 
-> The quick brown fox jumps over the lazy dog
-
-Then the script could be:
-
-> [POSE_NAME] The quick brown fox jumps over the lazy dog
-
-If poses are provided via a timestamps file, then no poses will be read from the script. 
-
-
-
-### Characters
-
-The easiest way to create the character file is by using [the character creator](https://matamata.aispawn.com/Character-Creator/). 
-
-If you decide to create one manually, for an example of a character file, refer to *characters.json*
-
-For each pose you want to animate, create a duplicate of *characters.json*. Change the variable *facesFolder* to be the directory of the character's poses. Set *defaultScale* to be how much the mouth images of the character should be scaled up or down.
-
-For each pose the character can do, add the following:
-
-> "POSE_NAME": {
-> 
-> "image": "POSE_IMAGE.png",
-> 
->  "x": MOUTH_X_POSITION,
-> 
-> "y": MOUTH_Y_POSITION,
-> 
->  "scale": HOW MUCH THE MOUTH SHOULD SCALE UP OR DOWN,
->  
->  "facingLeft": OPTIONAL -- True if character is looking to the left,
-> 
->   "closed_mouth": OPTIONAL -- the name of the image in your mouths folder used as a closed mouth instead of the default 
-> 
->   },
-
-The final pose should not have a comma at the end.
-
-### Mouths
-
-Included in this repo is a mouth pack that I made. The mouth pack is licensed under the same license as the repo. To use your own mouth pack, create a new folder with your mouth images, and duplicate *phonemes.json*, and change the variable *mouthPath* to the path of your mouth pack.
-
-More advance users can edit or create their own *phonemes*.json, however that is significantly more difficult and probably not worth it. Replacing the mouth images is a significantly simpler solution.
+> 5000 None eyes
 
 ## Usage
 
-### Flags and Arguments
+### Arguments
 
-Any flags/arguments can be used every time by creating a config file (`config.txt`will be loaded by default if it exists)
+#### Default Arguments
 
-This covers the most important flags and arguments. For the complete list, go to [Flags and Arguments](flags_and_arguments.md). 
+This covers the most important flags and arguments. For the complete list, go to [Default Arguments](defaults/default_args.json).
 
-| Shortcut | Command                 | Required | Default           | Type | Description                                                  |
-| -------- | ----------------------- | -------- | ----------------- | ---- | ------------------------------------------------------------ |
-| -a       | --audio                 | *        |                   | str  | The path to the audio file being animated                    |
-| -ts      | --timestamps            |          |                   | str  | The path to the file containing pose  timestamps.            |
-| -o       | --output                |          | "output.mp4"      | str  | The output of the program                                    |
-| -c       | --character             |          | "characters.json" | str  | The list of character poses                                  |
-| -m       | --mouths                |          | "phonemes.json"   | str  | The mouth pack and phonemes list                             |
-| -d       | --dimensions            |          | "1920:1080"       | str  | The resolution of the final video                            |
-| -v       | --verbose               |          |                   | flag | Dump process outputs to the shell                            |
-|          | --crumple_zone          |          |                   | flag | Add 10 seconds to the end of the video of the character with their mouth shut, in the last pose they were in. Useful for exporting to a video editor while working with another frame rate. |
-| -em      | --emotion_detection_env |          |                   | str  | The name of the environment file to load for emotion detection. Mutually exclusive with `-ts`. More info in the README. |
-|          | --config                |          | "config.txt"      | str  | The path to the config file                                  |
+| Shortcut | Command              | Required | Default                    | Type                 | Description                                      |
+| -------- | -------------------- | -------- | -------------------------- | -------------------- | ------------------------------------------------ |
+| --a      | --audio              | \*       |                            | str                  | The path to the audio file being animated        |
+|          | --aligning_algorithm |          | gentle                     | gentle \| allosaurus | The aligning algorithm to be used.               |
+| --t      | --timestamps         |          |                            | str                  | The path to the file containing pose timestamps. |
+| --o      | --output             |          | "defaults/output.mp4"      | str                  | The output of the program                        |
+| --c      | --character          |          | "defaults/characters.json" | str                  | The list of character poses                      |
+| --m      | --mouths             |          | "defaults/phonemes.json"   | str                  | The mouth pack and phonemes list                 |
+| --V      | --verbose            |          | 1                          | int                  | Dump process outputs to the shell                |
 
-### Other features
+#### Custom Defaults
 
-#### Emotion Detection
-Emotion detection generates poses automatically from the perceived emotion of each sentence.
-It uses the free IBM Watson Tone Analyzer API, but you will still need to provide your own
-credentials. To get your credentials, do the following:
+You can set custom default arguments by creating a file `config.json` in the main folder. In this file, the key is the command and the value is what you want the new default to be. For instance, if you wanted to always be set to verbose mode 3, your file will be:
 
-1. [Create](https://cloud.ibm.com/registration) an IBM Cloud/IBM Watson account.
-2. Go to [your cloud dashboard](https://cloud.ibm.com/).
-3. Login if you haven't already.
-4. Click "Create Resource" and add the Watson Tone Analyzer API. The Lite plan is free.
-5. Open the sidebar and click "Resource List".
-6. Find the Tone Analyzer resource and click it.
-7. Download your credentials. They should come as a .env file.
-
-You can now provide the name of this file to the tool by using the `-em` argument.
-
-### Windows - Usage
-
-Launch *Docker Desktop*
-
-Launch terminal in the Matamata-Core folder
-```
-python animate.py -a audio.wav [flags]
+```json
+{
+  "verbose": 3
+}
 ```
 
+### Running
 
-### Ubuntu - Usage
+The command to create an animation is the same for all supported platforms
 
-Launch Terminal
+```shell
+yarn animate --a audio.wav [optional arguments]
 ```
-sudo python3 animate.py -a audio.wav --codec FMP4 [flags]
-```
-
-
-### Mac
-
-Launch *Docker Desktop*
-
-Launch *Anaconda Prompt*
-```
-python animate.py -a audio.wav [flags]
-```
-This may need to be accompanied by a *sudo* beforehand.
-
-
 
 ## Contributing
 
-Do you use this project and want to see a new feature added? Open an issue with the tag *feature request* and say what you want.
+Do you use this project and want to see a new feature added? Open an issue with the tag _feature request_ and say what you want.
 
 Want to try your hand at writing code? Create a fork, upload your code, and make a pull request. Anything from fixing formatting/typos to entirely new features is welcome!
 
-Don't know what to work on? Take a look at the issues page to see what improvements people want. Anything marked *good first issue* should be great for newcomers!
+Don't know what to work on? Take a look at the issues page to see what improvements people want. Anything marked _good first issue_ should be great for newcomers!
