@@ -53,9 +53,6 @@ On Ubuntu:
 `sudo apt install python3`
 
 ### Windows
-
-- Install Python 3.8+
-  - During the installation select the add to path option
 - Install [NodeJS](https://nodejs.org/en/) 16+
 
   - Make sure to include the optional add-ons
