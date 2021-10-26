@@ -10,7 +10,11 @@ let baseUrl = "http://alphacephei.com/vosk/models/";
 let large = "vosk-model-en-us-0.21";
 let small = "vosk-model-small-en-us-0.15";
 
-export async function downloadModel(downloadPath: string, zipName: string) {
+export async function downloadModel(
+  downloadPath: string,
+  folderName: string,
+  zipName: string
+) {
   terminal(
     "^r^+This is downloading a 1.6gb voice model, this will take a while.^:^g Go grab a coffee, or enjoy some quality content: ^_^+https://youtube.com/c/AI-Spawn\n^:"
   );
@@ -19,12 +23,12 @@ export async function downloadModel(downloadPath: string, zipName: string) {
   await download(`${baseUrl}${zipName}.zip`, temp);
 
   await extract(path.join(temp, `${zipName}.zip`), {
-    dir: path.join(process.cwd(), `${temp}2`),
+    dir: path.join(downloadPath, `${temp}2`),
   });
 
   await move(
-    path.join(process.cwd(), `${temp}2/${zipName}/`),
-    path.join(downloadPath),
+    path.join(downloadPath, `${temp}2/${zipName}/`),
+    path.join(folderName),
     { overwrite: true }
   );
 
@@ -33,5 +37,5 @@ export async function downloadModel(downloadPath: string, zipName: string) {
 }
 
 if (require.main === module) {
-  downloadModel("model", large);
+  downloadModel(process.cwd(), "model", large);
 }
