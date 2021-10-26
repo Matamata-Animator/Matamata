@@ -3,7 +3,12 @@ import { rm, move, existsSync } from "fs-extra";
 
 import { terminal } from "terminal-kit";
 
-import path from "path/posix";
+let path: any;
+try {
+  path = require("path/posix");
+} catch (e) {
+  path = require("path");
+}
 import extract from "extract-zip";
 
 let baseUrl = "http://alphacephei.com/vosk/models/";
@@ -20,20 +25,20 @@ export async function downloadModel(
   );
 
   let temp = "modeltmp";
-  await download(`${baseUrl}${zipName}.zip`, temp);
+  await download(`${baseUrl}${zipName}.zip`, path.join(downloadPath, temp));
 
-  await extract(path.join(temp, `${zipName}.zip`), {
+  await extract(path.join(downloadPath, temp, `${zipName}.zip`), {
     dir: path.join(downloadPath, `${temp}2`),
   });
 
   await move(
     path.join(downloadPath, `${temp}2/${zipName}/`),
-    path.join(folderName),
+    path.join(downloadPath, folderName),
     { overwrite: true }
   );
 
-  await rm("modeltmp/", { recursive: true });
-  await rm("modeltmp2/", { recursive: true });
+  await rm(path.join(downloadPath, "modeltmp/"), { recursive: true });
+  await rm(path.join(downloadPath, "modeltmp2/"), { recursive: true });
 }
 
 if (require.main === module) {
