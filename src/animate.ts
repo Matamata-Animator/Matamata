@@ -28,7 +28,7 @@ async function createGenerateFolder(generate_dir: string) {
   await removeGenerateFolder(generate_dir);
   mkdirSync(generate_dir);
 }
-async function main(args: Args) {
+export async function main(args: Args) {
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
   //////////////////////////////////////////////////////////////
