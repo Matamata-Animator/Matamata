@@ -87,6 +87,7 @@ export async function main(args: Args) {
       },
     ];
   }
+  log("Aligning Audio...", 1)
   let gentle_json = await gentlePromise!;
   log(timestamps, 2);
 
