@@ -43,14 +43,19 @@ Run `docker pull lower quality/gentle` in your command prompt/terminal
 All allosaurus requires is python.
 
 On Windows:
-Download and install [python3](https://www.python.org/downloads/), make sure to select the option to add python3 to path during install. You can test to see if this worked by running `python3` in your terminal.
+Download and install [python3.9](https://www.python.org/downloads/release/python-399/), make sure to select the option to add python3 to path during install. You can test to see if this worked by running `python` in your terminal.
 
 On Mac:
 Install using [Homebrew]('https://brew.sh')
 `brew install python3`
 
 On Ubuntu:
-`sudo apt install python3`
+`sudo apt install python3 python-is-python3`
+
+
+Also install the required pip packages:
+`pip3 install allosaurus`
+as well as [pytorch](https://pytorch.org/get-started/locally/)
 
 ### Windows
 - Install [NodeJS](https://nodejs.org/en/) 16+
