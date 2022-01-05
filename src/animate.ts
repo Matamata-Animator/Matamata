@@ -60,7 +60,7 @@ export async function main(args: Args) {
     await Promise.all([containerKilled, scriptPromise]);
     log(`Container Killed: ${await containerKilled}`, 3);
 
-    let script = scriptPromise;
+    let script = await scriptPromise;
 
     log(`Script:${script}`, 2);
     writeFileSync(`${generate_dir}/script.txt`, String(script));

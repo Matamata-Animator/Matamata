@@ -1,6 +1,6 @@
 {
   "name": "matamata-core",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "main": "build/animate.js",
   "repository": "https://github.com/Matamata-Animator/Matamata-Core.git",
   "author": "AI-Spawn <50590465+AI-Spawn@users.noreply.github.com>",
