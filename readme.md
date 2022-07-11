@@ -8,7 +8,6 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 - [Table of Contents](#table-of-contents)
 - [Installation](#Installation)
-  - [Read This First!!!](#Pick-Your-Poison)
   - [Windows](#Windows)
   - [Ubuntu](#Ubuntu)
   - [Mac](#Mac)
@@ -24,81 +23,69 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 ## Installation
 
-### Pick Your Poison
-
-Matamata currently supports two methods of phoneme alignment, Allosaurus and Gentle. Allosaurus is easier to setup and it performs better in loud environments, however its alignment is often not as accurate. Gentle alignment requires Docker Desktop, which can be harder to install but does not require python and generally provides better alignment. Please install one (or both) of these options, **Gentle is currently the recommended option.** Keep in mind you can use either of these options by specifying `--aligning_algorithm allosaurus | gentle` when running the program.
-
-Currently Allosaurus is in a development state and is not necessarily usable for large projects.
-
-**Gentle**
-
-This will not work on Macs with apple silicon.
-
-Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your operating system
-
-Run `docker pull lower quality/gentle` in your command prompt/terminal
-
-**Allosaurus**
-
-All allosaurus requires is python.
-
-On Windows:
-Download and install [python3.9](https://www.python.org/downloads/release/python-399/), make sure to select the option to add python3 to path during install. You can test to see if this worked by running `python` in your terminal.
-
-On Mac:
-Install using [Homebrew]('https://brew.sh')
-`brew install python3`
-
-On Ubuntu:
-`sudo apt install python3 python-is-python3`
-
-
-Also install the required pip packages:
-`pip3 install allosaurus`
-as well as [pytorch](https://pytorch.org/get-started/locally/)
-
 ### Windows
-- Install [NodeJS](https://nodejs.org/en/) 16+
 
+- Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
+
+* Install [NodeJS](https://nodejs.org/en/) 16+
+  
   - Make sure to include the optional add-ons
+
+- Install Gentle
+
+```cmd
+docker pull lower quality/gentle
+```
 
 - Install TypeScript
 
-```bash
+```cmd
 npm install --global typescript
 ```
 
 - Download the code using git or the button in the top right
 
-```bash
+```cmd
 git clone https://github.com/Matamata-Animator/Matamata-Core.git
 ```
 
 - Open the folder In command prompt and install the dependencies
 
-```
+```cmd
 npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.8 GB file and thus will take some time, please have patience.**
 
-```zsh
+```cmd
 npm run downloadModel
 ```
 
 ### Ubuntu
 
-- Clone the repo
+- Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-```shell
+- Install NodeJS 16+
+  
+  - This is most easily accomplished through [NVM](https://github.com/nvm-sh/NVM)
+  
+  - For this project you need to be able to use `sudo node`, follow [these instructions](https://stackoverflow.com/a/29903645)
+
+- Install Gentle
+
+```bash
+docker pull lower quality/gentleClone the repo
+```
+
+```bash
 git clone https://github.com/AI-Spawn/Auto-Lip-Sync
 cd Auto-Lip-Sync
 ```
 
 - Install required packages
 
-```shell
-sudo apt install docker.io nodejs
+```bash
+sudo apt install docker.io
 ```
 
 - Install TypeScript
@@ -109,18 +96,27 @@ sudo npm install --global typescript
 
 - Open the folder in the terminal and install the dependencies
 
-```
+```bash
 npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
 
-```zsh
+```bash
 npm run downloadModel
 ```
 
-### Mac
+### Mac (Experimental, not recommended)
 
+* Install using [Homebrew]('https://brew.sh')
+
+* Install Python3
+   `brew install python3`
+
+* Install Allosaurus
+  
+   `pip3 install allosaurus`
+- Install [PyTorch](https://pytorch.org/get-started/locally/)
 - Install the Node Version Manager (nvm)
 
 ```zsh
@@ -129,7 +125,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 
 - Install Node 6+
 
-```
+```zsh
 nvm install 16
 ```
 
@@ -161,7 +157,7 @@ npm run downloadModel
 
 ### Character File
 
-Below is a barebones character file:
+Below is a bare-bones character file:
 
 ```json
 {
@@ -273,8 +269,16 @@ You can set custom default arguments by creating a file `config.json` in the mai
 
 The command to create an animation is the same for all supported platforms
 
+#### Windows
+
 ```shell
-npm run animate --a audio.wav [optional arguments]
+npm run animate -- -a audio.wav [optional arguments]
+```
+
+#### Ubuntu/Mac
+
+```shell
+sudo npm run animate -- -a audio.wav [optional arguments]
 ```
 
 ## Contributing

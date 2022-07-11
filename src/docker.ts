@@ -8,6 +8,7 @@ const docker = new Docker(); //defaults to above if env variables are not used
 export async function removeOld(container_name: string) {
   let shouldLaunch = true;
   let containers = await docker.listContainers({ all: true });
+
   for (const container of containers) {
     if (container.Names.includes(`/${container_name}`)) {
       shouldLaunch = false;

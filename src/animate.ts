@@ -44,6 +44,7 @@ export async function main(args: Args) {
   if (args.aligning_algorithm == "allosaurus") {
     gentlePromise = allosaurusAlign(args.audio, args.vosk_model);
   } else if (args.aligning_algorithm == "gentle") {
+
     let containerKilled = removeOld(args.container_name);
     let scriptPromise: Promise<unknown>;
 
@@ -72,6 +73,9 @@ export async function main(args: Args) {
 
     gentlePromise = gentleAlign(args.audio, `${generate_dir}/script.txt`);
   }
+
+
+
   ///////////////////////////////
   // Parse TestFile into Poses //
   ///////////////////////////////

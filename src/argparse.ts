@@ -4,9 +4,8 @@ import { hideBin } from "yargs/helpers";
 
 const default_args = require("../defaults/default_args.json");
 var argv = yargs(hideBin(process.argv))
-  .usage("Usage: $0 npm run animate [options]")
   .example(
-    "$0 npm run animate --audio C:/Users/User/Desktop/myaudio",
+    "$0 npm run animate -- --audio C:/Users/User/Desktop/myaudio",
     "Create a basic animation using the default character"
   )
   // .demandOption(['f'])
