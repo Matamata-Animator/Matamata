@@ -1,10 +1,7 @@
 // var Docker = require("dockerode");
-import { rejects } from "assert";
-import Docker, { Container } from "dockerode";
-import { resolve } from "path/posix";
-import { Writable } from "stream";
-import { gentleAlign } from "./align";
-import { log, gentle_log } from "./logger";
+import Dockerfrom from "dockerode";
+
+import { gentle_log } from "./logger";
 
 const docker = new Docker(); //defaults to above if env variables are not used
 
