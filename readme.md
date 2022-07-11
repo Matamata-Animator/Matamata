@@ -80,7 +80,7 @@ git clone https://github.com/Matamata-Animator/Matamata-Core.git
 yarn
 ```
 
-- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.8 GB file and thus will take some time, please have patience.**
 
 ```zsh
 yarn downloadModel

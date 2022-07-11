@@ -14,7 +14,8 @@
     "@types/terminal-kit": "^1.28.4",
     "@types/wav": "^1.0.1",
     "@types/yargs": "^17.0.2",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "yarn-audit-fix": "^9.3.2"
   },
   "scripts": {
     "install": "python3 -m pip install allosaurus && python3 -m allosaurus.bin.download_model -m eng2102",

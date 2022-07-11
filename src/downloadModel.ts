@@ -12,7 +12,7 @@ try {
 import extract from "extract-zip";
 
 let baseUrl = "http://alphacephei.com/vosk/models/";
-let large = "vosk-model-en-us-0.21";
+let large = "vosk-model-en-us-0.22";
 let small = "vosk-model-small-en-us-0.15";
 
 export async function downloadModel(
@@ -21,7 +21,7 @@ export async function downloadModel(
   zipName: string
 ) {
   terminal(
-    "^r^+This is downloading a 1.6gb voice model, this will take a while.^:^g Go grab a coffee, or enjoy some quality content: ^_^+https://youtube.com/c/AI-Spawn\n^:"
+    "^r^+This is downloading a 1.8gb voice model, this will take a while.^:^g Go grab a coffee, or enjoy some quality content: ^_^+https://youtube.com/c/AI-Spawn\n^:"
   );
 
   let temp = "modeltmp";
