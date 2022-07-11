@@ -1,5 +1,5 @@
 // var Docker = require("dockerode");
-import Dockerfrom from "dockerode";
+import Docker from "dockerode";
 
 import { gentle_log } from "./logger";
 

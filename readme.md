@@ -62,10 +62,10 @@ as well as [pytorch](https://pytorch.org/get-started/locally/)
 
   - Make sure to include the optional add-ons
 
-- Install yarn and typescript
+- Install TypeScript
 
 ```bash
-npm install --global yarn typescript
+npm install --global typescript
 ```
 
 - Download the code using git or the button in the top right
@@ -77,13 +77,13 @@ git clone https://github.com/Matamata-Animator/Matamata-Core.git
 - Open the folder In command prompt and install the dependencies
 
 ```
-yarn
+npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.8 GB file and thus will take some time, please have patience.**
 
 ```zsh
-yarn downloadModel
+npm run downloadModel
 ```
 
 ### Ubuntu
@@ -101,22 +101,22 @@ cd Auto-Lip-Sync
 sudo apt install docker.io nodejs
 ```
 
-- Install yarn and typescript
+- Install TypeScript
 
 ```bash
-sudo npm install --global yarn typescript
+sudo npm install --global typescript
 ```
 
 - Open the folder in the terminal and install the dependencies
 
 ```
-yarn
+npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
 
 ```zsh
-yarn downloadModel
+npm run downloadModel
 ```
 
 ### Mac
@@ -133,10 +133,10 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 nvm install 16
 ```
 
-- Install Yarn and TypeScript
+- Install TypeScript
 
 ```zsh
-npm install -g yarn typescript
+npm install -g typescript
 ```
 
 - Download the code using git or the button in the top right
@@ -148,13 +148,13 @@ git clone https://github.com/Matamata-Animator/Matamata-Core.git
 - Open the folder in the terminal and install the dependencies
 
 ```zsh
-yarn
+npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.**
 
 ```zsh
-yarn downloadModel
+npm run downloadModel
 ```
 
 ## Setup
@@ -274,7 +274,7 @@ You can set custom default arguments by creating a file `config.json` in the mai
 The command to create an animation is the same for all supported platforms
 
 ```shell
-yarn animate --a audio.wav [optional arguments]
+npm run animate --a audio.wav [optional arguments]
 ```
 
 ## Contributing
