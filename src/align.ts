@@ -1,5 +1,3 @@
-import { gentle_log } from "./logger";
-
 import { exec, execSync } from "child_process";
 import { transcribeAudio } from "./transcriber";
 import { time } from "console";

@@ -1,7 +1,7 @@
 var start = Date.now();
 
 import { Args, getArgs } from "./argparse";
-import { setVerbose, banner, log, gentle_log } from "./logger";
+import { setVerbose, banner, log } from "./logger";
 
 import { removeOld, launchContainer } from "./docker";
 
@@ -28,11 +28,11 @@ async function createGenerateFolder(generate_dir: string) {
   await removeGenerateFolder(generate_dir);
   mkdirSync(generate_dir);
 }
+
 export async function main(args: Args) {
   //////////////////////////////////////////////////////////////
   // Create Banner, Load Audio, Load Script, Transcribe Audio //
   //////////////////////////////////////////////////////////////
-
   setVerbose(args.verbose);
   log(args, 3);
 
@@ -130,12 +130,6 @@ export async function main(args: Args) {
 
 if (require.main === module) {
   const yargs = getArgs();
-  main(yargs)
-    .then(() => {
-      log(`Done in ${(Date.now() - start) / 1000} seconds`, 1);
-    })
-    .catch((err) => {
-      console.log("SOMETHING WENT WRONG");
-      console.log(err);
-    });
+  main(yargs);
 }
+

@@ -1,7 +1,8 @@
 // var Docker = require("dockerode");
 import Docker from "dockerode";
 
-import { gentle_log } from "./logger";
+// import { createWriteStream } from "fs";
+// const gentle_log = createWriteStream("gentle.log");
 
 const docker = new Docker(); //defaults to above if env variables are not used
 
@@ -31,7 +32,7 @@ export function launchContainer(container_name: string, image_name: string) {
       .run(
         image_name,
         [],
-        gentle_log,
+        process.stdout,
         {
           name: container_name,
           HostConfig: {
