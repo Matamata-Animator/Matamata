@@ -45,9 +45,16 @@ export async function main(args: Args) {
     gentlePromise = allosaurusAlign(args.audio, args.vosk_model);
   } else if (args.aligning_algorithm == "gentle") {
 
-    let containerKilled = removeOld(args.container_name);
+    if (!args.no_docker){
+      let containerKilled = removeOld(args.container_name);
+      await containerKilled;
+      log(`Container Killed: ${await containerKilled}`, 3);
+      if (await containerKilled) {
+        await launchContainer(args.container_name, args.image_name);
+      }
+    }
     let scriptPromise: Promise<unknown>;
-
+  
     if (args.text == "") {
       log("Transcribing Audio...", 1);
       scriptPromise = getTranscribedText(args.audio, args.vosk_model);
@@ -58,19 +65,16 @@ export async function main(args: Args) {
     await removeGenerateFolder(generate_dir);
     mkdirSync(generate_dir);
 
-    await Promise.all([containerKilled, scriptPromise]);
-    log(`Container Killed: ${await containerKilled}`, 3);
+    await scriptPromise;
 
     let script = await scriptPromise;
 
     log(`Script:${script}`, 2);
     writeFileSync(`${generate_dir}/script.txt`, String(script));
 
-    if (await containerKilled) {
-      await launchContainer(args.container_name, args.image_name);
-    }
-    log("Docker Ready...", 1);
 
+    log("Docker Ready...", 1);
+    
     gentlePromise = gentleAlign(args.audio, `${generate_dir}/script.txt`);
   }
 
