@@ -145,10 +145,9 @@ export async function combine_images(
   audio_path: string,
   output_path: string,
   num_images: number
-) {
+) { //TODO: resolve promise
   await ffmpeg_loaded;
   ffmpeg.FS("writeFile", "audio.wav", await fetchFile(audio_path));
-
   await ffmpeg.run(
     "-framerate",
     "100",
@@ -165,6 +164,7 @@ export async function combine_images(
   );
 
   await fs.promises.writeFile(output_path, ffmpeg.FS("readFile", "out.mp4"));
+  console.log('Done')
 }
 
 export async function gen_image_sequence(video: VideoRequest) {
@@ -203,12 +203,14 @@ export async function gen_image_sequence(video: VideoRequest) {
   }
   let pose = await getPose(timestamp.pose_name, character);
 
+
   if (video.dimensions[0] == 0) {
     video.dimensions = (await getDimensions(pose.image)) as number[];
   }
 
   let currentTime = 0;
   let frame_request_promises: Promise<FrameRequest>[] = [];
+
 
   ///////////////////////////
   // Create Frame Requests //
@@ -220,6 +222,7 @@ export async function gen_image_sequence(video: VideoRequest) {
     if (duration > 0) {
       currentTime += duration;
     }
+
     let frame = createFrameRequest(
       pose,
       video.dimensions,
@@ -244,7 +247,6 @@ export async function gen_image_sequence(video: VideoRequest) {
       }
     }
     pose = await getPose(timestamp.pose_name, character);
-
     // Talking Frames //
     for (const p of word.phones) {
       p.phone = p.phone.split("_")[0];
@@ -282,6 +284,7 @@ export async function gen_image_sequence(video: VideoRequest) {
   /////////////////////////////
   // Render and Write Frames //
   /////////////////////////////
+
   let frame_requests = await Promise.all(frame_request_promises);
   let frame_counter = 0;
   await ffmpeg_loaded;
