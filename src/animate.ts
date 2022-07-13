@@ -5,7 +5,7 @@ import { setVerbose, banner, log } from "./logger";
 
 import { removeOld, launchContainer } from "./docker";
 
-import { getTranscribedText, transcribeAudio } from "./transcriber";
+import { getTranscribedText } from "./transcriber";
 
 import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
@@ -56,8 +56,8 @@ export async function main(args: Args) {
     let scriptPromise: Promise<unknown>;
   
     if (args.text == "") {
-      log("Transcribing Audio...", 1);
-      scriptPromise = getTranscribedText(args.audio, args.vosk_model);
+      log(`Transcribing audio using ${args.transcriber}...`, 1);
+      scriptPromise = getTranscribedText(args.transcriber,args.audio, args.vosk_model, args.watson_api_key);
     } else {
       scriptPromise = readFile(args.text);
     }

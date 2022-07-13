@@ -50,4 +50,6 @@ export interface Args {
   default_pose: string;
   config: string;
   aligning_algorithm: "allosaurus" | "gentle";
+  transcriber: "vosk" | "watson";
+  watson_api_key: string;
 }

@@ -80,7 +80,17 @@
   },
   "aligning_algorithm": {
     "type": "string",
-    "description": "The algorithm used to extraact the phonemes from the audio (allosaurus/gentle)",
+    "description": "The algorithm used to extraact the phonemes from the audio (gentle | allosaurus)",
     "default": "gentle"
+  },
+  "transcriber": {
+    "type": "string",
+    "description": "The service used to transcribe audio. Only Vosk is compatable with allosaurus alignment.(vosk | watson)",
+    "default": "vosk"
+  },
+  "watson_api_key": {
+    "type": "string",
+    "description": "IBM Watson API key if using Watson for speech-to-text",
+    "default": ""
   }
 }
