@@ -7,6 +7,7 @@ import path from "path";
 
 import fs from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+import { time } from "console";
 
 const ffmpeg = createFFmpeg({ log: false });
 
@@ -193,7 +194,12 @@ export async function gen_image_sequence(video: VideoRequest) {
     if (t.time <= 0) {
       if (t.type == "poses") {
         timestamp = t;
-      } else {
+      } 
+      else if (t.type == ' '){
+        timestamp.time = t.time
+        timestamp.pose_name = t.pose_name
+      }
+      else {
         placeableParts.set(t.type, t.pose_name);
         if (t.pose_name == "None") {
           placeableParts.delete(t.type);

@@ -31,6 +31,7 @@
     "extract-zip": "^2.0.1",
     "figlet": "^1.5.2",
     "fs-extra": "^10.1.0",
+    "ibm-watson": "^7.0.0",
     "jimp": "^0.16.0",
     "node-gyp": "^9.0.0",
     "terminal-kit": "^2.4.0",

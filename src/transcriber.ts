@@ -17,17 +17,59 @@ interface VoskOut {
 }
 
 export async function getTranscribedText(
+  transcriber: "vosk"|"watson",
   audio_path: string,
-  model_path: string
+  model_path: string,
+  watson_api_key: string,
 ): Promise<string> {
-  return await (
-    await transcribeAudio(audio_path, model_path)
-  ).text;
+  if (transcriber == 'vosk'){
+    return await (
+      await voskTranscribe(audio_path, model_path)
+    ).text;
+  }else{
+    return watsonTranscribe(watson_api_key, audio_path);
+  }
 }
 
-export async function transcribeAudio(
+export async function watsonTranscribe(
+  watson_api_key: string,
+  audio_path:string){
+    const fs = require('fs');
+    const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
+    const { IamAuthenticator } = require('ibm-watson/auth');
+    
+    const speechToText = new SpeechToTextV1({
+      authenticator: new IamAuthenticator({ apikey: watson_api_key }),
+      serviceUrl: 'https://api.us-south.speech-to-text.watson.cloud.ibm.com'
+    });
+    
+    const params = {
+      // From file
+      audio: fs.createReadStream(audio_path),
+      contentType: 'audio/l16; rate=44100'
+    };
+    
+    let transcription: Promise<string> = new Promise((resolve, reject) => {
+      speechToText.recognize(params)
+        .then((response: { result: any; }) => {
+          let t = response.result.results[response.result.result_index].alternatives[0].transcript
+          console.log(t)
+          resolve(t)
+        })
+        .catch((err: any) => {
+          console.log(err);
+        });
+    });
+    return transcription
+  }
+
+
+
+
+export async function voskTranscribe(
   audio_path: string,
-  model_path: string
+  model_path: string,
+
 ): Promise<VoskOut> {
   vosk.setLogLevel(-1);
   const model = new vosk.Model(model_path);
@@ -69,7 +111,7 @@ export async function transcribeAudio(
 }
 
 if (require.main === module) {
-  transcribeAudio("/Users/human/Desktop/test.wav", "model").then((t: any) =>
+  voskTranscribe("/Users/human/Desktop/test.wav", "model").then((t: any) =>
     console.log(t)
   );
 }
