@@ -283,7 +283,7 @@ npm run animate -- -a audio.wav [optional arguments]
 
 sudo docker run --name gentle -p 8765:8765 lowerquality/gentle 
 
-sudo npm run animate -- --no_docker -a audio.wav [optional arguments]
+npm run animate -- --no_docker -a audio.wav [optional arguments]
 ```
 
 ## Contributing
