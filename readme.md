@@ -26,11 +26,9 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 ### Windows
 
 - Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
-
 * Install [NodeJS](https://nodejs.org/en/) 16+
   
   - Make sure to include the optional add-ons
-
 - Install Gentle
 
 ```cmd
@@ -74,8 +72,10 @@ npm run downloadModel
 - Install Gentle
 
 ```bash
-docker pull lower quality/gentleClone the repo
+docker pull lower quality/gentle
 ```
+
+* Clone the repo
 
 ```bash
 git clone https://github.com/AI-Spawn/Auto-Lip-Sync
@@ -117,6 +117,7 @@ npm run downloadModel
   
    `pip3 install allosaurus`
 - Install [PyTorch](https://pytorch.org/get-started/locally/)
+
 - Install the Node Version Manager (nvm)
 
 ```zsh
@@ -261,7 +262,8 @@ You can set custom default arguments by creating a file `config.json` in the mai
 
 ```json
 {
-  "verbose": 3
+    "verbose": 3,
+    "no_docker": true
 }
 ```
 
@@ -278,7 +280,10 @@ npm run animate -- -a audio.wav [optional arguments]
 #### Ubuntu/Mac
 
 ```shell
-sudo npm run animate -- -a audio.wav [optional arguments]
+
+sudo docker run --name gentle -p 8765:8765 lowerquality/gentle 
+
+sudo npm run animate -- --no_docker -a audio.wav [optional arguments]
 ```
 
 ## Contributing
