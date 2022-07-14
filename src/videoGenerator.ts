@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { time } from "console";
+import { log } from "./logger";
 
 const ffmpeg = createFFmpeg({ log: false });
 
@@ -166,6 +167,7 @@ export async function combine_images(
     "-y"
   );
 
+  log("Finalizing Video...", 1)
   await fs.promises.writeFile(output_path, ffmpeg.FS("readFile", "out.mp4"));
   console.log('Done')
 }
@@ -224,6 +226,10 @@ export async function gen_image_sequence(video: VideoRequest) {
   // Create Frame Requests //
   ///////////////////////////
   for (const word of video.gentle_stamps.words) {
+    if (word.case != "success") {
+      log('Warning: Found an unaligned word', 1)
+      continue
+    };
     // Rest Frames //
     let mouth_path = path.join(character.mouthsPath, phonemes.closed);
     let duration = Math.round(100 * (word.start - currentTime)) / 100;

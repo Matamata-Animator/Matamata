@@ -124,7 +124,7 @@ export async function main(args: Args) {
   let num_images = await gen_image_sequence(video_request);
   // await combine_images(generate_dir, args.audio, args.output);
 
-  log("Finalizing Video...", 1);
+  log("Combing Frames...", 1);
   await combine_images(
     "C:/Users/human-w/Desktop/Matamata-Core/generate",
     args.audio,
