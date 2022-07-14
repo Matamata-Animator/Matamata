@@ -17,6 +17,8 @@ import {
   VideoRequest,
 } from "./videoGenerator";
 
+import {getAudioDurationInSeconds} from "get-audio-duration"
+
 let generate_dir = "generate";
 
 async function removeGenerateFolder(generate_dir: string) {
@@ -106,6 +108,7 @@ export async function main(args: Args) {
     let dimensions_split = args.dimensions.split(":");
     dimensions = [Number(dimensions_split[1]), Number(dimensions_split[0])];
   }
+  let duration = await getAudioDurationInSeconds(args.audio);
   let video_request: VideoRequest = {
     gentle_stamps: gentle_json,
     audio_path: args.audio,
@@ -114,6 +117,7 @@ export async function main(args: Args) {
     timestamps: timestamps,
     default_pose: args.default_pose,
     dimensions: dimensions,
+    duration: duration
   };
 
   log("Generating Frames...", 1);

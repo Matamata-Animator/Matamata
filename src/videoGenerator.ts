@@ -37,6 +37,8 @@ export interface VideoRequest {
   dimensions: number[];
 
   default_pose: string;
+
+  duration: number;
 }
 interface Pose {
   image: string;
@@ -276,10 +278,11 @@ export async function gen_image_sequence(video: VideoRequest) {
     }
   }
   // Final closed frame
+  let time_remaining = Math.max(video.duration - currentTime, 0.01);
   let frame = createFrameRequest(
     pose,
     video.dimensions,
-    0.01,
+    time_remaining,
     path.join(character.mouthsPath, phonemes.closed),
     placeableParts,
     character
