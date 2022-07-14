@@ -52,9 +52,12 @@ export async function watsonTranscribe(
     let transcription: Promise<string> = new Promise((resolve, reject) => {
       speechToText.recognize(params)
         .then((response: { result: any; }) => {
-          let t = response.result.results[response.result.result_index].alternatives[0].transcript
-          console.log(t)
-          resolve(t)
+          let script = '';
+          for(let block of response.result.results){
+            script += block.alternatives[0].transcript
+          }
+          console.log(script)
+          resolve(script)
         })
         .catch((err: any) => {
           console.log(err);
