@@ -145,7 +145,6 @@ async function generateFrame(frame: FrameRequest) {
 }
 
 export async function combine_images(
-  generate_path: string,
   audio_path: string,
   output_path: string,
   num_images: number
@@ -169,7 +168,7 @@ export async function combine_images(
 
   log("Finalizing Video...", 1)
   await fs.promises.writeFile(output_path, ffmpeg.FS("readFile", "out.mp4"));
-  console.log('Done')
+  log('Video Out', 1)
 }
 
 export async function gen_image_sequence(video: VideoRequest) {

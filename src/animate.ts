@@ -21,7 +21,7 @@ import {getAudioDurationInSeconds} from "get-audio-duration"
 
 let generate_dir = "generate";
 
-async function removeGenerateFolder(generate_dir: string) {
+function removeGenerateFolder(generate_dir: string) {
   if (existsSync(generate_dir)) {
     rmSync(generate_dir, { recursive: true });
   }
@@ -122,22 +122,22 @@ export async function main(args: Args) {
 
   log("Generating Frames...", 1);
   let num_images = await gen_image_sequence(video_request);
-  // await combine_images(generate_dir, args.audio, args.output);
 
   log("Combing Frames...", 1);
   await combine_images(
-    "C:/Users/human-w/Desktop/Matamata-Core/generate",
     args.audio,
     args.output,
     num_images
   );
-  await removeGenerateFolder(generate_dir);
-
+  removeGenerateFolder(generate_dir);
   return 0;
 }
 
 if (require.main === module) {
   const yargs = getArgs();
-  main(yargs);
+  main(yargs).then(()=>{
+    console.log('Done')
+    process.exit(0);
+  });
 }
 
