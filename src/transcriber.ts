@@ -101,7 +101,20 @@ export async function voskTranscribe(
 
       results.push(rec.finalResult(rec));
       rec.free();
-      resolve(results[0].alternatives[0]);
+      
+
+      let out: VoskOut = {
+        confidence: results[0].confidence,
+        result: [],
+        text: ''
+      }
+
+      for (let r of results){
+        out.text += r.alternatives[0].text;
+        out.result = [...out.result, ...r.alternatives[0].result]
+      }
+
+      resolve(out);
     });
   });
   fs.createReadStream(audio_path, { highWaterMark: 4096 })
