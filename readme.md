@@ -32,7 +32,7 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 - Install Gentle
 
 ```cmd
-docker pull lower quality/gentle
+docker pull lowerquality/gentle
 ```
 
 - Install TypeScript
@@ -72,14 +72,14 @@ npm run downloadModel
 - Install Gentle
 
 ```bash
-docker pull lower quality/gentle
+docker pull lowerquality/gentle
 ```
 
 * Clone the repo
 
 ```bash
-git clone https://github.com/AI-Spawn/Auto-Lip-Sync
-cd Auto-Lip-Sync
+git clone https://github.com/Matamata-Animator/Matamata-Core.git
+cd Matamata-Core
 ```
 
 - Install required packages
