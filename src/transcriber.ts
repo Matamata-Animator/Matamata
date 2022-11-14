@@ -3,7 +3,6 @@ import { Readable } from "stream";
 import wav from "wav";
 import { join } from "path";
 import { execSync } from "child_process";
-var vosk = require("vosk");
 
 interface VoskTimestamp {
   start: number;
@@ -74,6 +73,8 @@ export async function voskTranscribe(
   model_path: string,
 
 ): Promise<VoskOut> {
+  var vosk = require("vosk");
+
   vosk.setLogLevel(-1);
   const model = new vosk.Model(model_path);
 

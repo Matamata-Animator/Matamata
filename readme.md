@@ -54,6 +54,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.8 GB file and thus will take some time, please have patience.**
+  - Note that this step is only necessary if `aligning_algorithm` is `allosaurus` (non-default), or: `aligning_algorithm` is `gentle` (default), `transcriber` is `vosk` (default), and no script text-file is supplied (ie. using `--text <path>`).
 
 ```cmd
 npm run downloadModel
@@ -101,6 +102,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+  - Note that this step is only necessary if `aligning_algorithm` is `allosaurus` (non-default), or: `aligning_algorithm` is `gentle` (default), `transcriber` is `vosk` (default), and no script text-file is supplied (ie. using `--text <path>`).
 
 ```bash
 npm run downloadModel
@@ -149,6 +151,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.**
+  - Note that this step is only necessary if `aligning_algorithm` is `allosaurus` (non-default), or: `aligning_algorithm` is `gentle` (default), `transcriber` is `vosk` (default), and no script text-file is supplied (ie. using `--text <path>`).
 
 ```zsh
 npm run downloadModel
