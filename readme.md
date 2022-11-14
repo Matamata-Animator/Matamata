@@ -54,6 +54,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.8 GB file and thus will take some time, please have patience.**
+  - Note that this step is only necessary if `aligning_algorithm` is `allosaurus` (non-default), or: `aligning_algorithm` is `gentle` (default), `transcriber` is `vosk` (default), and no script text-file is supplied (ie. using `--text <path>`).
 
 ```cmd
 npm run downloadModel
@@ -101,6 +102,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
+  - Note that this step is only necessary if `aligning_algorithm` is `allosaurus` (non-default), or: `aligning_algorithm` is `gentle` (default), `transcriber` is `vosk` (default), and no script text-file is supplied (ie. using `--text <path>`).
 
 ```bash
 npm run downloadModel
@@ -149,6 +151,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.**
+  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--test <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
 
 ```zsh
 npm run downloadModel
@@ -255,7 +258,8 @@ This covers the most important flags and arguments. For the complete list, go to
 | --c      | --character          |          | "defaults/characters.json" | str                  | The list of character poses                      |
 | --m      | --mouths             |          | "defaults/phonemes.json"   | str                  | The mouth pack and phonemes list                 |
 | --V      | --verbose            |          | 1                          | int                  | Dump process outputs to the shell                |
-
+|          | --transcriber        |          | "vosk"                     | vosk \| watson       | Transcriber service to use
+|          | --watson_api_key     |          |                            | str                  | API key for if `--transcriber watson` is used    | 
 #### Custom Defaults
 
 You can set custom default arguments by creating a file `config.json` in the main folder. In this file, the key is the command and the value is what you want the new default to be. For instance, if you wanted to always be set to verbose mode 3, your file will be:
