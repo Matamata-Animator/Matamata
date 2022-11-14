@@ -262,7 +262,7 @@ You can set custom default arguments by creating a file `config.json` in the mai
 
 ```json
 {
-    "verbose": 3,
+    "verbose": 3,
     "no_docker": true
 }
 ```
