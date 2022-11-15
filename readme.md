@@ -54,7 +54,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.8 GB file and thus will take some time, please have patience.**
-  - Note that this step is only necessary if `aligning_algorithm` is `allosaurus` (non-default), or: `aligning_algorithm` is `gentle` (default), `transcriber` is `vosk` (default), and no script text-file is supplied (ie. using `--text <path>`).
+  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
 
 ```cmd
 npm run downloadModel
@@ -102,7 +102,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
-  - Note that this step is only necessary if `aligning_algorithm` is `allosaurus` (non-default), or: `aligning_algorithm` is `gentle` (default), `transcriber` is `vosk` (default), and no script text-file is supplied (ie. using `--text <path>`).
+  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
 
 ```bash
 npm run downloadModel
@@ -151,7 +151,7 @@ npm i
 ```
 
 - Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.**
-  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--test <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
+  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
 
 ```zsh
 npm run downloadModel
