@@ -1,12 +1,11 @@
 {
   "name": "matamata-core",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "main": "build/animate.js",
   "repository": "https://github.com/Matamata-Animator/Matamata-Core.git",
   "author": "AI-Spawn <50590465+AI-Spawn@users.noreply.github.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/dockerode": "^3.2.7",
     "@types/download": "^8.0.1",
     "@types/figlet": "^1.5.4",
     "@types/fs-extra": "^9.0.12",
@@ -17,7 +16,6 @@
     "nodemon": "^2.0.12"
   },
   "scripts": {
-    "install_allosaurus": "python3 -m pip install allosaurus && python3 -m allosaurus.bin.download_model -m eng2102",
     "downloadModel": "tsc && node build/downloadModel.js",
     "debug": "tsc && nodemon --experimental-wasm-threads .",
     "animate": "tsc && node --experimental-wasm-threads --trace-warnings .",
@@ -26,7 +24,6 @@
   "dependencies": {
     "@ffmpeg/core": "^0.11.0",
     "@ffmpeg/ffmpeg": "^0.11.0",
-    "dockerode": "^3.3.2",
     "download": "^8.0.0",
     "extract-zip": "^2.0.1",
     "figlet": "^1.5.2",
