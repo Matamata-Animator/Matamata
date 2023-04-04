@@ -8,9 +8,6 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 - [Table of Contents](#table-of-contents)
 - [Installation](#Installation)
-  - [Windows](#Windows)
-  - [Ubuntu](#Ubuntu)
-  - [Mac](#Mac)
 - [Setup](#setup)
   - [Character File](#character-file)
   - [Timestamps](#timestamps)
@@ -23,137 +20,34 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 
 ## Installation
 
-### Windows
-
-- Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
-* Install [NodeJS](https://nodejs.org/en/) 16+
-  
-  - Make sure to include the optional add-ons
-- Install Gentle
-
-```cmd
-docker pull lowerquality/gentle
-```
-
-- Install TypeScript
-
-```cmd
-npm install --global typescript
-```
-
-- Download the code using git or the button in the top right
-
-```cmd
-git clone https://github.com/Matamata-Animator/Matamata-Core.git
-```
-
-- Open the folder In command prompt and install the dependencies
-
-```cmd
-npm i
-```
-
-- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.8 GB file and thus will take some time, please have patience.**
-  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
-
-```cmd
-npm run downloadModel
-```
-
-### Ubuntu
-
-- Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
-
-- Install NodeJS 16+
-  
-  - This is most easily accomplished through [NVM](https://github.com/nvm-sh/NVM)
-  
-  - For this project you need to be able to use `sudo node`, follow [these instructions](https://stackoverflow.com/a/29903645)
-
-- Install Gentle
+- Install the necessary prerequisites:
+  - NodeJS 16+
+  - [Gentle](https://github.com/lowerquality/gentle)
+    - Mac users can use the prebuilt app.
+    - Windows/Linux users will need to use [Docker](https://www.docker.com/)
+      - `docker pull lowerquality/gentle`
+- Install typescript
 
 ```bash
-docker pull lowerquality/gentle
-```
-
-* Clone the repo
-
-```bash
-git clone https://github.com/Matamata-Animator/Matamata-Core.git
-cd Matamata-Core
-```
-
-- Install required packages
-
-```bash
-sudo apt install docker.io
-```
-
-- Install TypeScript
-
-```bash
-sudo npm install --global typescript
-```
-
-- Open the folder in the terminal and install the dependencies
-
-```bash
-npm i
-```
-
-- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience.**
-  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
-
-```bash
-npm run downloadModel
-```
-
-### Mac (Experimental, not recommended)
-
-* Install using [Homebrew]('https://brew.sh')
-
-* Install Python3
-   `brew install python3`
-
-* Install Allosaurus
-  
-   `pip3 install allosaurus`
-- Install [PyTorch](https://pytorch.org/get-started/locally/)
-
-- Install the Node Version Manager (nvm)
-
-```zsh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-```
-
-- Install Node 6+
-
-```zsh
-nvm install 16
-```
-
-- Install TypeScript
-
-```zsh
 npm install -g typescript
 ```
 
 - Download the code using git or the button in the top right
 
-```zsh
+```bash
 git clone https://github.com/Matamata-Animator/Matamata-Core.git
 ```
 
 - Open the folder in the terminal and install the dependencies
 
-```zsh
+```bash
 npm i
 ```
 
-- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. **This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.**
-  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>` or if you use `--transcriber` besides Vosk. It is always required if you try to use the expirimental `--aligner allosaurus` flag.
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.
+  - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>`
 
-```zsh
+```bash
 npm run downloadModel
 ```
 
@@ -249,45 +143,36 @@ You can also remove a placeable part by using the name `None`
 
 This covers the most important flags and arguments. For the complete list, go to [Default Arguments](defaults/default_args.json).
 
-| Shortcut | Command              | Required | Default                    | Type                 | Description                                      |
-| -------- | -------------------- | -------- | -------------------------- | -------------------- | ------------------------------------------------ |
-| --a      | --audio              | \*       |                            | str                  | The path to the audio file being animated        |
-|          | --aligning_algorithm |          | gentle                     | gentle \| allosaurus | The aligning algorithm to be used.               |
-| --t      | --timestamps         |          |                            | str                  | The path to the file containing pose timestamps. |
-| --o      | --output             |          | "defaults/output.mp4"      | str                  | The output of the program                        |
-| --c      | --character          |          | "defaults/characters.json" | str                  | The list of character poses                      |
-| --m      | --mouths             |          | "defaults/phonemes.json"   | str                  | The mouth pack and phonemes list                 |
-| --V      | --verbose            |          | 1                          | int                  | Dump process outputs to the shell                |
-|          | --transcriber        |          | "vosk"                     | vosk \| watson       | Transcriber service to use
-|          | --watson_api_key     |          |                            | str                  | API key for if `--transcriber watson` is used    | 
+| Shortcut | Command          | Required | Default                    | Type           | Description                                      |
+| -------- | ---------------- | -------- | -------------------------- | -------------- | ------------------------------------------------ |
+| --a      | --audio          | \*       |                            | str            | The path to the audio file being animated        |
+| --t      | --timestamps     |          | "defaults/output.mp4"      | str            | The path to the file containing pose timestamps. |
+| --o      | --output         |          | "defaults/output.mp4"      | str            | The output of the program                        |
+| --c      | --character      |          | "defaults/characters.json" | str            | The list of character poses                      |
+| --m      | --mouths         |          | "defaults/phonemes.json"   | str            | The mouth pack and phonemes list                 |
+| --V      | --verbose        |          | 1                          | int            | Dump process outputs to the shell                |
+|          | --transcriber    |          | "vosk"                     | vosk \| watson | Transcriber service to use                       |
+|          | --watson_api_key |          |                            | str            | API key for if `--transcriber watson` is used    |
+
 #### Custom Defaults
 
 You can set custom default arguments by creating a file `config.json` in the main folder. In this file, the key is the command and the value is what you want the new default to be. For instance, if you wanted to always be set to verbose mode 3, your file will be:
 
 ```json
 {
-    "verbose": 3,
-    "no_docker": true
+  "verbose": 3,
+  "character": "/my/custom/path/super_awesome_character.json"
 }
 ```
 
 ### Running
 
-The command to create an animation is the same for all supported platforms
+- Launch Docker
+  - Mac: Launch the prebuilt app
+  - Windows/Linux: `docker run --name gentle -p 8765:8765 lowerquality/gentle`
 
-#### Windows
-
-```shell
+```bash
 npm run animate -- -a audio.wav [optional arguments]
-```
-
-#### Ubuntu/Mac
-
-```shell
-
-sudo docker run --name gentle -p 8765:8765 lowerquality/gentle 
-
-npm run animate -- --no_docker -a audio.wav [optional arguments]
 ```
 
 ## Contributing

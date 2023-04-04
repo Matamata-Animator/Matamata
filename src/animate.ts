@@ -3,21 +3,19 @@ var start = Date.now();
 import { Args, getArgs } from "./argparse";
 import { setVerbose, banner, log } from "./logger";
 
-import { removeOld, launchContainer } from "./docker";
-
 import { getTranscribedText } from "./transcriber";
 
 import { readFile } from "fs/promises";
 import { rmSync, mkdirSync, existsSync, writeFileSync } from "fs";
 import { parseTimestamps, Timestamp } from "./poseParser";
-import { allosaurusAlign, gentleAlign, GentleOut } from "./align";
+import { gentleAlign, GentleOut } from "./align";
 import {
   combine_images,
   gen_image_sequence,
   VideoRequest,
 } from "./videoGenerator";
 
-import {getAudioDurationInSeconds} from "get-audio-duration"
+import { getAudioDurationInSeconds } from "get-audio-duration";
 
 let generate_dir = "generate";
 
@@ -43,44 +41,34 @@ export async function main(args: Args) {
 
   await createGenerateFolder(generate_dir);
   let gentlePromise: Promise<GentleOut>;
-  if (args.aligning_algorithm == "allosaurus") {
-    gentlePromise = allosaurusAlign(args.audio, args.vosk_model);
-  } else if (args.aligning_algorithm == "gentle") {
 
-    if (!args.no_docker){
-      let containerKilled = removeOld(args.container_name);
-      await containerKilled;
-      log(`Container Killed: ${await containerKilled}`, 3);
-      if (await containerKilled) {
-        await launchContainer(args.container_name, args.image_name);
-      }
-    }
-    let scriptPromise: Promise<unknown>;
-  
-    if (args.text == "") {
-      log(`Transcribing audio using ${args.transcriber}...`, 1);
-      scriptPromise = getTranscribedText(args.transcriber,args.audio, args.vosk_model, args.watson_api_key);
-    } else {
-      scriptPromise = readFile(args.text);
-    }
+  let scriptPromise: Promise<unknown>;
 
-    await removeGenerateFolder(generate_dir);
-    mkdirSync(generate_dir);
-
-    await scriptPromise;
-
-    let script = await scriptPromise;
-
-    log(`Script:${script}`, 2);
-    writeFileSync(`${generate_dir}/script.txt`, String(script));
-
-
-    log("Docker Ready...", 1);
-    
-    gentlePromise = gentleAlign(args.audio, `${generate_dir}/script.txt`);
+  if (args.text == "") {
+    log(`Transcribing audio using ${args.transcriber}...`, 1);
+    scriptPromise = getTranscribedText(
+      args.transcriber,
+      args.audio,
+      args.vosk_model,
+      args.watson_api_key
+    );
+  } else {
+    scriptPromise = readFile(args.text);
   }
 
+  await removeGenerateFolder(generate_dir);
+  mkdirSync(generate_dir);
 
+  await scriptPromise;
+
+  let script = await scriptPromise;
+
+  log(`Script:${script}`, 2);
+  writeFileSync(`${generate_dir}/script.txt`, String(script));
+
+  log("Docker Ready...", 1);
+
+  gentlePromise = gentleAlign(args.audio, `${generate_dir}/script.txt`);
 
   ///////////////////////////////
   // Parse TestFile into Poses //
@@ -97,7 +85,7 @@ export async function main(args: Args) {
       },
     ];
   }
-  log("Aligning Audio...", 1)
+  log("Aligning Audio...", 1);
   let gentle_json = await gentlePromise!;
   log(timestamps, 2);
 
@@ -117,27 +105,22 @@ export async function main(args: Args) {
     timestamps: timestamps,
     default_pose: args.default_pose,
     dimensions: dimensions,
-    duration: duration
+    duration: duration,
   };
 
   log("Generating Frames...", 1);
   let num_images = await gen_image_sequence(video_request);
 
   log("Combing Frames...", 1);
-  await combine_images(
-    args.audio,
-    args.output,
-    num_images
-  );
+  await combine_images(args.audio, args.output, num_images);
   removeGenerateFolder(generate_dir);
   return 0;
 }
 
 if (require.main === module) {
   const yargs = getArgs();
-  main(yargs).then(()=>{
-    console.log('Done')
+  main(yargs).then(() => {
+    console.log("Done");
     process.exit(0);
   });
 }
-
