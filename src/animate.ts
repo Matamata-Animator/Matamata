@@ -68,7 +68,11 @@ export async function main(args: Args) {
 
   log("Docker Ready...", 1);
 
-  gentlePromise = gentleAlign(args.audio, `${generate_dir}/script.txt`);
+  gentlePromise = gentleAlign(
+    args.audio,
+    `${generate_dir}/script.txt`,
+    args.docker_url
+  );
 
   ///////////////////////////////
   // Parse TestFile into Poses //
