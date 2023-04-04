@@ -161,27 +161,18 @@ You can set custom default arguments by creating a file `config.json` in the mai
 ```json
 {
   "verbose": 3,
-  "no_docker": true
+  "character": "/my/custom/path/super_awesome_character.json"
 }
 ```
 
 ### Running
 
-The command to create an animation is the same for all supported platforms
+- Launch Docker
+  - Mac: Launch the prebuilt app
+  - Windows/Linux: `docker run --name gentle -p 8765:8765 lowerquality/gentle`
 
-#### Windows
-
-```shell
+```bash
 npm run animate -- -a audio.wav [optional arguments]
-```
-
-#### Ubuntu/Mac
-
-```shell
-
-sudo docker run --name gentle -p 8765:8765 lowerquality/gentle
-
-npm run animate -- --no_docker -a audio.wav [optional arguments]
 ```
 
 ## Contributing
