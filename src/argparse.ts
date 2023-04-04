@@ -51,4 +51,5 @@ export interface Args {
   aligning_algorithm: "allosaurus" | "gentle";
   transcriber: "vosk" | "watson";
   watson_api_key: string;
+  docker_url: string;
 }
