@@ -3,7 +3,7 @@ import { voskTranscribe } from "./transcriber";
 import { time } from "console";
 import { TIMEOUT } from "dns";
 
-let url = "http://localhost:8765/transcriptions?async=false";
+let url = "/transcriptions?async=false";
 
 interface Phoneme {
   duration: number;
@@ -24,7 +24,12 @@ export interface GentleOut {
   words: AlignedWord[];
 }
 
-export async function gentleAlign(audio_path: string, script_path: string) {
+export async function gentleAlign(
+  audio_path: string,
+  script_path: string,
+  server_url: string
+) {
+  url = server_url + url;
   const { Curl } = require("node-libcurl");
 
   let gentle_out = new Promise<GentleOut>((resolve, reject) => {
