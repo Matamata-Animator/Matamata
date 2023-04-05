@@ -29,7 +29,7 @@ export async function gentleAlign(
   script_path: string,
   server_url: string
 ) {
-  url = server_url + api_path;
+  let url = server_url + api_path;
   const { Curl } = require("node-libcurl");
 
   let gentle_out = new Promise<GentleOut>((resolve, reject) => {
