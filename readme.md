@@ -1,4 +1,5 @@
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E4O0VLC)
+<a href="https://aispawn.com/support" target="_blank"><img src="https://aispawn.com/support/readme-image.png" alt="Support Me!" height="41" width="174"></a>
+
 # Matamata Core
 
 Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations.
