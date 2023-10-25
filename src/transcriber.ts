@@ -77,26 +77,27 @@ export async function voskTranscribe(
 
   vosk.setLogLevel(-1);
   const model = new vosk.Model(model_path);
-
+  
   const wfReader = new wav.Reader();
   const wfReadable = new Readable().wrap(wfReader);
-
   let transcription: Promise<VoskOut> = new Promise((resolve, reject) => {
     wfReader.on("format", async ({ audioFormat, sampleRate, channels }) => {
       if (audioFormat != 1 || channels != 1) {
         console.error("Audio file must be WAV format mono PCM.");
         process.exit(1);
       }
-      const rec = new vosk.Recognizer({ model: model, sampleRate: sampleRate });
-      rec.setMaxAlternatives(1);
-      rec.setWords(true);
-
       let results: any[] = [];
+      const rec = new vosk.Recognizer({model: model, sampleRate: sampleRate});
+      rec.setMaxAlternatives(10);
+      rec.setWords(true);
+      rec.setPartialWords(true);
       for await (const data of wfReadable) {
         const end_of_speech = rec.acceptWaveform(data);
         if (end_of_speech) {
-          results.push(rec.result());
-          // console.log(JSON.stringify(rec.result(), null, 4));
+          let r = rec.result()
+          results.push(r);
+          // console.log(JSON.stringify(r, null, 4));
+          // console.log(Date.now(), r)
         }
       }
 
@@ -111,8 +112,13 @@ export async function voskTranscribe(
       }
 
       for (let r of results){
+        if(r.alternatives.length >= 1){
         out.text += r.alternatives[0].text;
-        out.result = [...out.result, ...r.alternatives[0].result]
+        out.result = [...out.result, r.alternatives[0].result]
+        }else{
+          console.log("No text found")
+          console.log(JSON.stringify(r, null, 4));
+        }
       }
 
       resolve(out);
@@ -127,8 +133,10 @@ export async function voskTranscribe(
   return transcription;
 }
 
+
+
 if (require.main === module) {
-  voskTranscribe("/Users/human/Desktop/test.wav", "model").then((t: any) =>
+  voskTranscribe("/home/human/Desktop/test.wav", "model").then((t: any) =>
     console.log(t)
   );
 }
