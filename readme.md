@@ -23,7 +23,7 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 ## Installation
 
 - Install the necessary prerequisites:
-  - NodeJS 16+
+  - NodeJS 16 **Due to a bug in a dependency of this project, ONLY nodejs 16 is supported**
   - [Gentle](https://github.com/lowerquality/gentle)
     - Mac users can use the prebuilt app.
     - Windows/Linux users will need to use [Docker](https://www.docker.com/)
@@ -46,7 +46,7 @@ git clone https://github.com/Matamata-Animator/Matamata-Core.git
 npm i
 ```
 
-- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. This is a 1.6 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.
+- Install Vosk model through the [Vosk website](https://alphacephei.com/vosk/models) or using the automatic tool. This is a 1.8 GB file and thus will take some time, please have patience. There is currently no progress bar implemented.
   - Note that although this step is reccomended, it is not neesarry if you manually provide a script text-file using `--text <path>`
 
 ```bash

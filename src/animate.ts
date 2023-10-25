@@ -56,9 +56,10 @@ export async function main(args: Args) {
     scriptPromise = readFile(args.text);
   }
 
+  log("Removing generate folder", 3);
   await removeGenerateFolder(generate_dir);
   mkdirSync(generate_dir);
-
+  log("Awaiting transcript promise", 3);
   await scriptPromise;
 
   let script = await scriptPromise;
@@ -115,16 +116,18 @@ export async function main(args: Args) {
   log("Generating Frames...", 1);
   let num_images = await gen_image_sequence(video_request);
 
-  log("Combing Frames...", 1);
+  log("Combining  Frames...", 1);
   await combine_images(args.audio, args.output, num_images);
   removeGenerateFolder(generate_dir);
   return 0;
 }
 
 if (require.main === module) {
+  let start = Date.now();
   const yargs = getArgs();
   main(yargs).then(() => {
     console.log("Done");
+    console.log("Done in ", (Date.now()-start)/1000)
     process.exit(0);
   });
 }

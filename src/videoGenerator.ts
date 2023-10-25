@@ -221,6 +221,7 @@ export async function gen_image_sequence(video: VideoRequest) {
   let frame_request_promises: Promise<FrameRequest>[] = [];
 
 
+  log("Generating frame requests", 3)
   ///////////////////////////
   // Create Frame Requests //
   ///////////////////////////
@@ -282,6 +283,8 @@ export async function gen_image_sequence(video: VideoRequest) {
       frame_request_promises.push(frame);
     }
   }
+  log("Requesting final frame", 3)
+
   // Final closed frame
   let time_remaining = Math.max(video.duration - currentTime, 0.01);
   let frame = createFrameRequest(
@@ -301,14 +304,29 @@ export async function gen_image_sequence(video: VideoRequest) {
 
   let frame_requests = await Promise.all(frame_request_promises);
   let frame_counter = 0;
+  log("Awaiting ffmpeg load", 3)
+
   await ffmpeg_loaded;
+
+  log("Writing frames", 3)
 
   let frames: Promise<void>[] = [];
   for (const frame_request of frame_requests) {
     let frame_promise = writeFrame(frame_request, frame_counter);
     frames.push(frame_promise);
+    // await frame_promise
     frame_counter += Math.round(frame_request.duration * 100);
   }
+  log("Awaiting frame writes", 3)
+
+  let fc = 0;
+
+  // for(const f of frames){
+  //   await f;
+  //   fc++;
+  //   log(`${fc}/${frames.length}`, 4)
+  // }
+
   await Promise.all(frames);
 
   return frame_counter;

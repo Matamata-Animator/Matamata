@@ -21,7 +21,7 @@ export async function downloadModel(
   zipName: string
 ) {
   terminal(
-    "^r^+This is downloading a 1.8gb voice model, this will take a while.^:^g Go grab a coffee, or enjoy some quality content: ^_^+https://youtube.com/c/AI-Spawn\n^:"
+    "^r^+This is downloading a 1.8gb voice model, this will take a while.^:^g Go grab a coffee, or enjoy some quality content: ^_^+https://youtube.com/@AISpawn\n^:"
   );
 
   let temp = "modeltmp";
