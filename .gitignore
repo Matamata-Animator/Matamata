@@ -12,6 +12,7 @@
 *.env
 *.zip
 
+.idea
 build/
 generate/
 model/
