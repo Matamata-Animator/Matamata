@@ -1,7 +1,5 @@
 {
-  "mouthsPath": "defaults/mouths/",
   "poses": {
-    "imagesFolder": "defaults/SampleCharacter/faces/",
     "default_scale": 2,
     "default": {
       "image": "purple.png",
@@ -26,7 +24,6 @@
     }
   },
   "eyes": {
-    "imagesFolder": "defaults/SampleCharacter/eyes/",
     "scale": 0.8,
     "x": 640,
     "y": 300,

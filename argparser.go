@@ -17,9 +17,9 @@ type Args struct {
 }
 
 func parseArgs() Args {
-	_a, _ := defaults.ReadFile("defaults/default_timestamps.txt")
-	a := string(_a)
-	fmt.Println(a)
+	//_a, _ := defaults.ReadFile("defaults/default_timestamps.txt")
+	//a:= string(_a)
+	//fmt.Println(a)
 	args := Args{
 		audioPath:     "",
 		characterPath: "",
