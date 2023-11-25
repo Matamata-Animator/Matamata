@@ -1,0 +1,39 @@
+{
+  "mouthsPath": "build/Core/defaults/mouths/",
+  "poses": {
+    "imagesFolder": "build/Core/defaults/SampleCharacter/faces/",
+    "default_scale": 2,
+    "default": {
+      "image": "purple.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "scale": 1
+    },
+    "green": {
+      "image": "green.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "scale": 1
+    },
+    "blue": {
+      "image": "blue.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "scale": 1
+    }
+  },
+  "eyes": {
+    "imagesFolder": "build/Core/defaults/SampleCharacter/eyes/",
+    "scale": 0.8,
+    "x": 640,
+    "y": 300,
+    "images": {
+      "angry": "angry.png",
+      "normal": "normal.png",
+      "sad": "sad.png"
+    }
+  }
+}
