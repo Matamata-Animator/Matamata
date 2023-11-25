@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-var loglevel int8 = 0
+var loglevel int8 = 1
 
 func logM(message any, level int8) {
 	if loglevel >= level {
@@ -16,7 +16,10 @@ func main() {
 	args := parseArgs()
 	logM(args, 3)
 
-	downloadModel()
-	//
-	//fmt.Println("Done!")
+	//downloadModel()
+
+	text := transcribe(args.audioPath, args.transcriberURL, args.transcriberApiKey)
+	logM("Transcription: ", 2)
+	logM(text, 2)
+
 }
