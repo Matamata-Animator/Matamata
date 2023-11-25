@@ -10,10 +10,12 @@ import (
 var defaults embed.FS
 
 type Args struct {
-	audioPath     string
-	characterPath string
-	verbose       int8
-	outputPath    string
+	audioPath         string
+	characterPath     string
+	verbose           int8
+	outputPath        string
+	transcriberURL    string
+	transcriberApiKey string
 }
 
 func parseArgs() Args {
@@ -24,14 +26,18 @@ func parseArgs() Args {
 	character := flag.String("c", "", "character path")
 	verbose := flag.Int("v", 1, "verbose level")
 	output := flag.String("o", "output.mov", "output file path")
+	transcriber_key := flag.String("k", "", "OpenAI API Key")
+	transcribe_url := flag.String("api_url", "https://api.openai.com/v1/", "Can be substituted for the LocalAI url")
 
 	flag.Parse()
 
 	args := Args{
-		audioPath:     *audio,
-		characterPath: *character,
-		verbose:       int8(*verbose),
-		outputPath:    *output,
+		audioPath:         *audio,
+		characterPath:     *character,
+		verbose:           int8(*verbose),
+		outputPath:        *output,
+		transcriberApiKey: *transcriber_key,
+		transcriberURL:    *transcribe_url,
 	}
 	loglevel = args.verbose
 	if args.audioPath == "" {
