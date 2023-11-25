@@ -1,4 +1,8 @@
-.vscode 
+*
+!/**/
+!*.*
+
+.vscode
 
 *.mp4
 *.ai
@@ -6,6 +10,7 @@
 *.wav
 *.mov
 *.env
+*.zip
 
 build/
 generate/
