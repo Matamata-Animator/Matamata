@@ -48,15 +48,14 @@ func downloadModel() {
 	}
 
 	modelPath := filepath.Join(matamataPath, "model/")
-	fmt.Println("Modelpath: ", modelPath)
 	modelDownloaded, _ := pathExists(modelPath)
 	if modelDownloaded {
 		return
 	}
 	fmt.Println("Downloading Vosk model, this only needs to happen the first time you run the program")
 
-	//modelUrl := "https://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip"
-	modelUrl := "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"
+	modelUrl := "https://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip"
+	//modelUrl := "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"
 
 	zipTarget := filepath.Join(matamataPath, "model.zip")
 	filename := downloadFile(modelUrl, zipTarget)
