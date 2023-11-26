@@ -60,7 +60,7 @@ func unwrapHelper(cachepath string, relpath string, entries []fs.DirEntry) {
 	}
 }
 func unwrapEmbeddedDefaultCharacter() {
-	logM(1, "Unwrapping Default Character...")
+	logM(1, "Unpacking Default Files (Concurrent)...")
 
 	cacheDir, _ := os.UserCacheDir()
 	matamataCachePath := filepath.Join(cacheDir, "matamata/")

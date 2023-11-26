@@ -1,4 +1,5 @@
 {
+  "schema": 5,
   "poses": {
     "default_scale": 2,
     "default_pose": "purple",
