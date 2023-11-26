@@ -15,7 +15,6 @@ func logM(level int8, message ...any) {
 	if loglevel >= level {
 		fmt.Println(message...)
 	}
-	fmt.Println()
 }
 
 func filter[T any](ss []T, test func(T) bool) (ret []T) {
