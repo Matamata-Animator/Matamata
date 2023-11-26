@@ -29,6 +29,7 @@ func main() {
 			gentleResponse,
 			args.audioPath,
 			args.characterPath,
+			args.phonemesPath,
 			timestamps,
 		})
 

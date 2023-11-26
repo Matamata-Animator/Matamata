@@ -132,7 +132,7 @@ func parseTimestamps(timestampsPath string) []Timestamp {
 		if len(parts) > 2 {
 			newStamp.Type = parts[2]
 		} else {
-			newStamp.Type = "pose"
+			newStamp.Type = "poses"
 		}
 
 		timestamps = append(timestamps, newStamp)

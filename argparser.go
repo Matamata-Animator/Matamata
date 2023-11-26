@@ -20,6 +20,7 @@ type Args struct {
 	transcriberUrl    string
 	transcriberApiKey string
 	alignerUrl        string
+	phonemesPath      string
 }
 
 func parseArgs() Args {
@@ -35,11 +36,18 @@ func parseArgs() Args {
 	transcriber_key := flag.String("k", "", "OpenAI API Key")
 	transcribe_url := flag.String("api_url", "https://api.openai.com/v1/", "Can be subsituted for the LocalAI url")
 	aligner_url := flag.String("aligner_url", "http://localhost:8765/transcriptions?async=false", "Gentle server url")
+	phonemes_path := flag.String("phonemes", "", "Custom phonemes JSON path")
 
 	flag.Parse()
-	if *character == "" {
+
+	if *character == "" || *phonemes_path == "" {
 		cacheDir, _ := os.UserCacheDir()
-		*character = filepath.Join(cacheDir, "matamata/defaults/SampleCharacter")
+		if *character == "" {
+			*character = filepath.Join(cacheDir, "matamata/defaults/SampleCharacter")
+		}
+		if *phonemes_path == "" {
+			*phonemes_path = filepath.Join(cacheDir, "matamata/defaults/phonemes.json")
+		}
 		go unwrapEmbeddedDefaultCharacter()
 	}
 
@@ -52,6 +60,7 @@ func parseArgs() Args {
 		transcriberApiKey: *transcriber_key,
 		transcriberUrl:    *transcribe_url,
 		alignerUrl:        *aligner_url,
+		phonemesPath:      *phonemes_path,
 	}
 	loglevel = args.verbose
 	if args.audioPath == "" {
