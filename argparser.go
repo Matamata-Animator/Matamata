@@ -20,7 +20,6 @@ type Args struct {
 	transcriberUrl    string
 	transcriberApiKey string
 	alignerUrl        string
-	defaultPose       string
 }
 
 func parseArgs() Args {
@@ -36,7 +35,6 @@ func parseArgs() Args {
 	transcriber_key := flag.String("k", "", "OpenAI API Key")
 	transcribe_url := flag.String("api_url", "https://api.openai.com/v1/", "Can be subsituted for the LocalAI url")
 	aligner_url := flag.String("aligner_url", "http://localhost:8765/transcriptions?async=false", "Gentle server url")
-	default_pose := flag.String("default_pose", "default", "Default pose")
 
 	flag.Parse()
 	if *character == "" {
@@ -54,7 +52,6 @@ func parseArgs() Args {
 		transcriberApiKey: *transcriber_key,
 		transcriberUrl:    *transcribe_url,
 		alignerUrl:        *aligner_url,
-		defaultPose:       *default_pose,
 	}
 	loglevel = args.verbose
 	if args.audioPath == "" {

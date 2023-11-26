@@ -24,5 +24,12 @@ func main() {
 	logM(1, "Parsing Timestamps...")
 	timestamps := parseTimestamps(args.timestamps)
 	logM(3, "Timestamps:", timestamps)
+	genImageSequence(
+		VideoRequest{
+			gentleResponse,
+			args.audioPath,
+			args.characterPath,
+			timestamps,
+		})
 
 }
