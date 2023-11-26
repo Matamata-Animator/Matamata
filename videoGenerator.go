@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/jsonq"
 	"log"
 	"log/slog"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,6 +30,9 @@ func getString(j *jsonq.JsonQuery, key string) string {
 }
 
 func genImageSequence(req VideoRequest) {
+	expectedPhonemeSchema := 5
+	expectedCharacterSchema := 5
+
 	jsonPath := filepath.Join(req.character_path, "character.json")
 	characterJsonRaw, e := os.ReadFile(jsonPath)
 	if e != nil {
@@ -40,9 +44,8 @@ func genImageSequence(req VideoRequest) {
 	dec.Decode(&characterJson)
 	character := jsonq.NewQuery(characterJson)
 	schema, e := character.Int("schema")
-	expectedSchema := 5
-	if e != nil || schema != expectedSchema {
-		fmt.Print("Mismatched schema versions. Expected: ", expectedSchema, " Found: ")
+	if e != nil || schema != expectedCharacterSchema {
+		fmt.Print("Mismatched character schema versions. Expected: ", expectedCharacterSchema, " Found: ")
 		fmt.Println(schema)
 		log.Fatal(e)
 	}
@@ -56,6 +59,12 @@ func genImageSequence(req VideoRequest) {
 	dec = json.NewDecoder(strings.NewReader(string(phonemesJsonRaw)))
 	dec.Decode(&phonemesJson)
 	phonemes := jsonq.NewQuery(phonemesJson)
+	schema, e = phonemes.Int("schema")
+	if e != nil || schema != expectedPhonemeSchema {
+		fmt.Print("Mismatched phoneme schema versions. Expected: ", expectedPhonemeSchema, " Found: ")
+		fmt.Println(schema)
+		log.Fatal(e)
+	}
 
 	logM(3, "phonemes:", phonemes)
 	placeableParts := make(map[string]string)
@@ -70,6 +79,7 @@ func genImageSequence(req VideoRequest) {
 		Name: defaultPose,
 		Type: "poses",
 	}
+	logM(5, timestamp)
 	//Set values for first frame
 	for _, t := range req.timestamps {
 		if t.Time > 0 {
@@ -86,16 +96,41 @@ func genImageSequence(req VideoRequest) {
 
 	logM(1, "Generating Frame Requests")
 
-	var currentTime float32 = 0
+	var currentTime float64 = 0
 	for _, word := range req.gentle_stamps.Words {
 
 		// Rest Frames //
 		mouth_path := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
-		duration := float32(int(100*(word.Start-currentTime))) / 100.0
+		duration := math.Round(float64(100*(word.Start-currentTime))) / 100.0
 		if duration > 0 {
 			currentTime += duration
 		}
+		fmt.Println(mouth_path)
+		//TODO: Push frame
 
+		//swap pose
+		for _, t := range req.timestamps {
+			if t.Time <= uint32(currentTime*1000) {
+				if t.Type == "poses" {
+					timestamp = t
+				} else {
+					placeableParts[t.Type] = t.Name
+					if t.Name == "None" {
+						delete(placeableParts, t.Type)
+					}
+				}
+			}
+		}
+
+		//TODO:     pose = await getPose(timestamp.pose_name, character);
+		for _, p := range word.Phones {
+			p.Phone = strings.Split(p.Phone, "_")[0]
+			p.Duration = math.Round(100*p.Duration) / 100
+			mouth_path = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
+			fmt.Println(mouth_path)
+			//TODO: Creat frame request
+			currentTime += p.Duration
+		}
 	}
 
 }

@@ -14,17 +14,17 @@ import (
 )
 
 type GentlePhone struct {
-	Duration float32 `json:"duration"`
+	Duration float64 `json:"duration"`
 	Phone    string  `json:"phone"`
 }
 type GentleWord struct {
 	AlignedWord string        `json:"alignedWord"`
 	Case        string        `json:"case"`
-	End         float32       `json:"end"`
+	End         float64       `json:"end"`
 	EndOffset   int8          `json:"endOffset"`
 	Phones      []GentlePhone `json:"phones"`
-	Start       float32       `json:"start"`
-	StartOffset int8          `json:"startOffset"`
+	Start       float64       `json:"start"`
+	StartOffset int16         `json:"startOffset"`
 	Word        string        `json:"word"`
 }
 
