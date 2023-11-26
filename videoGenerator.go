@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/jsonq"
 	"log"
-	"log/slog"
 	"math"
 	"os"
 	"path/filepath"
@@ -69,7 +68,6 @@ func genImageSequence(req VideoRequest) {
 	logM(3, "phonemes:", phonemes)
 	placeableParts := make(map[string]string)
 
-	slog.Warn("test")
 	fmt.Println(placeableParts)
 
 	defaultPose, _ := character.String("default_pose")
