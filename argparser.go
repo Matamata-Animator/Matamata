@@ -14,8 +14,9 @@ type Args struct {
 	characterPath     string
 	verbose           int8
 	outputPath        string
-	transcriberURL    string
+	transcriberUrl    string
 	transcriberApiKey string
+	alignerUrl        string
 }
 
 func parseArgs() Args {
@@ -27,7 +28,8 @@ func parseArgs() Args {
 	verbose := flag.Int("v", 1, "verbose level")
 	output := flag.String("o", "output.mov", "output file path")
 	transcriber_key := flag.String("k", "", "OpenAI API Key")
-	transcribe_url := flag.String("api_url", "https://api.openai.com/v1/", "Can be substituted for the LocalAI url")
+	transcribe_url := flag.String("api_url", "https://api.openai.com/v1/", "Can be subsituted for the LocalAI url")
+	aligner_url := flag.String("aligner_url", "http://localhost:8765/transcriptions?async=false", "Gentle server url")
 
 	flag.Parse()
 
@@ -37,7 +39,8 @@ func parseArgs() Args {
 		verbose:           int8(*verbose),
 		outputPath:        *output,
 		transcriberApiKey: *transcriber_key,
-		transcriberURL:    *transcribe_url,
+		transcriberUrl:    *transcribe_url,
+		alignerUrl:        *aligner_url,
 	}
 	loglevel = args.verbose
 	if args.audioPath == "" {

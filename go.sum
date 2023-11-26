@@ -4,6 +4,8 @@ git.sr.ht/~geb/vox v0.0.0-20230502142416-917364d68cbc h1:bsOlvzydqjLMXSjFZ2aerDW
 git.sr.ht/~geb/vox v0.0.0-20230502142416-917364d68cbc/go.mod h1:/BndUOg66ET+GClGy8YemJnYkyJPP/ghj/nEthg6Iog=
 github.com/alphacep/vosk-api/go v0.3.45 h1:kVRykekkz/32tLzIIxbCckLoetDOXyHW5bIois4Ww8k=
 github.com/alphacep/vosk-api/go v0.3.45/go.mod h1:9X8IJsHnFk/b1xyvjlZifo+ZL5VTAx3LW+JQce/eRcA=
+github.com/andelf/go-curl v0.0.0-20200630032108-fd49ff24ed97 h1:Nyfs+rh56aORy2tGMI9GCYEqTfePwL1v47qOzebfv/o=
+github.com/andelf/go-curl v0.0.0-20200630032108-fd49ff24ed97/go.mod h1:WO1d2m1QDzkoPcgn9lgHVMi7qQR5j3jxYjIIvMTHpC0=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
