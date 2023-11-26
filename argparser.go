@@ -4,6 +4,8 @@ import (
 	"embed"
 	"flag"
 	"log"
+	"os"
+	"path/filepath"
 )
 
 //go:embed all:defaults
@@ -37,6 +39,11 @@ func parseArgs() Args {
 	default_pose := flag.String("default_pose", "default", "Default pose")
 
 	flag.Parse()
+	if *character == "" {
+		cacheDir, _ := os.UserCacheDir()
+		*character = filepath.Join(cacheDir, "matamata/defaults/SampleCharacter")
+		go unwrapEmbeddedDefaultCharacter()
+	}
 
 	args := Args{
 		audioPath:         *audio,

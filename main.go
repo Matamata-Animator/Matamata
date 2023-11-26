@@ -6,7 +6,6 @@ func main() {
 	args = parseArgs()
 	logM(3, "Args:", args)
 
-	//downloadModel()
 	logM(1, "Transcribing Audio...")
 
 	//text := transcribe(args.audioPath, args.transcriberUrl, args.transcriberApiKey)
