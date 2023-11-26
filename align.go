@@ -3,11 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type GentlePhone struct {
@@ -87,4 +90,47 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 		log.Fatal("Error unmarshalling JSON:", err)
 	}
 	return gentleRes, nil
+}
+
+type Timestamp struct {
+	Time uint32
+	Name string
+	Type string
+}
+
+func parseTimestamps(timestampsPath string) []Timestamp {
+	if timestampsPath == "" {
+		//return []Timestamp{{0, args.defaultPose, "pose"}}
+		return []Timestamp{}
+
+	}
+
+	content, err := os.ReadFile(timestampsPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	var timestamps []Timestamp
+	for _, l := range lines {
+		parts := strings.Split(l, " ")
+		var newStamp Timestamp
+		time, err := strconv.Atoi(parts[0])
+		if err != nil {
+			fmt.Println("Error parsing int in timestamps file:", parts[0])
+			log.Fatal(err)
+		}
+		newStamp.Time = uint32(time)
+		newStamp.Name = parts[1]
+		if len(parts) > 2 {
+			newStamp.Type = parts[2]
+		} else {
+			newStamp.Type = "pose"
+		}
+
+		timestamps = append(timestamps, newStamp)
+	}
+	return timestamps
+
 }

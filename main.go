@@ -13,8 +13,10 @@ func logM(level int8, message ...any) {
 	fmt.Println()
 }
 
+var args Args
+
 func main() {
-	args := parseArgs()
+	args = parseArgs()
 	logM(3, "Args:", args)
 
 	//downloadModel()
@@ -32,4 +34,9 @@ func main() {
 		panic(err)
 	}
 	logM(3, gentleResponse)
+
+	logM(1, "Parsing Timestamps...")
+	timestamps := parseTimestamps(args.timestamps)
+	logM(3, "Timestamps:", timestamps)
+
 }
