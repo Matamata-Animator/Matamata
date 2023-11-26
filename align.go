@@ -33,6 +33,11 @@ type GentleResponse struct {
 	Words      []GentleWord `json:"words"`
 }
 
+func cleanGentle(res GentleResponse) {
+	isSuccess := func(w GentleWord) bool { return w.Case == "Success" }
+	filter(res.Words, isSuccess)
+}
+
 func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, error) {
 	// Open the audio file
 	audioFile, err := os.Open(audioFilePath)
@@ -89,6 +94,7 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 	if err != nil {
 		log.Fatal("Error unmarshalling JSON:", err)
 	}
+	cleanGentle(gentleRes)
 	return gentleRes, nil
 }
 

@@ -1,18 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
-var loglevel int8 = 1
-
-func logM(level int8, message ...any) {
-	if loglevel >= level {
-		fmt.Println(message...)
-	}
-	fmt.Println()
-}
-
 var args Args
 
 func main() {
