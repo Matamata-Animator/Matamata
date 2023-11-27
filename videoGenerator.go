@@ -131,6 +131,7 @@ func genImageSequence(req VideoRequest) {
 	var frameRequests []FrameRequest
 	var currentTime float64 = 0
 	for _, word := range req.gentle_stamps.Words {
+		fmt.Println("len: ", len(frameRequests))
 
 		// Rest Frames //
 		mouthPath := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
@@ -141,7 +142,6 @@ func genImageSequence(req VideoRequest) {
 		frameRequests = append(frameRequests, FrameRequest{
 			pose, mouthPath, duration, copyMap(placeableParts),
 		})
-		//TODO: Push frame
 
 		//swap pose
 		for _, t := range req.timestamps {
@@ -163,36 +163,53 @@ func genImageSequence(req VideoRequest) {
 			p.Duration = math.Round(100*p.Duration) / 100
 			mouthPath = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
 			frameRequests = append(frameRequests, FrameRequest{
-				pose, mouthPath, duration, copyMap(placeableParts),
+				pose, mouthPath, p.Duration, copyMap(placeableParts),
 			})
 			currentTime += p.Duration
+
 		}
 	}
 
 	logM(1, "Writing Frames...")
 	//var frames []any
 	frameCounter := 0
+	var genLock *int = new(int)
+	*genLock = 0
 	for _, r := range frameRequests {
-		writeFrame(r, frameCounter)
-		frameCounter += int(math.Round(r.duration*100) + 0.1)
+		go writeFrame(r, frameCounter, genLock)
+		frameCounter += int(math.Round(r.duration * 100))
+		fmt.Println("fc ", r.mouthPath, r.duration)
 	}
+	for *genLock > 0 {
+	}
+	fmt.Println("Done")
 }
 
-func writeFrame(r FrameRequest, frameCounter int) {
-	bgImg := image.NewRGBA(image.Rect(0, 0, 100, 200))
+func writeFrame(r FrameRequest, frameCounter int, lock *int) {
+	*lock++
+	bgImg := image.NewRGBA(image.Rect(0, 0, 1280, 720))
 	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{227, 0, 0, 100}}, image.ZP, draw.Src)
 
+	//basepose
 	img := openImage(r.pose.Image)
 	offset := image.Pt(0, 0) //combine the image
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 
-	path := filepath.Join(generateDir, "frames/", strconv.Itoa(frameCounter)+".jpg")
-	f, err := os.Create(path)
-	if err != nil {
-		panic(err)
+	//mouth
+	img = openImage(r.mouthPath)
+	offset = image.Pt(int(r.pose.X)-img.Bounds().Dx()/2, int(r.pose.Y)-img.Bounds().Dy()/2) //combine the image
+	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+
+	for i := frameCounter; i < frameCounter+int(r.duration*100); i++ {
+		path := filepath.Join(generateDir, "frames/", strconv.Itoa(i)+".jpg")
+		f, err := os.Create(path)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		if err = jpeg.Encode(f, bgImg, nil); err != nil {
+			log.Printf("failed to encode: %v", err)
+		}
 	}
-	defer f.Close()
-	if err = jpeg.Encode(f, bgImg, nil); err != nil {
-		log.Printf("failed to encode: %v", err)
-	}
+	*lock--
 }

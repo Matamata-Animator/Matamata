@@ -35,4 +35,9 @@ func main() {
 			timestamps,
 		})
 
+	//err = os.RemoveAll(generateDir)
+	//if err != nil {
+	//	log.Fatal(err)
+	//	return
+	//}
 }
