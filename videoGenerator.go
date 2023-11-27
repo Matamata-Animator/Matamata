@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"github.com/jmoiron/jsonq"
 	"github.com/mitchellh/mapstructure"
+	"golang.org/x/image/draw"
 	"image"
 	"image/color"
-	"image/draw"
+
 	"image/jpeg"
 	"log"
 	"math"
@@ -45,7 +46,7 @@ type Pose struct {
 	X          int16   `json:"x"`
 	Y          int16   `json:"y"`
 	FacingLeft bool    `json:"facingLeft"`
-	scale      float32 `json:"scale"`
+	Scale      float32 `json:"Scale"`
 }
 
 func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) Pose {
@@ -172,31 +173,38 @@ func genImageSequence(req VideoRequest) {
 
 	logM(1, "Writing Frames...")
 	//var frames []any
+	img := openImage(frameRequests[0].pose.Image)
+	dimensions := [2]int{img.Bounds().Dx(), img.Bounds().Dy()}
 	frameCounter := 0
 	var genLock *int = new(int)
 	*genLock = 0
 	for _, r := range frameRequests {
-		go writeFrame(r, frameCounter, genLock)
+		go writeFrame(r, frameCounter, dimensions, genLock)
 		frameCounter += int(math.Round(r.duration * 100))
-		fmt.Println("fc ", r.mouthPath, r.duration)
 	}
 	for *genLock > 0 {
 	}
 	fmt.Println("Done")
 }
 
-func writeFrame(r FrameRequest, frameCounter int, lock *int) {
+func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int, lock *int) {
 	*lock++
-	bgImg := image.NewRGBA(image.Rect(0, 0, 1280, 720))
-	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{227, 0, 0, 100}}, image.ZP, draw.Src)
+	bgImg := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
+	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.ZP, draw.Src)
 
 	//basepose
-	img := openImage(r.pose.Image)
+	imgUnscaled := openImage(r.pose.Image)
+	img := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
+	draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
 	offset := image.Pt(0, 0) //combine the image
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 
 	//mouth
-	img = openImage(r.mouthPath)
+
+	imgUnscaled = openImage(r.mouthPath)
+	img = image.NewRGBA(image.Rect(0, 0, int(float32(imgUnscaled.Bounds().Dx())*r.pose.Scale), int(float32(imgUnscaled.Bounds().Dy())*r.pose.Scale)))
+	draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
+
 	offset = image.Pt(int(r.pose.X)-img.Bounds().Dx()/2, int(r.pose.Y)-img.Bounds().Dy()/2) //combine the image
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 
