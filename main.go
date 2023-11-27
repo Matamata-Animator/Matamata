@@ -2,6 +2,8 @@ package main
 
 var args Args
 
+var generateDir string
+
 func main() {
 	args = parseArgs()
 	logM(3, "Args:", args)
