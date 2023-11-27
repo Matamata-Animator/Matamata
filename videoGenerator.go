@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/jsonq"
+	"github.com/mitchellh/mapstructure"
 	"log"
 	"math"
 	"os"
@@ -11,6 +12,18 @@ import (
 	"strings"
 )
 
+type FrameRequest struct {
+	posePath       string
+	mouthPath      string
+	mouthScale     uint8
+	mouthX         int16
+	mouthY         int16
+	duration       float32
+	mirror_face    bool
+	mirror_mouth   bool
+	dimensions     [2]int16
+	placeableParts map[string]string
+}
 type VideoRequest struct {
 	gentle_stamps  GentleResponse
 	audio_path     string
@@ -26,6 +39,26 @@ func getString(j *jsonq.JsonQuery, key string) string {
 		log.Fatal(e)
 	}
 	return s
+}
+
+type Pose struct {
+	Image      string  `json:"image"`
+	X          int16   `json:"x"`
+	Y          int16   `json:"y"`
+	FacingLeft bool    `json:"facingLeft"`
+	scale      float32 `json:"scale"`
+}
+
+func getPose(poseName string, character *jsonq.JsonQuery) Pose {
+	p, e := character.Object("poses", poseName)
+	if e != nil {
+		fmt.Println("Error getting pose ", poseName)
+		log.Fatal(e)
+	}
+	var pose Pose
+	mapstructure.Decode(p, &pose)
+
+	return pose
 }
 
 func genImageSequence(req VideoRequest) {
@@ -91,9 +124,11 @@ func genImageSequence(req VideoRequest) {
 			delete(placeableParts, t.Type)
 		}
 	}
+	pose := getPose(timestamp.Name, character)
 
 	logM(1, "Generating Frame Requests")
 
+	var frameRequests []FrameRequest
 	var currentTime float64 = 0
 	for _, word := range req.gentle_stamps.Words {
 
@@ -104,6 +139,7 @@ func genImageSequence(req VideoRequest) {
 			currentTime += duration
 		}
 		fmt.Println(mouth_path)
+		frameRequests = append(frameRequests, FrameRequest{})
 		//TODO: Push frame
 
 		//swap pose
@@ -119,16 +155,18 @@ func genImageSequence(req VideoRequest) {
 				}
 			}
 		}
+		pose = getPose(timestamp.Name, character)
 
-		//TODO:     pose = await getPose(timestamp.pose_name, character);
 		for _, p := range word.Phones {
 			p.Phone = strings.Split(p.Phone, "_")[0]
 			p.Duration = math.Round(100*p.Duration) / 100
 			mouth_path = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
 			fmt.Println(mouth_path)
-			//TODO: Creat frame request
+			//TODO: Create frame request
 			currentTime += p.Duration
 		}
 	}
+
+	fmt.Println(pose)
 
 }
