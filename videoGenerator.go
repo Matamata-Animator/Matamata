@@ -215,7 +215,6 @@ func genImageSequence(req VideoRequest) {
 	}
 	for *genLock > 0 {
 	}
-	fmt.Println("Done")
 }
 
 func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int, lock *int) {
