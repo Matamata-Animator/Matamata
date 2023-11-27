@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/tcolgate/mp3"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -98,4 +99,45 @@ func openImage(filePath string) image.Image {
 		log.Fatal(err)
 	}
 	return image
+}
+
+func getAudioFileDuration(filePath string) float64 {
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	switch getFileFormat(filePath) {
+	case "mp3":
+		t := 0.0
+		d := mp3.NewDecoder(file)
+		var f mp3.Frame
+		skipped := 0
+		for {
+			if err := d.Decode(&f, &skipped); err != nil {
+				if err == io.EOF {
+					break
+				}
+				log.Fatal(err)
+			}
+			t = t + f.Duration().Seconds()
+		}
+		return t
+	default:
+		log.Fatal("unsupported audio file format, please use an mp3")
+	}
+
+	return -1
+}
+
+// helper function to extract the file format from file path
+func getFileFormat(filePath string) string {
+	fileExtension := filePath[len(filePath)-3:]
+	if fileExtension == "wav" {
+		return "wav"
+	} else if fileExtension == "mp3" {
+		return "mp3"
+	}
+	return ""
 }
