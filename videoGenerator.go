@@ -19,10 +19,10 @@ import (
 )
 
 type FrameRequest struct {
-	pose           Pose
-	mouthPath      string
-	duration       float64
-	placeableParts map[string]string
+	pose      Pose
+	mouthPath string
+	duration  float64
+	parts     []Part
 }
 type VideoRequest struct {
 	gentle_stamps  GentleResponse
@@ -39,6 +39,37 @@ func getString(j *jsonq.JsonQuery, key string) string {
 		log.Fatal(e)
 	}
 	return s
+}
+
+type Part struct {
+	Path  string
+	X     int16
+	Y     int16
+	Scale float32
+}
+
+func getParts(partsMap map[string]string, character *jsonq.JsonQuery, characterDir string) []Part {
+	var parts []Part
+	for k, v := range partsMap {
+		if v == "None" {
+			continue
+		}
+
+		imageName, e := character.String(k, "images", v)
+		if e != nil {
+			log.Fatal(e)
+		}
+		path := filepath.Join(characterDir, k, imageName)
+
+		scale, e := character.Float(k, "scale")
+		x, e := character.Int(k, "x")
+		y, e := character.Int(k, "y")
+
+		parts = append(parts, Part{
+			path, int16(x), int16(y), float32(scale),
+		})
+	}
+	return parts
 }
 
 type Pose struct {
@@ -119,10 +150,11 @@ func genImageSequence(req VideoRequest) {
 		}
 		if t.Type == "poses" {
 			timestamp = t
-		}
-		placeableParts[t.Type] = t.Name
-		if t.Name == "None" {
-			delete(placeableParts, t.Type)
+		} else {
+			placeableParts[t.Type] = t.Name
+			if t.Name == "None" {
+				delete(placeableParts, t.Type)
+			}
 		}
 	}
 	pose := getPose(timestamp.Name, character, req.character_path)
@@ -132,8 +164,6 @@ func genImageSequence(req VideoRequest) {
 	var frameRequests []FrameRequest
 	var currentTime float64 = 0
 	for _, word := range req.gentle_stamps.Words {
-		fmt.Println("len: ", len(frameRequests))
-
 		// Rest Frames //
 		mouthPath := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
 		duration := math.Round(100*(word.Start-currentTime)) / 100.0
@@ -141,7 +171,7 @@ func genImageSequence(req VideoRequest) {
 			currentTime += duration
 		}
 		frameRequests = append(frameRequests, FrameRequest{
-			pose, mouthPath, duration, copyMap(placeableParts),
+			pose, mouthPath, duration, getParts(placeableParts, character, req.character_path),
 		})
 
 		//swap pose
@@ -164,7 +194,7 @@ func genImageSequence(req VideoRequest) {
 			p.Duration = math.Round(100*p.Duration) / 100
 			mouthPath = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
 			frameRequests = append(frameRequests, FrameRequest{
-				pose, mouthPath, p.Duration, copyMap(placeableParts),
+				pose, mouthPath, p.Duration, getParts(placeableParts, character, req.character_path),
 			})
 			currentTime += p.Duration
 
@@ -179,7 +209,8 @@ func genImageSequence(req VideoRequest) {
 	var genLock *int = new(int)
 	*genLock = 0
 	for _, r := range frameRequests {
-		go writeFrame(r, frameCounter, dimensions, genLock)
+		//TODO: Make writeframes concurrent
+		writeFrame(r, frameCounter, dimensions, genLock)
 		frameCounter += int(math.Round(r.duration * 100))
 	}
 	for *genLock > 0 {
@@ -192,7 +223,7 @@ func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int, lock *int) 
 	bgImg := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
 	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.ZP, draw.Src)
 
-	//basepose
+	//base pose
 	imgUnscaled := openImage(r.pose.Image)
 	img := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
 	draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
@@ -200,13 +231,20 @@ func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int, lock *int) 
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 
 	//mouth
-
 	imgUnscaled = openImage(r.mouthPath)
 	img = image.NewRGBA(image.Rect(0, 0, int(float32(imgUnscaled.Bounds().Dx())*r.pose.Scale), int(float32(imgUnscaled.Bounds().Dy())*r.pose.Scale)))
 	draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
-
 	offset = image.Pt(int(r.pose.X)-img.Bounds().Dx()/2, int(r.pose.Y)-img.Bounds().Dy()/2) //combine the image
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+
+	//placeable parts
+	for _, p := range r.parts {
+		imgUnscaled = openImage(p.Path)
+		img = image.NewRGBA(image.Rect(0, 0, int(float32(imgUnscaled.Bounds().Dx())*p.Scale), int(float32(imgUnscaled.Bounds().Dy())*p.Scale)))
+		draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
+		offset = image.Pt(int(p.X)-img.Bounds().Dx()/2, int(p.Y)-img.Bounds().Dy()/2) //combine the image
+		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+	}
 
 	for i := frameCounter; i < frameCounter+int(r.duration*100); i++ {
 		path := filepath.Join(generateDir, "frames/", strconv.Itoa(i)+".jpg")
