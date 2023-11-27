@@ -7,10 +7,13 @@ require (
 	git.sr.ht/~geb/vox v0.0.0-20230502142416-917364d68cbc // indirect
 	github.com/alphacep/vosk-api/go v0.3.45 // indirect
 	github.com/andelf/go-curl v0.0.0-20200630032108-fd49ff24ed97 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/jmoiron/jsonq v0.0.0-20150511023944-e874b168d07e // indirect
 	github.com/m7shapan/njson v1.0.8 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/modfy/fluent-ffmpeg v0.1.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/sashabaranov/go-openai v1.17.9 // indirect
 	github.com/schollz/progressbar/v3 v3.14.1 // indirect

@@ -1,5 +1,12 @@
 package main
 
+import (
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+)
+
 var args Args
 
 var generateDir string
@@ -35,9 +42,24 @@ func main() {
 			timestamps,
 		})
 
-	//err = os.RemoveAll(generateDir)
-	//if err != nil {
-	//	log.Fatal(err)
-	//	return
-	//}
+	logM(1, "Combining Frames...")
+
+	ffmpegCmd := exec.Command("ffmpeg", "-i", args.audioPath, "-r", "100", "-i", generateDir+"/frames/%d.jpg", "-c:v",
+		"libx264", "-pix_fmt", "yuv420p", args.outputPath, "-y")
+	//ffmpegCmd.Stderr = os.Stderr
+	//ffmpegCmd.Stdout = os.Stdout
+	err = ffmpegCmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logM(1, "Removing Old Files...")
+
+	err = os.RemoveAll(generateDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Done")
+
 }
