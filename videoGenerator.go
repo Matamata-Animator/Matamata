@@ -13,15 +13,9 @@ import (
 )
 
 type FrameRequest struct {
-	posePath       string
+	pose           Pose
 	mouthPath      string
-	mouthScale     uint8
-	mouthX         int16
-	mouthY         int16
-	duration       float32
-	mirror_face    bool
-	mirror_mouth   bool
-	dimensions     [2]int16
+	duration       float64
 	placeableParts map[string]string
 }
 type VideoRequest struct {
@@ -133,13 +127,14 @@ func genImageSequence(req VideoRequest) {
 	for _, word := range req.gentle_stamps.Words {
 
 		// Rest Frames //
-		mouth_path := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
-		duration := math.Round(float64(100*(word.Start-currentTime))) / 100.0
+		mouthPath := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
+		duration := math.Round(100*(word.Start-currentTime)) / 100.0
 		if duration > 0 {
 			currentTime += duration
 		}
-		fmt.Println(mouth_path)
-		frameRequests = append(frameRequests, FrameRequest{})
+		frameRequests = append(frameRequests, FrameRequest{
+			pose, mouthPath, duration, copyMap(placeableParts),
+		})
 		//TODO: Push frame
 
 		//swap pose
@@ -160,13 +155,11 @@ func genImageSequence(req VideoRequest) {
 		for _, p := range word.Phones {
 			p.Phone = strings.Split(p.Phone, "_")[0]
 			p.Duration = math.Round(100*p.Duration) / 100
-			mouth_path = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
-			fmt.Println(mouth_path)
-			//TODO: Create frame request
+			mouthPath = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
+			frameRequests = append(frameRequests, FrameRequest{
+				pose, mouthPath, duration, copyMap(placeableParts),
+			})
 			currentTime += p.Duration
 		}
 	}
-
-	fmt.Println(pose)
-
 }
