@@ -13,6 +13,7 @@ var generateDir string
 
 func main() {
 	args = parseArgs()
+
 	logM(3, "Args:", args)
 
 	logM(1, "Transcribing Audio...")

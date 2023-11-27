@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"flag"
-	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -46,7 +45,6 @@ func parseArgs() Args {
 	flag.Parse()
 	generateDir = filepath.Join(os.TempDir(), "matamata/", "run"+strconv.Itoa(int(time.Now().Unix()))+"-"+strconv.Itoa(rand.Int()))
 	os.MkdirAll(filepath.Join(generateDir, "frames/"), 0777)
-	fmt.Println(generateDir)
 	if *character == "" || *phonemes_path == "" {
 
 		if *character == "" {

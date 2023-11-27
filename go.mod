@@ -8,6 +8,10 @@ require (
 	github.com/alphacep/vosk-api/go v0.3.45 // indirect
 	github.com/andelf/go-curl v0.0.0-20200630032108-fd49ff24ed97 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/go-audio/audio v1.0.0 // indirect
+	github.com/go-audio/riff v1.0.0 // indirect
+	github.com/go-audio/wav v1.1.0 // indirect
+	github.com/hajimehoshi/go-mp3 v0.3.4 // indirect
 	github.com/jmoiron/jsonq v0.0.0-20150511023944-e874b168d07e // indirect
 	github.com/m7shapan/njson v1.0.8 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
@@ -17,6 +21,7 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/sashabaranov/go-openai v1.17.9 // indirect
 	github.com/schollz/progressbar/v3 v3.14.1 // indirect
+	github.com/tcolgate/mp3 v0.0.0-20170426193717-e79c5a46d300 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

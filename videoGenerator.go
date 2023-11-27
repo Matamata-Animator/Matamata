@@ -163,9 +163,11 @@ func genImageSequence(req VideoRequest) {
 
 	var frameRequests []FrameRequest
 	var currentTime float64 = 0
+	closedPath := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
+	mouthPath := closedPath
 	for _, word := range req.gentle_stamps.Words {
 		// Rest Frames //
-		mouthPath := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
+		mouthPath = closedPath
 		duration := math.Round(100*(word.Start-currentTime)) / 100.0
 		if duration > 0 {
 			currentTime += duration
@@ -200,6 +202,12 @@ func genImageSequence(req VideoRequest) {
 
 		}
 	}
+
+	timeRemaining := math.Max(getAudioFileDuration(req.audio_path)-currentTime, 0.01)
+	frameRequests = append(frameRequests, FrameRequest{
+		pose, closedPath, timeRemaining, getParts(placeableParts, character, req.character_path),
+	})
+	currentTime += timeRemaining
 
 	logM(1, "Writing Frames...")
 	//var frames []any
