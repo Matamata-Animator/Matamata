@@ -3,9 +3,13 @@ package main
 import (
 	"embed"
 	"flag"
+	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 )
 
 //go:embed all:defaults
@@ -40,14 +44,16 @@ func parseArgs() Args {
 	phonemes_path := flag.String("phonemes", "", "Custom phonemes JSON path")
 
 	flag.Parse()
-
+	generateDir = filepath.Join(os.TempDir(), "matamata/", "run"+strconv.Itoa(int(time.Now().Unix()))+"-"+strconv.Itoa(rand.Int()))
+	os.MkdirAll(filepath.Join(generateDir, "frames/"), 0777)
+	fmt.Println(generateDir)
 	if *character == "" || *phonemes_path == "" {
-		cacheDir, _ := os.UserCacheDir()
+
 		if *character == "" {
-			*character = filepath.Join(cacheDir, "matamata/defaults/SampleCharacter")
+			*character = filepath.Join(generateDir, "defaults/SampleCharacter/")
 		}
 		if *phonemes_path == "" {
-			*phonemes_path = filepath.Join(cacheDir, "matamata/defaults/phonemes.json")
+			*phonemes_path = filepath.Join(generateDir, "defaults/phonemes.json")
 		}
 		go unwrapEmbeddedDefaultCharacter()
 	}

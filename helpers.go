@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"io/fs"
 	"log"
@@ -61,13 +64,7 @@ func unwrapHelper(cachepath string, relpath string, entries []fs.DirEntry) {
 func unwrapEmbeddedDefaultCharacter() {
 	logM(1, "Unpacking Default Files (Concurrent)...")
 
-	cacheDir, _ := os.UserCacheDir()
-	matamataCachePath := filepath.Join(cacheDir, "matamata/")
-	matamataPathExists, _ := pathExists(matamataCachePath)
-	if !matamataPathExists {
-		os.Mkdir(matamataCachePath, 0777)
-	}
-	defaultsPath := filepath.Join(matamataCachePath, "defaults")
+	defaultsPath := filepath.Join(generateDir, "defaults")
 	defaultsPathExists, _ := pathExists(defaultsPath)
 	if defaultsPathExists {
 		os.Remove(defaultsPath)
@@ -77,7 +74,7 @@ func unwrapEmbeddedDefaultCharacter() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	unwrapHelper(matamataCachePath, "defaults", dir)
+	unwrapHelper(generateDir, "defaults", dir)
 }
 
 func copyMap(m map[string]string) map[string]string {
@@ -86,4 +83,19 @@ func copyMap(m map[string]string) map[string]string {
 		m2[id] = m[id]
 	}
 	return m2
+}
+
+func openImage(filePath string) image.Image {
+	f, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println("Error opening image at ", filePath)
+		log.Fatal(err)
+	}
+	defer f.Close()
+	image, _, err := image.Decode(f)
+	if err != nil {
+		fmt.Println("Error decoding image at ", filePath)
+		log.Fatal(err)
+	}
+	return image
 }

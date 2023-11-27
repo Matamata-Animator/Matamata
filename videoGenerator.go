@@ -5,10 +5,15 @@ import (
 	"fmt"
 	"github.com/jmoiron/jsonq"
 	"github.com/mitchellh/mapstructure"
+	"image"
+	"image/color"
+	"image/draw"
+	"image/jpeg"
 	"log"
 	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -43,7 +48,7 @@ type Pose struct {
 	scale      float32 `json:"scale"`
 }
 
-func getPose(poseName string, character *jsonq.JsonQuery) Pose {
+func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) Pose {
 	p, e := character.Object("poses", poseName)
 	if e != nil {
 		fmt.Println("Error getting pose ", poseName)
@@ -51,6 +56,7 @@ func getPose(poseName string, character *jsonq.JsonQuery) Pose {
 	}
 	var pose Pose
 	mapstructure.Decode(p, &pose)
+	pose.Image = filepath.Join(characterDir, "poses", pose.Image)
 
 	return pose
 }
@@ -118,7 +124,7 @@ func genImageSequence(req VideoRequest) {
 			delete(placeableParts, t.Type)
 		}
 	}
-	pose := getPose(timestamp.Name, character)
+	pose := getPose(timestamp.Name, character, req.character_path)
 
 	logM(1, "Generating Frame Requests")
 
@@ -150,7 +156,7 @@ func genImageSequence(req VideoRequest) {
 				}
 			}
 		}
-		pose = getPose(timestamp.Name, character)
+		pose = getPose(timestamp.Name, character, req.character_path)
 
 		for _, p := range word.Phones {
 			p.Phone = strings.Split(p.Phone, "_")[0]
@@ -161,5 +167,32 @@ func genImageSequence(req VideoRequest) {
 			})
 			currentTime += p.Duration
 		}
+	}
+
+	logM(1, "Writing Frames...")
+	//var frames []any
+	frameCounter := 0
+	for _, r := range frameRequests {
+		writeFrame(r, frameCounter)
+		frameCounter += int(math.Round(r.duration*100) + 0.1)
+	}
+}
+
+func writeFrame(r FrameRequest, frameCounter int) {
+	bgImg := image.NewRGBA(image.Rect(0, 0, 100, 200))
+	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{227, 0, 0, 100}}, image.ZP, draw.Src)
+
+	img := openImage(r.pose.Image)
+	offset := image.Pt(0, 0) //combine the image
+	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+
+	path := filepath.Join(generateDir, "frames/", strconv.Itoa(frameCounter)+".jpg")
+	f, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	if err = jpeg.Encode(f, bgImg, nil); err != nil {
+		log.Printf("failed to encode: %v", err)
 	}
 }
