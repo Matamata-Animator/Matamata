@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/disintegration/imaging"
 	"github.com/jmoiron/jsonq"
 	"github.com/mitchellh/mapstructure"
 	"golang.org/x/image/draw"
@@ -77,7 +78,8 @@ type Pose struct {
 	X          int16   `json:"x"`
 	Y          int16   `json:"y"`
 	FacingLeft bool    `json:"facingLeft"`
-	Scale      float32 `json:"mouth_scale"`
+	MouthScale float32 `json:"mouthScale"`
+	//TODO: Fix scale not mapping
 }
 
 func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) Pose {
@@ -89,11 +91,11 @@ func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) P
 	var pose Pose
 	mapstructure.Decode(p, &pose)
 	pose.Image = filepath.Join(characterDir, "poses", pose.Image)
-	default_scale, e := character.Float("poses", "default_mouth_scale")
+	default_scale, e := character.Float("poses", "defaultMouthScale")
 	if e != nil {
 		log.Fatal(e)
 	}
-	pose.Scale *= float32(default_scale)
+	pose.MouthScale *= float32(default_scale)
 	return pose
 }
 
@@ -139,7 +141,7 @@ func genImageSequence(req VideoRequest) {
 
 	fmt.Println(placeableParts)
 
-	defaultPose, e := character.String("poses", "default_pose")
+	defaultPose, e := character.String("poses", "defaultPose")
 	if e != nil {
 		fmt.Println("No default pose set")
 		log.Fatal(e)
@@ -246,8 +248,15 @@ func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int, lock *int) 
 
 	//mouth
 	imgUnscaled = openImage(r.mouthPath)
-	img = image.NewRGBA(image.Rect(0, 0, int(float32(imgUnscaled.Bounds().Dx())*r.pose.Scale), int(float32(imgUnscaled.Bounds().Dy())*r.pose.Scale)))
-	draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
+	if r.pose.FacingLeft {
+		imgUnscaled = (*image.RGBA)(imaging.FlipH(imgUnscaled))
+	}
+
+	img = image.NewRGBA(image.Rect(0, 0, int(float32(imgUnscaled.Bounds().Dx())*r.pose.MouthScale), int(float32(imgUnscaled.Bounds().Dy())*r.pose.MouthScale)))
+	if r.pose.MouthScale != 1 {
+		draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
+	}
+
 	offset = image.Pt(int(r.pose.X)-img.Bounds().Dx()/2, int(r.pose.Y)-img.Bounds().Dy()/2) //combine the image
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 
