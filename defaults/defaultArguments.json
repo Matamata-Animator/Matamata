@@ -1,0 +1,12 @@
+{
+  "audioPath": "",
+  "characterPath": "",
+  "timestamps": "",
+  "verbose": 1,
+  "outputPath": "output.mov",
+  "transcriberUrl": "https://api.openai.com/v1/",
+  "transcriberApiKey": "",
+  "alignerUrl": "http://localhost:8765/transcriptions?async=false",
+  "phonemesPath": "",
+  "debugging": false
+}

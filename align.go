@@ -124,7 +124,7 @@ func parseTimestamps(timestampsPath string) []Timestamp {
 		var newStamp Timestamp
 		time, err := strconv.Atoi(parts[0])
 		if err != nil {
-			fmt.Println("Error parsing int in timestamps file:", parts[0])
+			fmt.Println("Error parsing int in Timestamps file:", parts[0])
 			log.Fatal(err)
 		}
 		newStamp.Time = uint32(time)

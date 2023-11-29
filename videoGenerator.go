@@ -79,7 +79,6 @@ type Pose struct {
 	Y          int16   `json:"y"`
 	FacingLeft bool    `json:"facingLeft"`
 	MouthScale float32 `json:"mouthScale"`
-	//TODO: Fix scale not mapping
 }
 
 func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) Pose {
