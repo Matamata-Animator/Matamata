@@ -77,7 +77,7 @@ type Pose struct {
 	X          int16   `json:"x"`
 	Y          int16   `json:"y"`
 	FacingLeft bool    `json:"facingLeft"`
-	Scale      float32 `json:"Scale"`
+	Scale      float32 `json:"mouth_scale"`
 }
 
 func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) Pose {
@@ -89,7 +89,11 @@ func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) P
 	var pose Pose
 	mapstructure.Decode(p, &pose)
 	pose.Image = filepath.Join(characterDir, "poses", pose.Image)
-
+	default_scale, e := character.Float("poses", "default_mouth_scale")
+	if e != nil {
+		log.Fatal(e)
+	}
+	pose.Scale *= float32(default_scale)
 	return pose
 }
 
@@ -135,8 +139,11 @@ func genImageSequence(req VideoRequest) {
 
 	fmt.Println(placeableParts)
 
-	defaultPose, _ := character.String("default_pose")
-
+	defaultPose, e := character.String("poses", "default_pose")
+	if e != nil {
+		fmt.Println("No default pose set")
+		log.Fatal(e)
+	}
 	timestamp := Timestamp{
 		Time: 0,
 		Name: defaultPose,

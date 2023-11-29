@@ -1,28 +1,28 @@
 {
   "schema": 5,
   "poses": {
-    "default_scale": 2,
+    "default_mouth_scale": 2,
     "default_pose": "purple",
     "purple": {
       "image": "purple.png",
       "x": 640,
       "y": 400,
       "facingLeft": false,
-      "scale": 1
+      "mouth_scale": 1
     },
     "green": {
       "image": "green.png",
       "x": 640,
       "y": 400,
       "facingLeft": false,
-      "scale": 1
+      "mouth_scale": 1
     },
     "blue": {
       "image": "blue.png",
       "x": 640,
       "y": 400,
       "facingLeft": false,
-      "scale": 1
+      "mouth_scale": 1
     }
   },
   "eyes": {
