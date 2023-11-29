@@ -24,6 +24,7 @@ type Args struct {
 	transcriberApiKey string
 	alignerUrl        string
 	phonemesPath      string
+	debugging         bool
 }
 
 func parseArgs() Args {
@@ -41,6 +42,7 @@ func parseArgs() Args {
 	transcribe_url := flag.String("api_url", openAiUrl, "Can be subsituted for the LocalAI url")
 	aligner_url := flag.String("aligner_url", "http://localhost:8765/transcriptions?async=false", "Gentle server url")
 	phonemes_path := flag.String("phonemes", "", "Custom phonemes JSON path")
+	debugging := flag.Bool("debugging", false, "Skips transcription and replaces with pangram text")
 
 	flag.Parse()
 	generateDir = filepath.Join(os.TempDir(), "matamata/", "run"+strconv.Itoa(int(time.Now().Unix()))+"-"+strconv.Itoa(rand.Int()))
@@ -66,6 +68,7 @@ func parseArgs() Args {
 		transcriberUrl:    *transcribe_url,
 		alignerUrl:        *aligner_url,
 		phonemesPath:      *phonemes_path,
+		debugging:         *debugging,
 	}
 	loglevel = args.verbose
 	if args.audioPath == "" {

@@ -139,8 +139,6 @@ func genImageSequence(req VideoRequest) {
 	logM(3, "phonemes:", phonemes)
 	placeableParts := make(map[string]string)
 
-	fmt.Println(placeableParts)
-
 	defaultPose, e := character.String("poses", "defaultPose")
 	if e != nil {
 		fmt.Println("No default pose set")

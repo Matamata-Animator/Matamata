@@ -16,12 +16,16 @@ func main() {
 
 	logM(3, "Args:", args)
 
-	logM(1, "Transcribing Audio...")
+	var text string
+	if !args.debugging {
+		logM(1, "Transcribing Audio...")
 
-	//text := transcribe(args.audioPath, args.transcriberUrl, args.transcriberApiKey)
-	//cache transcription to save time durinng development
-	text := "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos."
-
+		text = transcribe(args.audioPath, args.transcriberUrl, args.transcriberApiKey)
+	} else {
+		logM(1, "Using Stored Transcription...")
+		//cache transcription to save time durinng development
+		text = "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos."
+	}
 	logM(2, "Transcription:", text)
 	logM(1, "Aligning Audio...")
 
