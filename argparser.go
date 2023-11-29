@@ -54,7 +54,7 @@ func loadDefaults() Args {
 		}
 	}
 
-	logM(1, "Reading defaults json from ", defaultsPath)
+	logM(1, "Reading defaults json from:", defaultsPath)
 	configFile, err := os.ReadFile(defaultsPath)
 	if err != nil {
 		log.Fatal(err)
