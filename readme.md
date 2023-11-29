@@ -1,23 +1,23 @@
-[![Support Me](https://aispawn.com/support/readme-image.png)](https://aispawn.com/support)
+[<img title="" src="https://aispawn.com/support/readme-image.png" alt="Support Me" width="168">](https://aispawn.com/support)
 
 # Matamata Core
 
 Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations.
 
-![logo](https://raw.githubusercontent.com/Matamata-Animator/Branding/main/Logos-Icons/logo.png)
+<img src="https://raw.githubusercontent.com/Matamata-Animator/Branding/main/Logos-Icons/logo.png" title="" alt="logo" width="185">
 
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- Installation
+- [Installation](#Installation)
   - [Mac](#Mac)
   - [Windows](#Windows)
   - [Linux](#Linux)
-- Setup
+- [Setup](#Setup)
   - [Character File](#character-file)
   - [Timestamps](#timestamps)
   - [Mouths](#mouths)
-- Usage
+- [Usage](#Usage)
   - [Flags and Arguments](#flags-and-arguments)
   - [Custom Defaults](#Custom-Defaults)
   - [Running](#Running)
@@ -51,7 +51,7 @@ docker pull lowerquality/gentle
 ```
 
 - Install FFmpeg to the path. You can follow [these](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/) instructions.
-- Download the latest Windows binary frome the [releases](https://github.com/Matamata-Animator/Matamata-Core/releases) page
+- Download the latest Windows binary from the [releases](https://github.com/Matamata-Animator/Matamata-Core/releases) page
 
 ### Linux
 
@@ -138,7 +138,7 @@ See [/defaults/SampleCharacter](https://github.com/Matamata-Animator/Matamata-Co
 }
 ```
 
-`poses` cantains the images that the chracter can do
+`poses` contains the images that the character can do
 
 `poses.default_mouth_scale` says how much the mouth should be scaled up or down. `poses.POSE.mouth_scale` is the same thing for a specific pose. These values are multiplied
 
@@ -178,22 +178,13 @@ You can also remove a placeable part by using the name `None`
 | -o           | Path of the output file                                                                                                                                                       | output.mov                                       |
 | -t           | Path to the timestamps file                                                                                                                                                   | "defaults/characters.json"                       |
 | -v           | How verbose to be (0 to 3).                                                                                                                                                   | 1                                                |
-| -api_url     | Url for the transcription api. By default, this points to OpenAI's Whisper. You can also set it to point to a [LocalAI](https://localai.io/basics/getting_started/) instance. | https://api.openai.com/v1/                       |
-| -aligner_url | Url for Gentle Aligner server.                                                                                                                                                | http://localhost:8765/transcriptions?async=false |
+| -api_url     | URL for the transcription API. By default, this points to OpenAI's Whisper. You can also set it to point to a [LocalAI](https://localai.io/basics/getting_started/) instance. | https://api.openai.com/v1/                       |
+| -aligner_url | URL for Gentle Aligner server.                                                                                                                                                | http://localhost:8765/transcriptions?async=false |
 | -phonemes    | Custom phonemes JSON path                                                                                                                                                     | By default, the sample phonemes is used          |
 
 #### Custom Defaults
 
-
-
-You can set custom default arguments by creating a file `config.json` in the main folder. In this file, the key is the command and the value is what you want the new default to be. For instance, if you wanted to always be set to verbose mode 3, your file will be:
-
-```json
-{
-  "verbose": 3,
-  "character": "/my/custom/path/super_awesome_character.json"
-}
-```
+After running the program once, a `defaultArguments.json` file is created in your cache directory (the path to this file is printed at the start of the program running). I recommend storing your API key there. 
 
 ### Running
 
