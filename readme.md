@@ -28,11 +28,11 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 ### Mac
 
 - Install FFmpeg to the path. The easiest way to do this is install [Homebrew]("https://brew.sh/")
-
+  
   ```zsh
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"```
   ```
-
+  
   ```zsh
   brew install ffmpeg
   ```
@@ -91,57 +91,41 @@ sudo apt install ffmpeg
 
 ## Setup
 
-### Character File
+### Character Folder
 
-Below is a bare-bones character file:
+See [/defaults/SampleCharacter](https://github.com/Matamata-Animator/Matamata-Core/tree/main/defaults/SampleCharacter) for an example of how to create your character folder. 
+
+**A tool for automatically generating this folder is coming soon**
 
 ```json
 {
   "schema": 5,
   "poses": {
-    "default": {
-      "image": "purple.png",
-      "x": 640,
-      "y": 400
-    },
-    "green": {
-      "image": "blue.png",
-      "x": 640,
-      "y": 400
-    }
-  }
-}
-```
-
-`mouthsPath` specifies the path to a folder containing the mouth images.
-
-`poses` contains two main elements. `imagesFolder` specifies the path to the folder which contains the pose images. `default` is a pose object. `image` refers to the name of the image inside the imagesFolder. `x` and `y` are the coordinates where the mouth should be placed. More poses can be created with more pose objects, as is shown with the `green` pose.
-
-A more fleshed out character file could look like this:
-
-```json
-{
-  "mouthsPath": "defaults/mouths/",
-  "poses": {
-    "imagesFolder": "defaults/SampleCharacter/faces/",
-    "default_scale": 2,
-    "default": {
+    "defaultMouthScale": 2.0,
+    "defaultPose": "purple",
+    "purple": {
       "image": "purple.png",
       "x": 640,
       "y": 400,
       "facingLeft": false,
-      "scale": 2
+      "mouthScale": 1.0
     },
     "green": {
       "image": "green.png",
       "x": 640,
       "y": 400,
       "facingLeft": false,
-      "scale": 1
+      "mouthScale": 1.0
+    },
+    "blue": {
+      "image": "blue.png",
+      "x": 640,
+      "y": 400,
+      "facingLeft": false,
+      "mouthScale": 1.0
     }
   },
   "eyes": {
-    "imagesFolder": "defaults/SampleCharacter/eyes/",
     "scale": 0.8,
     "x": 640,
     "y": 300,
@@ -154,9 +138,19 @@ A more fleshed out character file could look like this:
 }
 ```
 
-`default_scale` says how much the mouth should be scaled up or down. `scale` is the same thing for a specific pose. In this case, the mouths for the `default` pose with be 4x the image size, while the mouths for the `green` pose will only be 2x the size.
+`poses` cantains the images that the chracter can do
 
-`eyes` specifies a "placeable part". The sample character pose images don't have eyes, as these are specified by placeable parts. Although this example has placeable eyes, you can have placeable pins, objects in the background, or even hats. The `imagesFolder` specifies the path to the folder contains the images for the placeable part. `scale` specifies how much the placeable part image should be scaled up or down. `x` and `y` specify the location on the pose where the part should be placed. `images` contained key-value pairs where the key is the name of the part, and the value is the image name. This section shows angry, normal, and sad eye selections.
+`poses.default_mouth_scale` says how much the mouth should be scaled up or down. `poses.POSE.mouth_scale` is the same thing for a specific pose. These values are multiplied
+
+`x` and `y` are the coordinates on the photo where the mouth should be placed.
+
+`facingLeft` indicates whether to mirror the mouth image. 
+
+`eyes` specifies a "placeable part". The sample character pose images don't have eyes, as these are specified by placeable parts. Although this example has placeable eyes, you can have placeable pins, objects in the background, or even hats.  `scale` specifies how much the placeable part image should be scaled up or down. `x` and `y` specify the location on the pose where the part should be placed. `images` contained key-value pairs where the key is the name of the part, and the value is the image name. This section shows angry, normal, and sad eye selections.
+
+All pose images are in `CharacterFolder/poses`
+
+All placeable part images are in `CharacterFolder/PART_NAME`
 
 ### Timestamps
 
@@ -176,22 +170,21 @@ You can also remove a placeable part by using the name `None`
 
 ### Arguments
 
-#### Default Arguments
-
-This covers the most important flags and arguments. For the complete list, go to [Default Arguments](defaults/default_args.json).
-
-| Shortcut | Command          | Required | Default                    | Type   | Description                                      |
-| -------- | ---------------- | -------- | -------------------------- | ------ | ------------------------------------------------ |
-| --a      | --audio          | *        |                            | str    | The path to the audio file being animated        |
-| --t      | --timestamps     |          | "defaults/output.mp4"      | str    | The path to the file containing pose timestamps. |
-| --o      | --output         |          | "defaults/output.mp4"      | str    | The output of the program                        |
-| --c      | --character      |          | "defaults/characters.json" | str    | The list of character poses                      |
-| --m      | --mouths         |          | "defaults/phonemes.json"   | str    | The mouth pack and phonemes list                 |
-| --V      | --verbose        |          | 1                          | int    | Dump process outputs to the shell                |
-|          | --transcriber    |          | "vosk"                     | vosk \ | watson                                           |
-|          | --watson_api_key |          |                            | str    | API key for if `--transcriber watson` is used    |
+| Flag         | Description                                                                                                                                                                   | Default                                          |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| -a           | The path to the audio file being animated (**REQUIRED**)                                                                                                                      |                                                  |
+| -k           | OpenAI API Key (**REQUIRED IF `api_url` IS NOT SET**)                                                                                                                         |                                                  |
+| -c           | Path to the character folder                                                                                                                                                  | By default, the sample character is used         |
+| -o           | Path of the output file                                                                                                                                                       | output.mov                                       |
+| -t           | Path to the timestamps file                                                                                                                                                   | "defaults/characters.json"                       |
+| -v           | How verbose to be (0 to 3).                                                                                                                                                   | 1                                                |
+| -api_url     | Url for the transcription api. By default, this points to OpenAI's Whisper. You can also set it to point to a [LocalAI](https://localai.io/basics/getting_started/) instance. | https://api.openai.com/v1/                       |
+| -aligner_url | Url for Gentle Aligner server.                                                                                                                                                | http://localhost:8765/transcriptions?async=false |
+| -phonemes    | Custom phonemes JSON path                                                                                                                                                     | By default, the sample phonemes is used          |
 
 #### Custom Defaults
+
+
 
 You can set custom default arguments by creating a file `config.json` in the main folder. In this file, the key is the command and the value is what you want the new default to be. For instance, if you wanted to always be set to verbose mode 3, your file will be:
 
@@ -204,12 +197,12 @@ You can set custom default arguments by creating a file `config.json` in the mai
 
 ### Running
 
-- Launch Docker
+- Launch Gentle
   - Mac: Launch the prebuilt app
   - Windows/Linux: `docker run --name gentle -p 8765:8765 lowerquality/gentle`
 
-```bash
-npm run animate -- -a audio.wav [optional arguments]
+```shell
+./matamata -a audio.wav [optional arguments]
 ```
 
 ## Contributing

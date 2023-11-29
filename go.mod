@@ -7,6 +7,7 @@ require (
 	git.sr.ht/~geb/vox v0.0.0-20230502142416-917364d68cbc // indirect
 	github.com/alphacep/vosk-api/go v0.3.45 // indirect
 	github.com/andelf/go-curl v0.0.0-20200630032108-fd49ff24ed97 // indirect
+	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-audio/audio v1.0.0 // indirect
 	github.com/go-audio/riff v1.0.0 // indirect
