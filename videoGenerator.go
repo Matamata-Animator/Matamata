@@ -9,6 +9,7 @@ import (
 	"golang.org/x/image/draw"
 	"image"
 	"image/color"
+	"sync"
 
 	"image/jpeg"
 	"log"
@@ -220,19 +221,20 @@ func genImageSequence(req VideoRequest) {
 	img := openImage(frameRequests[0].pose.Image)
 	dimensions := [2]int{img.Bounds().Dx(), img.Bounds().Dy()}
 	frameCounter := 0
-	var genLock *int = new(int)
-	*genLock = 0
+
+	var wg sync.WaitGroup
 	for _, r := range frameRequests {
-		//TODO: Make writeframes concurrent
-		writeFrame(r, frameCounter, dimensions, genLock)
+		wg.Add(1)
+		go func(r2 FrameRequest, f int, d [2]int) {
+			writeFrame(r2, f, d)
+			wg.Done()
+		}(r, frameCounter, dimensions)
 		frameCounter += int(math.Round(r.duration * 100))
 	}
-	for *genLock > 0 {
-	}
+	wg.Wait()
 }
 
-func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int, lock *int) {
-	*lock++
+func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int) {
 	bgImg := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
 	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.ZP, draw.Src)
 
@@ -277,5 +279,4 @@ func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int, lock *int) 
 			log.Printf("failed to encode: %v", err)
 		}
 	}
-	*lock--
 }
