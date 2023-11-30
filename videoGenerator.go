@@ -303,6 +303,7 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 	}
 
+	var wg sync.WaitGroup
 	for i := frameCounter; i < frameCounter+uint64(math.Round(r.duration*100)); i++ {
 		path := filepath.Join(generateDir, "frames/", strconv.FormatUint(i, 10)+".jpg")
 		f, err := os.Create(path)
@@ -313,14 +314,16 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 		if bar != nil {
 			bar.Incr()
 		}
-		if err = jpeg.Encode(f, bgImg, nil); err != nil {
-			log.Printf("failed to encode: %v", err)
-		}
-		err = f.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
+		wg.Add(1)
+		go func(f2 *os.File, b *image.RGBA) {
+			defer wg.Done()
+			defer f2.Close()
 
+			if err = jpeg.Encode(f, b, nil); err != nil {
+				log.Printf("failed to encode: %v", err)
+			}
+		}(f, bgImg)
+		wg.Wait()
 	}
 
 }
