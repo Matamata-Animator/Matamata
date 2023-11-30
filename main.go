@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"time"
 )
 
 var args Args
@@ -11,6 +12,7 @@ var args Args
 var generateDir string
 
 func main() {
+	start := time.Now()
 	args = parseArgs()
 
 	logM(3, "Args:", args)
@@ -24,7 +26,6 @@ func main() {
 		logM(1, "Using Stored Transcription...")
 		//cache transcription to save time durinng development
 		text = "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos."
-
 	}
 	logM(2, "Transcription:", text)
 	logM(1, "Aligning Audio...")
@@ -64,7 +65,7 @@ func main() {
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
-
-	fmt.Println("Done")
+	t := time.Now()
+	fmt.Println("Completed in", t.Sub(start))
 
 }
