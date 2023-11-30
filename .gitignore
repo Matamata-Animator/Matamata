@@ -1,4 +1,8 @@
-.vscode 
+*
+!/**/
+!*.*
+
+.vscode
 
 *.mp4
 *.ai
@@ -6,7 +10,10 @@
 *.wav
 *.mov
 *.env
+*.zip
+*.txt
 
+.idea
 build/
 generate/
 model/
