@@ -190,7 +190,8 @@ After running the program once, a `defaultArguments.json` file is created in you
 
 - Launch Gentle
   - Mac: Launch the prebuilt app
-  - Windows/Linux: `docker run --name gentle -p 8765:8765 lowerquality/gentle`
+  - Linux: `sudo docker run --name gentle -p 8765:8765 lowerquality/gentle`
+  - Windows: `docker run --name gentle -p 8765:8765 lowerquality/gentle`
 
 ```shell
 ./matamata -a audio.wav [optional arguments]
