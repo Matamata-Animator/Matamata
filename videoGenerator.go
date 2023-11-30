@@ -180,8 +180,8 @@ func genImageSequence(req VideoRequest) {
 	bar := uiprogress.AddBar(totCount).AppendCompleted().PrependElapsed()
 	bar.PrependFunc(func(b *uiprogress.Bar) string {
 		time.Sleep(100 * time.Millisecond)
-		//return ""
-		return fmt.Sprintf("Frames Generated (%d/%d)", b.Current(), totCount)
+		return ""
+		//return fmt.Sprintf("Frames Generated (%d/%d)", b.Current(), totCount)
 	})
 	uiprogress.Start()
 
@@ -251,7 +251,6 @@ func genImageSequence(req VideoRequest) {
 		pose, closedPath, timeRemaining, getParts(placeableParts, character, req.character_path),
 	}
 	frameRequestsWG.Add(1)
-	fmt.Println("GAHHHHH")
 
 	go func(r2 FrameRequest, fc uint64, d [2]int) {
 		defer frameRequestsWG.Done()
