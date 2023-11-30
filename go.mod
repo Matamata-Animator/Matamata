@@ -12,6 +12,8 @@ require (
 	github.com/go-audio/audio v1.0.0 // indirect
 	github.com/go-audio/riff v1.0.0 // indirect
 	github.com/go-audio/wav v1.1.0 // indirect
+	github.com/google/go-github v17.0.0+incompatible // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.4 // indirect
 	github.com/jmoiron/jsonq v0.0.0-20150511023944-e874b168d07e // indirect
 	github.com/m7shapan/njson v1.0.8 // indirect
@@ -28,6 +30,7 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/xyproto/unzip v0.0.0-20150601123358-823950573952 // indirect
 	golang.org/x/image v0.14.0 // indirect
+	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/term v0.14.0 // indirect
 )
