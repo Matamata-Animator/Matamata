@@ -14,9 +14,12 @@ require (
 	github.com/go-audio/wav v1.1.0 // indirect
 	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/gosuri/uilive v0.0.4 // indirect
+	github.com/gosuri/uiprogress v0.0.1 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.4 // indirect
 	github.com/jmoiron/jsonq v0.0.0-20150511023944-e874b168d07e // indirect
 	github.com/m7shapan/njson v1.0.8 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modfy/fluent-ffmpeg v0.1.0 // indirect
