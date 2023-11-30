@@ -166,10 +166,17 @@ func genImageSequence(req VideoRequest) {
 
 	logM(1, "Generating Frame Requests")
 
-	var frameRequests []FrameRequest
+	entireAudioDuration := getAudioFileDuration(req.audio_path)
 	var currentTime float64 = 0
 	closedPath := filepath.Join(req.character_path, "mouths/", getString(phonemes, "closed"))
 	mouthPath := closedPath
+
+	img := openImage(pose.Image)
+	dimensions := [2]int{img.Bounds().Dx(), img.Bounds().Dy()}
+
+	var frameRequestsWG sync.WaitGroup
+	var frameCounter uint64 = 0
+
 	for _, word := range req.gentle_stamps.Words {
 		// Rest Frames //
 		mouthPath = closedPath
@@ -178,9 +185,16 @@ func genImageSequence(req VideoRequest) {
 			currentTime += duration
 		}
 
-		frameRequests = append(frameRequests, FrameRequest{
+		f := FrameRequest{
 			pose, mouthPath, duration, getParts(placeableParts, character, req.character_path),
-		})
+		}
+
+		frameRequestsWG.Add(1)
+		go func(r2 FrameRequest, fc uint64, d [2]int) {
+			writeFrame(r2, fc, d)
+			frameRequestsWG.Done()
+		}(f, frameCounter, dimensions)
+		frameCounter += uint64(math.Round(f.duration * 100))
 
 		//swap pose
 		for _, t := range req.timestamps {
@@ -201,47 +215,43 @@ func genImageSequence(req VideoRequest) {
 			p.Phone = strings.Split(p.Phone, "_")[0]
 			p.Duration = math.Max(0, math.Round(100*p.Duration)/100)
 			mouthPath = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
-			frameRequests = append(frameRequests, FrameRequest{
+			f = FrameRequest{
 				pose, mouthPath, p.Duration, getParts(placeableParts, character, req.character_path),
-			})
+			}
+
+			frameRequestsWG.Add(1)
+			go func(r2 FrameRequest, fc uint64, d [2]int) {
+				writeFrame(r2, fc, d)
+				frameRequestsWG.Done()
+			}(f, frameCounter, dimensions)
+			frameCounter += uint64(math.Round(f.duration * 100))
 
 			currentTime += p.Duration
 
 		}
 	}
 
-	timeRemaining := math.Max(getAudioFileDuration(req.audio_path)-currentTime, 0.01)
-	frameRequests = append(frameRequests, FrameRequest{
+	timeRemaining := math.Max(entireAudioDuration-currentTime, 0.01)
+	f := FrameRequest{
 		pose, closedPath, timeRemaining, getParts(placeableParts, character, req.character_path),
-	})
+	}
+	frameRequestsWG.Add(1)
+	go func(r2 FrameRequest, fc uint64, d [2]int) {
+		writeFrame(r2, fc, d)
+		frameRequestsWG.Done()
+	}(f, frameCounter, dimensions)
+	frameCounter += uint64(math.Round(f.duration * 100))
 	currentTime += timeRemaining
 
 	logM(1, "Writing Frames...")
-	//var frames []any
-	img := openImage(frameRequests[0].pose.Image)
-	dimensions := [2]int{img.Bounds().Dx(), img.Bounds().Dy()}
-	var frameCounter uint64 = 0
 
-	var wg sync.WaitGroup
-	for _, r := range frameRequests {
-		wg.Add(1)
-		go func(r2 FrameRequest, f uint64, d [2]int) {
-			writeFrame(r2, f, d)
-			wg.Done()
-		}(r, frameCounter, dimensions)
-		frameCounter += uint64(math.Round(r.duration * 100))
-	}
-	wg.Wait()
+	frameRequestsWG.Wait()
 
-	//synchronous way:
-	//for _, r := range frameRequests {
-	//	writeFrame(r, frameCounter, dimensions)
-	//	frameCounter += int(math.Round(r.duration * 100))
-	//}
 }
 
 func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int) {
 	bgImg := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
+
 	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.ZP, draw.Src)
 
 	//base pose
@@ -273,7 +283,6 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int) {
 		offset = image.Pt(int(p.X)-img.Bounds().Dx()/2, int(p.Y)-img.Bounds().Dy()/2) //combine the image
 		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 	}
-
 	var wg sync.WaitGroup
 	for i := frameCounter; i < frameCounter+uint64(math.Round(r.duration*100)); i++ {
 		path := filepath.Join(generateDir, "frames/", strconv.FormatUint(i, 10)+".jpg")
@@ -284,11 +293,12 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int) {
 		wg.Add(1)
 		go func(f2 *os.File, b *image.RGBA) {
 			defer wg.Done()
-			defer f2.Close()
 
-			if err = jpeg.Encode(f, b, nil); err != nil {
+			if err = jpeg.Encode(f2, b, nil); err != nil {
 				log.Printf("failed to encode: %v", err)
 			}
+			f2.Close()
+
 		}(f, bgImg)
 		wg.Wait()
 	}
