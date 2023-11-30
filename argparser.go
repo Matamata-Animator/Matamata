@@ -99,6 +99,7 @@ func parseArgs() Args {
 	flag.Parse()
 
 	generateDir = filepath.Join(os.TempDir(), "matamata/", "run"+strconv.Itoa(int(time.Now().Unix()))+"-"+strconv.Itoa(rand.Int()))
+	logM(2, "Generate Dir:", generateDir)
 	os.MkdirAll(filepath.Join(generateDir, "frames/"), 0777)
 	if *character == "" || *phonemes_path == "" {
 

@@ -9,8 +9,6 @@ import (
 	"golang.org/x/image/draw"
 	"image"
 	"image/color"
-	"sync"
-
 	"image/jpeg"
 	"log"
 	"math"
@@ -18,6 +16,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type FrameRequest struct {
@@ -149,7 +148,6 @@ func genImageSequence(req VideoRequest) {
 		Name: defaultPose,
 		Type: "poses",
 	}
-	logM(5, timestamp)
 	//Set values for first frame
 	for _, t := range req.timestamps {
 		if t.Time > 0 {
@@ -179,6 +177,7 @@ func genImageSequence(req VideoRequest) {
 		if duration > 0 {
 			currentTime += duration
 		}
+
 		frameRequests = append(frameRequests, FrameRequest{
 			pose, mouthPath, duration, getParts(placeableParts, character, req.character_path),
 		})
@@ -200,11 +199,12 @@ func genImageSequence(req VideoRequest) {
 
 		for _, p := range word.Phones {
 			p.Phone = strings.Split(p.Phone, "_")[0]
-			p.Duration = math.Round(100*p.Duration) / 100
+			p.Duration = math.Max(0, math.Round(100*p.Duration)/100)
 			mouthPath = filepath.Join(req.character_path, "mouths/", getString(phonemes, p.Phone))
 			frameRequests = append(frameRequests, FrameRequest{
 				pose, mouthPath, p.Duration, getParts(placeableParts, character, req.character_path),
 			})
+
 			currentTime += p.Duration
 
 		}
@@ -220,21 +220,27 @@ func genImageSequence(req VideoRequest) {
 	//var frames []any
 	img := openImage(frameRequests[0].pose.Image)
 	dimensions := [2]int{img.Bounds().Dx(), img.Bounds().Dy()}
-	frameCounter := 0
+	var frameCounter uint64 = 0
 
 	var wg sync.WaitGroup
 	for _, r := range frameRequests {
 		wg.Add(1)
-		go func(r2 FrameRequest, f int, d [2]int) {
+		go func(r2 FrameRequest, f uint64, d [2]int) {
 			writeFrame(r2, f, d)
 			wg.Done()
 		}(r, frameCounter, dimensions)
-		frameCounter += int(math.Round(r.duration * 100))
+		frameCounter += uint64(math.Round(r.duration * 100))
 	}
 	wg.Wait()
+
+	//synchronous way:
+	//for _, r := range frameRequests {
+	//	writeFrame(r, frameCounter, dimensions)
+	//	frameCounter += int(math.Round(r.duration * 100))
+	//}
 }
 
-func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int) {
+func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int) {
 	bgImg := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
 	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.ZP, draw.Src)
 
@@ -268,8 +274,8 @@ func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int) {
 		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 	}
 
-	for i := frameCounter; i < frameCounter+int(r.duration*100); i++ {
-		path := filepath.Join(generateDir, "frames/", strconv.Itoa(i)+".jpg")
+	for i := frameCounter; i < frameCounter+uint64(math.Round(r.duration*100)); i++ {
+		path := filepath.Join(generateDir, "frames/", strconv.FormatUint(i, 10)+".jpg")
 		f, err := os.Create(path)
 		if err != nil {
 			panic(err)
@@ -279,4 +285,5 @@ func writeFrame(r FrameRequest, frameCounter int, dimensions [2]int) {
 			log.Printf("failed to encode: %v", err)
 		}
 	}
+
 }

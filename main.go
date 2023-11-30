@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 )
 
@@ -25,6 +24,7 @@ func main() {
 		logM(1, "Using Stored Transcription...")
 		//cache transcription to save time durinng development
 		text = "That quick beige fox jumped in the air over each thin dog. Look out, I shout, for he's foiled you again, creating chaos."
+
 	}
 	logM(2, "Transcription:", text)
 	logM(1, "Aligning Audio...")
@@ -37,7 +37,7 @@ func main() {
 
 	logM(1, "Parsing Timestamps...")
 	timestamps := parseTimestamps(args.Timestamps)
-	logM(3, "Timestamps:", timestamps)
+	logM(2, "Timestamps:", timestamps)
 	genImageSequence(
 		VideoRequest{
 			gentleResponse,
@@ -60,10 +60,10 @@ func main() {
 
 	logM(1, "Removing Old Files...")
 
-	err = os.RemoveAll(generateDir)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//err = os.RemoveAll(generateDir)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 
 	fmt.Println("Done")
 
