@@ -21,10 +21,10 @@ type GentleWord struct {
 	AlignedWord string        `json:"alignedWord"`
 	Case        string        `json:"case"`
 	End         float64       `json:"end"`
-	EndOffset   int8          `json:"endOffset"`
+	EndOffset   int32         `json:"endOffset"`
 	Phones      []GentlePhone `json:"phones"`
 	Start       float64       `json:"start"`
-	StartOffset int16         `json:"startOffset"`
+	StartOffset int32         `json:"startOffset"`
 	Word        string        `json:"word"`
 }
 
