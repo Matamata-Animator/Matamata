@@ -1,6 +1,6 @@
 [<img title="" src="https://aispawn.com/support/readme-image.png" alt="Support Me" width="168">](https://aispawn.com/support)
 
-# Matamata Core
+# Matamata Animator
 
 Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations.
 
