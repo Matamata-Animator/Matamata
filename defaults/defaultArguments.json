@@ -8,6 +8,7 @@
   "transcriberApiKey": "",
   "alignerUrl": "http://localhost:8765/transcriptions?async=false",
   "phonemesPath": "",
-  "debugging": false,
-  "checkForUpdates": true
+  "skipTranscriber": false,
+  "checkForUpdates": true,
+  "runProfiler": false
 }
