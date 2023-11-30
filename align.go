@@ -35,7 +35,7 @@ type GentleResponse struct {
 
 func cleanGentle(res GentleResponse) {
 	isSuccess := func(w GentleWord) bool { return w.Case == "Success" }
-	filter(res.Words, isSuccess)
+	res.Words = filter(res.Words, isSuccess)
 }
 
 func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, error) {
