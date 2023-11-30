@@ -57,6 +57,8 @@ func unwrapHelper(cachepath string, relpath string, entries []fs.DirEntry) {
 			defer destinationFile.Close()
 			_, e := io.Copy(destinationFile, embeddedFile)
 			if e != nil {
+				fmt.Println(absolutePath)
+
 				log.Fatal("Error copying file:", e)
 			}
 		}
