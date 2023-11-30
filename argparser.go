@@ -28,8 +28,9 @@ type Args struct {
 	TranscriberApiKey string `json:"transcriberApiKey"`
 	AlignerUrl        string `json:"alignerUrl"`
 	PhonemesPath      string `json:"phonemesPath"`
-	Debugging         bool   `json:"debugging"`
+	SkipTranscriber   bool   `json:"skipTranscriber"`
 	CheckForUpdates   bool   `json:"checkForUpdates"`
+	RunProfiler       bool   `json:"runProfiler"`
 }
 
 func loadDefaults() Args {
@@ -92,9 +93,10 @@ func parseArgs() Args {
 	transcribe_url := flag.String("api_url", defArgs.TranscriberUrl, "Can be subsituted for the LocalAI url")
 	aligner_url := flag.String("aligner_url", defArgs.AlignerUrl, "Gentle server url")
 	phonemes_path := flag.String("phonemes", defArgs.PhonemesPath, "Custom phonemes JSON path")
+	run_profiler := flag.Bool("run_profiler", defArgs.RunProfiler, "Run pprof server")
 
 	//dev settings
-	debugging := flag.Bool("debugging", defArgs.Debugging, "Skips transcription and replaces with pangram text")
+	skipTranscriber := flag.Bool("skipTranscriber", defArgs.SkipTranscriber, "Skips transcription and replaces with pangram text")
 
 	flag.Parse()
 
@@ -122,8 +124,9 @@ func parseArgs() Args {
 		TranscriberUrl:    *transcribe_url,
 		AlignerUrl:        *aligner_url,
 		PhonemesPath:      *phonemes_path,
-		Debugging:         *debugging,
+		SkipTranscriber:   *skipTranscriber,
 		CheckForUpdates:   defArgs.CheckForUpdates,
+		RunProfiler:       *run_profiler,
 	}
 	loglevel = args.Verbose
 	if args.AudioPath == "" {

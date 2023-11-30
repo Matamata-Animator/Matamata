@@ -3,9 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"time"
+
+	_ "net/http/pprof"
 )
 
 var args Args
@@ -13,14 +17,21 @@ var args Args
 var generateDir string
 
 func main() {
+
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	start := time.Now()
 	args = parseArgs()
 
+	if args.RunProfiler {
+		go func() {
+			http.ListenAndServe("localhost:6060", nil)
+		}()
+	}
+
 	logM(3, "Args:", args)
 
 	var text string
-	if !args.Debugging {
+	if !args.SkipTranscriber {
 		logM(1, "Transcribing Audio...")
 
 		text = transcribe(args.AudioPath, args.TranscriberUrl, args.TranscriberApiKey)
@@ -65,11 +76,15 @@ func main() {
 
 	logM(1, "Removing Old Files...")
 
-	//err = os.RemoveAll(generateDir)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	err = os.RemoveAll(generateDir)
+	if err != nil {
+		log.Fatal(err)
+	}
 	t := time.Now()
 	fmt.Println("Completed in", t.Sub(start))
 
+	if args.RunProfiler {
+		fmt.Println("Run the pprof now")
+		select {}
+	}
 }

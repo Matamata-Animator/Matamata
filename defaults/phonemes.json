@@ -65,6 +65,6 @@
   "ao": "Adown.png",
   "ay":  "Adown.png",
   "ng":  "r.png",
-  "oov":  "Adown.png"
-
+  "oov":  "Adown.png",
+  "sil": "Adown.png"
 }

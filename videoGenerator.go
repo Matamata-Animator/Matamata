@@ -15,6 +15,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -244,6 +245,7 @@ func genImageSequence(req VideoRequest) {
 			currentTime += p.Duration
 
 		}
+		debug.FreeOSMemory()
 	}
 
 	timeRemaining := math.Max(entireAudioDuration-currentTime, 0.01)
@@ -270,22 +272,23 @@ func genImageSequence(req VideoRequest) {
 
 func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uiprogress.Bar) {
 	bgImg := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
-
 	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.ZP, draw.Src)
 
 	//base pose
 	imgUnscaled := openImage(r.pose.Image)
 	img := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
+
 	draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
 	offset := image.Pt(0, 0) //combine the image
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+	img = nil
+	imgUnscaled = nil
 
 	//mouth
 	imgUnscaled = openImage(r.mouthPath)
 	if r.pose.FacingLeft {
 		imgUnscaled = (*image.RGBA)(imaging.FlipH(imgUnscaled))
 	}
-
 	img = image.NewRGBA(image.Rect(0, 0, int(float32(imgUnscaled.Bounds().Dx())*r.pose.MouthScale), int(float32(imgUnscaled.Bounds().Dy())*r.pose.MouthScale)))
 	if r.pose.MouthScale != 1 {
 		draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
@@ -294,6 +297,8 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 	offset = image.Pt(int(r.pose.X)-img.Bounds().Dx()/2, int(r.pose.Y)-img.Bounds().Dy()/2) //combine the image
 	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 
+	img = nil
+	imgUnscaled = nil
 	//placeable parts
 	for _, p := range r.parts {
 		imgUnscaled = openImage(p.Path)
@@ -302,7 +307,8 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 		offset = image.Pt(int(p.X)-img.Bounds().Dx()/2, int(p.Y)-img.Bounds().Dy()/2) //combine the image
 		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 	}
-
+	img = nil
+	imgUnscaled = nil
 	var wg sync.WaitGroup
 	for i := frameCounter; i < frameCounter+uint64(math.Round(r.duration*100)); i++ {
 		path := filepath.Join(generateDir, "frames/", strconv.FormatUint(i, 10)+".jpg")
@@ -325,5 +331,7 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 		}(f, bgImg)
 		wg.Wait()
 	}
-
+	bgImg = nil
+	img = nil
+	imgUnscaled = nil
 }
