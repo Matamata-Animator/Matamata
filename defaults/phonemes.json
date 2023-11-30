@@ -1,239 +1,70 @@
 {
+  "schema": 5,
   "closed": "closed.png",
-  "phonemes": {
-    "ʒ": {
-      "image": "Adown.png"
-    },
-    "ʊ": {
-      "image": "Adown.png"
-    },
-    "t͡ʃ": {
-      "image": "s.png"
-    },
-    "d͡ʒ": {
-      "image": "s.png"
-    },
-    "ɑ": {
-      "image": "Adown.png"
-    },
-    "ɡ": {
-      "image": "k.png"
-    },
-    "θ": {
-      "image": "th.png"
-    },
-    "ʌ": {
-      "image": "Adown.png"
-    },
-    "ɛ": {
-      "image": "Adown.png"
-    },
-    "h": {
-      "image": "k.png"
-    },
-    "ə": {
-      "image": "oo.png"
-    },
-    "ð": {
-      "image": "th.png"
-    },
-    "ɔ": {
-      "image": "oo.png"
-    },
-    "ʃ": {
-      "image": "s.png"
-    },
-    "u": {
-      "image": "oo.png"
-    },
-    "ŋ": {
-      "image": "k.png"
-    },
-    "ɹ̩": {
-      "image": "r.png"
-    },
-    "ɹ": {
-      "image": "r.png"
-    },
-    "ɪ": {
-      "image": "ee.png"
-    },
-    "a": {
-      "image": "Adown.png"
-    },
-    "æ": {
-      "image": "Adown.png"
-    },
-    "i": {
-      "image": "ee.png"
-    },
-    "j": {
-      "image": "Adown.png"
-    },
-    "e": {
-      "image": "Adown.png"
-    },
-    "o": {
-      "image": "oo.png"
-    },
-    "dh": {
-      "actual": "T͟H",
-      "image": "th.png"
-    },
-    "th": {
-      "actual": "th",
-      "image": "th.png"
-    },
-    "ae": {
-      "actual": "a",
-      "image": "Adown.png"
-    },
-    "t": {
-      "actual": "t",
-      "image": "s.png"
-    },
-    "k": {
-      "actual": "k",
-      "image": "k.png"
-    },
-    "w": {
-      "actual": "w",
-      "image": "w.png"
-    },
-    "ih": {
-      "actual": "i",
-      "image": "Aup.png"
-    },
-    "b": {
-      "actual": "b",
-      "image": "m.png"
-    },
-    "ey": {
-      "actual": "ā",
-      "image": "Adown.png"
-    },
-    "zh": {
-      "actual": "ZH",
-      "image": "s.png"
-    },
-    "f": {
-      "actual": "f",
-      "image": "f.png"
-    },
-    "aa": {
-      "actual": "ä",
-      "image": "Adown.png"
-    },
-    "s": {
-      "actual": "s",
-      "image": "s.png"
-    },
-    "jh": {
-      "actual": "j",
-      "image": "s.png"
-    },
-    "ah": {
-      "actual": "ə",
-      "image": "oo.png"
-    },
-    "m": {
-      "actual": "m",
-      "image": "m.png"
-    },
-    "p": {
-      "actual": "p",
-      "image": "m.png"
-    },
-    "n": {
-      "actual": "n",
-      "image": "s.png"
-    },
-    "eh": {
-      "actual": "e",
-      "image": "Adown.png"
-    },
-    "r": {
-      "actual": "r",
-      "image": "r.png"
-    },
-    "ow": {
-      "actual": "o",
-      "image": "oo.png"
-    },
-    "v": {
-      "actual": "v",
-      "image": "f.png"
-    },
-    "er": {
-      "actual": "ər",
-      "image": "r.png"
-    },
-    "iy": {
-      "actual": "ē",
-      "image": "ee.png"
-    },
-    "ch": {
-      "actual": "CH",
-      "image": "s.png"
-    },
-    "d": {
-      "actual": "d",
-      "image": "s.png"
-    },
-    "g": {
-      "actual": "g",
-      "image": "s.png"
-    },
-    "l": {
-      "actual": "l",
-      "image": "l.png"
-    },
-    "uh": {
-      "actual": "oo",
-      "image": "oo.png"
-    },
-    "aw": {
-      "actual": "ou",
-      "image": "oo.png"
-    },
-    "sh": {
-      "actual": "sh",
-      "image": "s.png"
-    },
-    "hh": {
-      "actual": "h",
-      "image": "k.png"
-    },
-    "z": {
-      "actual": "z",
-      "image": "s.png"
-    },
-    "oy": {
-      "actual": "oi",
-      "image": "oo.png"
-    },
-    "y": {
-      "actual": "y",
-      "image": "r.png"
-    },
-    "uw": {
-      "actual": "uw",
-      "image": "w.png"
-    },
-    "ao": {
-      "actual": "ah",
-      "image": "Adown.png"
-    },
-    "ay": {
-      "actual": "ay",
-      "image": "Adown.png"
-    },
-    "ng": {
-      "actual": "ng",
-      "image": "r.png"
-    },
-    "oov": {
-      "image": "Adown.png"
-    }
-  }
+  "ʒ": "Adown.png",
+  "ʊ": "Adown.png",
+  "t͡ʃ": "s.png",
+  "d͡ʒ": "s.png",
+  "ɑ": "Adown.png",
+  "ɡ": "k.png",
+  "θ": "th.png",
+  "ʌ": "Adown.png",
+  "ɛ": "Adown.png",
+  "h": "k.png",
+  "ə":"oo.png",
+  "ð": "th.png",
+  "ɔ": "oo.png",
+  "ʃ": "s.png",
+  "u": "oo.png",
+  "ŋ":  "k.png",
+  "ɹ̩":  "r.png",
+  "ɹ": "r.png",
+  "ɪ": "ee.png",
+  "a": "Adown.png",
+  "æ":  "Adown.png",
+  "i":  "ee.png",
+  "j": "Adown.png",
+  "e":  "Adown.png",
+  "o": "oo.png",
+  "dh": "th.png",
+  "th": "th.png",
+  "ae":  "Adown.png",
+  "t":  "s.png",
+  "k":  "k.png",
+  "w":  "w.png",
+  "ih": "Aup.png",
+  "b":  "m.png",
+  "ey":  "Adown.png",
+  "zh":  "s.png",
+  "f": "f.png",
+  "aa":  "Adown.png",
+  "s":  "s.png",
+  "jh": "s.png",
+  "ah":  "oo.png",
+  "m":  "m.png",
+  "p": "m.png",
+  "n":  "s.png",
+  "eh":  "Adown.png",
+  "r": "r.png",
+  "ow":  "oo.png",
+  "v":"f.png",
+  "er":  "r.png",
+  "iy":  "ee.png",
+  "ch": "s.png",
+  "d":  "s.png",
+  "g":  "s.png",
+  "l":  "l.png",
+  "uh":  "oo.png",
+  "aw":  "oo.png",
+  "sh": "s.png",
+  "hh":  "k.png",
+  "z":  "s.png",
+  "oy":  "oo.png",
+  "y":  "r.png",
+  "uw": "w.png",
+  "ao": "Adown.png",
+  "ay":  "Adown.png",
+  "ng":  "r.png",
+  "oov":  "Adown.png"
+
 }
