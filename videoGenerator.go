@@ -263,8 +263,9 @@ func genImageSequence(req VideoRequest) {
 
 	frameRequestsWG.Wait()
 
-	//uiprogress.Stop()
-
+	if bar != nil {
+		uiprogress.Stop()
+	}
 }
 
 func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uiprogress.Bar) {
