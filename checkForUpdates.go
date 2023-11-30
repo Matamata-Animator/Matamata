@@ -16,7 +16,7 @@ type Release struct {
 }
 
 func checkForUpdates() {
-	currentSemVer := "v5.0.0"
+	currentSemVer := "v5.0.1"
 
 	logM(1, "Checking for Updates...")
 	endpointUrl := "https://api.github.com/repos/Matamata-Animator/Matamata/releases?per_page=1"
