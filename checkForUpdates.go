@@ -58,7 +58,7 @@ func checkForUpdates() {
 	if semver.Compare(currentSemVer, release.TagName) < 0 {
 		colorReset := "\033[0m"
 		colorRed := "\033[31m"
-		fmt.Println(string(colorRed)+"New version ("+release.TagName+") available! You can download it from", release.HtmlUrl, string(colorReset))
+		fmt.Println(string(colorRed)+"New version available! ("+currentSemVer+" -> "+release.TagName+") You can download it from", release.HtmlUrl, string(colorReset))
 	}
 
 }
