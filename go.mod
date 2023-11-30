@@ -1,6 +1,6 @@
 module matamata
 
-go 1.21.4
+go 1.21.3
 
 require (
 	git.sr.ht/~geb/phrasesplit v0.0.0-20230118164755-c3727e45bf77 // indirect

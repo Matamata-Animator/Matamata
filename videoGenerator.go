@@ -180,18 +180,19 @@ func genImageSequence(req VideoRequest) {
 	bar := uiprogress.AddBar(totCount).AppendCompleted().PrependElapsed()
 	bar.PrependFunc(func(b *uiprogress.Bar) string {
 		time.Sleep(100 * time.Millisecond)
-		return ""
-		//return fmt.Sprintf("Frames Generated (%d/%d)", b.Current(), totCount)
+		//return ""
+		return fmt.Sprintf("Frames Generated (%d/%d)", b.Current(), totCount)
 	})
 	uiprogress.Start()
 
+	//var bar *uiprogress.Bar = nil
 	var frameRequestsWG sync.WaitGroup
 	var frameCounter uint64 = 0
 
 	for _, word := range req.gentle_stamps.Words {
 		// Rest Frames //
 		mouthPath = closedPath
-		duration := math.Round(100*(word.Start-currentTime)) / 100.0
+		duration := math.Max(0, math.Round(100*(word.Start-currentTime))/100.0)
 		if duration > 0 {
 			currentTime += duration
 		}
@@ -202,8 +203,9 @@ func genImageSequence(req VideoRequest) {
 
 		frameRequestsWG.Add(1)
 		go func(r2 FrameRequest, fc uint64, d [2]int) {
+			defer frameRequestsWG.Done()
+
 			writeFrame(r2, fc, d, bar)
-			frameRequestsWG.Done()
 
 		}(f, frameCounter, dimensions)
 		frameCounter += uint64(math.Round(f.duration * 100))
@@ -233,8 +235,9 @@ func genImageSequence(req VideoRequest) {
 
 			frameRequestsWG.Add(1)
 			go func(r2 FrameRequest, fc uint64, d [2]int) {
+				defer frameRequestsWG.Done()
+
 				writeFrame(r2, fc, d, bar)
-				frameRequestsWG.Done()
 			}(f, frameCounter, dimensions)
 			frameCounter += uint64(math.Round(f.duration * 100))
 
@@ -248,16 +251,20 @@ func genImageSequence(req VideoRequest) {
 		pose, closedPath, timeRemaining, getParts(placeableParts, character, req.character_path),
 	}
 	frameRequestsWG.Add(1)
+	fmt.Println("GAHHHHH")
+
 	go func(r2 FrameRequest, fc uint64, d [2]int) {
+		defer frameRequestsWG.Done()
+
 		writeFrame(r2, fc, d, bar)
-		frameRequestsWG.Done()
 
 	}(f, frameCounter, dimensions)
 	frameCounter += uint64(math.Round(f.duration * 100))
 	currentTime += timeRemaining
 
 	frameRequestsWG.Wait()
-	uiprogress.Stop()
+
+	//uiprogress.Stop()
 
 }
 
@@ -295,26 +302,25 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 		offset = image.Pt(int(p.X)-img.Bounds().Dx()/2, int(p.Y)-img.Bounds().Dy()/2) //combine the image
 		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
 	}
-	var wg sync.WaitGroup
+
 	for i := frameCounter; i < frameCounter+uint64(math.Round(r.duration*100)); i++ {
 		path := filepath.Join(generateDir, "frames/", strconv.FormatUint(i, 10)+".jpg")
 		f, err := os.Create(path)
 		if err != nil {
-			panic(err)
-		}
-		wg.Add(1)
-		go func(f2 *os.File, b *image.RGBA) {
-			defer wg.Done()
-			if bar != nil {
-				bar.Incr()
-			}
-			if err = jpeg.Encode(f2, b, nil); err != nil {
-				log.Printf("failed to encode: %v", err)
-			}
-			f2.Close()
+			log.Fatal(err)
 
-		}(f, bgImg)
-		wg.Wait()
+		}
+		if bar != nil {
+			bar.Incr()
+		}
+		if err = jpeg.Encode(f, bgImg, nil); err != nil {
+			log.Printf("failed to encode: %v", err)
+		}
+		err = f.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 	}
 
 }
