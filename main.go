@@ -29,7 +29,9 @@ func main() {
 	}
 
 	logM(3, "Args:", args)
-
+	logM(1, "Parsing Timestamps...")
+	timestamps := parseTimestamps(args.Timestamps)
+	logM(2, "Timestamps:", timestamps)
 	var text string
 	if !args.SkipTranscriber {
 		logM(1, "Transcribing Audio...")
@@ -51,9 +53,6 @@ func main() {
 	}
 	logM(3, gentleResponse)
 
-	logM(1, "Parsing Timestamps...")
-	timestamps := parseTimestamps(args.Timestamps)
-	logM(2, "Timestamps:", timestamps)
 	genImageSequence(
 		VideoRequest{
 			gentleResponse,
