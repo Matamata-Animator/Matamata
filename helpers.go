@@ -46,11 +46,12 @@ func unwrapHelper(cachepath string, relpath string, entries []fs.DirEntry) {
 		//embed path uses forward slash
 		embedPath := relpath + "/" + e.Name()
 		absolutePath := filepath.Join(cachepath, embedPath)
+		logM(4, "embedding", embedPath, "to", absolutePath)
 		if e.IsDir() {
 			os.MkdirAll(absolutePath, 0777)
-			newPath := filepath.Join(relpath, e.Name())
-			childEntries, _ := defaults.ReadDir(newPath)
-			unwrapHelper(cachepath, newPath, childEntries)
+			childEntries, _ := defaults.ReadDir(embedPath)
+			logM(4, "calling unwrap recursively", cachepath, embedPath, childEntries)
+			unwrapHelper(cachepath, embedPath, childEntries)
 		} else {
 			embeddedFile, _ := defaults.Open(embedPath)
 			defer embeddedFile.Close()

@@ -76,9 +76,6 @@ func loadDefaults() Args {
 }
 
 func parseArgs() Args {
-	//_a, _ := defaults.ReadFile("defaults/default_timestamps.txt")
-	//a:= string(_a)
-	//fmt.Println(a)
 	defArgs := loadDefaults()
 	if defArgs.CheckForUpdates {
 		checkForUpdates()
