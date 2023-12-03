@@ -11,6 +11,7 @@
 *.mov
 *.env
 *.txt
+*.exe
 
 .idea
 build/
