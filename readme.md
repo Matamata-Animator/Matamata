@@ -50,7 +50,12 @@ Matamata (an acronym for "Matamata attempts to animate mouths, at times accurate
 docker pull lowerquality/gentle
 ```
 
-- Install FFmpeg to the path. You can follow [these](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/) instructions.
+- Install FFmpeg
+
+```cmd
+winget install ffmpeg
+```
+
 - Download the latest Windows binary from the [releases](https://github.com/Matamata-Animator/Matamata-Core/releases) page
 
 ### Linux
