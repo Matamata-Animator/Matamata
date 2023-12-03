@@ -121,12 +121,14 @@ func parseTimestamps(timestampsPath string) []Timestamp {
 	var timestamps []Timestamp
 	for _, l := range lines {
 		parts := strings.Split(l, " ")
+		parts[len(parts)-1] = strings.TrimSuffix(parts[len(parts)-1], "\r")
 		var newStamp Timestamp
 		time, err := strconv.Atoi(parts[0])
 		if err != nil {
 			fmt.Println("Error parsing int in Timestamps file:", parts[0])
 			log.Fatal(err)
 		}
+		fmt.Println(len(parts[0]), len(parts[1]))
 		newStamp.Time = uint32(time)
 		newStamp.Name = parts[1]
 		if len(parts) > 2 {

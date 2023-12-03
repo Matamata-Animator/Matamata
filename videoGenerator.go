@@ -87,7 +87,7 @@ type Pose struct {
 func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) Pose {
 	p, e := character.Object("poses", poseName)
 	if e != nil {
-		fmt.Println("Error getting pose ", poseName)
+		fmt.Println("Error getting pose:", poseName)
 		log.Fatal(e)
 	}
 	var pose Pose
