@@ -128,7 +128,6 @@ func parseTimestamps(timestampsPath string) []Timestamp {
 			fmt.Println("Error parsing int in Timestamps file:", parts[0])
 			log.Fatal(err)
 		}
-		fmt.Println(len(parts[0]), len(parts[1]))
 		newStamp.Time = uint32(time)
 		newStamp.Name = parts[1]
 		if len(parts) > 2 {

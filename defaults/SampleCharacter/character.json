@@ -1,38 +1,28 @@
 {
   "schema": 5,
   "poses": {
-    "defaultMouthScale": 2.0,
-    "defaultPose": "purple",
-    "purple": {
-      "image": "purple.png",
-      "x": 640,
-      "y": 400,
-      "facingLeft": false,
-      "mouthScale": 1.0
+    "defaultMouthScale": 1,
+    "defaultPose": "normal",
+    "happy": {
+      "image": "bob_happy.png",
+      "x": 439,
+      "y": 447.8125,
+      "mouthScale": 1.51,
+      "facingLeft": false
     },
-    "green": {
-      "image": "green.png",
-      "x": 640,
-      "y": 400,
-      "facingLeft": false,
-      "mouthScale": 1.0
+    "normal": {
+      "image": "bob_normal.png",
+      "x": 439,
+      "y": 447.8125,
+      "mouthScale": 1.51,
+      "facingLeft": false
     },
-    "blue": {
-      "image": "blue.png",
-      "x": 640,
-      "y": 400,
-      "facingLeft": false,
-      "mouthScale": 1.0
-    }
-  },
-  "eyes": {
-    "scale": 0.8,
-    "x": 640,
-    "y": 300,
-    "images": {
-      "angry": "angry.png",
-      "normal": "normal.png",
-      "sad": "sad.png"
+    "talking": {
+      "image": "bob_talking.png",
+      "x": 439,
+      "y": 447.8125,
+      "mouthScale": 1.51,
+      "facingLeft": false
     }
   }
 }
