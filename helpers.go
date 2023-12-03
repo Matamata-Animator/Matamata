@@ -43,7 +43,8 @@ func pathExists(path string) (bool, error) {
 
 func unwrapHelper(cachepath string, relpath string, entries []fs.DirEntry) {
 	for _, e := range entries {
-		embedPath := filepath.Join(relpath, e.Name())
+		//embed path uses forward slash
+		embedPath := relpath + "/" + e.Name()
 		absolutePath := filepath.Join(cachepath, embedPath)
 		if e.IsDir() {
 			os.MkdirAll(absolutePath, 0777)
