@@ -36,7 +36,13 @@ func main() {
 	if !args.SkipTranscriber {
 		logM(1, "Transcribing Audio...")
 
-		text = transcribe(args.AudioPath, args.TranscriberUrl, args.TranscriberApiKey)
+		if args.Transcriber == "Vosk" {
+			text = getVoskTranscription(args.AudioPath, args.VoskUrl)
+		} else if args.Transcriber == "Whisper" || args.Transcriber == "LocalAI" {
+			text = transcribe(args.AudioPath, args.WhisperUrl, args.TranscriberApiKey)
+		} else {
+			log.Fatal("Invalid Transcriber:", args.Transcriber)
+		}
 	} else {
 		logM(1, "Using Stored Transcription...")
 		//cache transcription to save time durinng development
