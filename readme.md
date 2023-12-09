@@ -4,6 +4,8 @@
 
 Matamata (an acronym for "Matamata attempts to animate mouths, at times accurately") is a tool to automatically create lip-synced animations.
 
+Windows Tutorial: https://youtu.be/mLtNEUG9Hc4
+
 <img src="https://raw.githubusercontent.com/Matamata-Animator/Branding/main/Logos-Icons/logo.png" title="" alt="logo" width="185">
 
 ## Table of Contents
