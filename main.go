@@ -17,7 +17,6 @@ var args Args
 var generateDir string
 
 func main() {
-
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	start := time.Now()
 	args = parseArgs()
@@ -27,7 +26,6 @@ func main() {
 			http.ListenAndServe("localhost:6060", nil)
 		}()
 	}
-
 	logM(3, "Args:", args)
 	logM(1, "Parsing Timestamps...")
 	timestamps := parseTimestamps(args.Timestamps)

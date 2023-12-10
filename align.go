@@ -68,8 +68,8 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 
 	// Close the multipart writer
 	writer.Close()
-
-	// Create the request
+	fmt.Println("Hello world")
+	// Create the req: http.ResponseWriter, r *http.Requestuest
 	request, err := http.NewRequest("POST", url, body)
 	if err != nil {
 		log.Fatal(err)
