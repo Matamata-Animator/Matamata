@@ -272,7 +272,7 @@ func genImageSequence(req VideoRequest) {
 
 func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uiprogress.Bar) {
 	bgImg := image.NewRGBA(image.Rect(0, 0, dimensions[0], dimensions[1]))
-	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.ZP, draw.Src)
+	draw.Draw(bgImg, bgImg.Bounds(), &image.Uniform{color.RGBA{0, 0, 0, 0}}, image.Point{}, draw.Src)
 
 	//base pose
 	imgUnscaled := openImage(r.pose.Image)
@@ -280,7 +280,7 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 
 	draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
 	offset := image.Pt(0, 0) //combine the image
-	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.Point{}, draw.Over)
 	img = nil
 	imgUnscaled = nil
 
@@ -295,7 +295,7 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 	}
 
 	offset = image.Pt(int(r.pose.X)-img.Bounds().Dx()/2, int(r.pose.Y)-img.Bounds().Dy()/2) //combine the image
-	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+	draw.Draw(bgImg, img.Bounds().Add(offset), img, image.Point{}, draw.Over)
 
 	img = nil
 	imgUnscaled = nil
@@ -305,7 +305,7 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 		img = image.NewRGBA(image.Rect(0, 0, int(float32(imgUnscaled.Bounds().Dx())*p.Scale), int(float32(imgUnscaled.Bounds().Dy())*p.Scale)))
 		draw.NearestNeighbor.Scale(img, img.Rect, imgUnscaled, imgUnscaled.Bounds(), draw.Over, nil)
 		offset = image.Pt(int(p.X)-img.Bounds().Dx()/2, int(p.Y)-img.Bounds().Dy()/2) //combine the image
-		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.ZP, draw.Over)
+		draw.Draw(bgImg, img.Bounds().Add(offset), img, image.Point{}, draw.Over)
 	}
 	img = nil
 	imgUnscaled = nil

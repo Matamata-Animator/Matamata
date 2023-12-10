@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang.org/x/mod/semver"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -39,7 +39,7 @@ func checkForUpdates() {
 		return
 	}
 	defer resp.Body.Close()
-	resp_body, _ := ioutil.ReadAll(resp.Body)
+	resp_body, _ := io.ReadAll(resp.Body)
 	res_str := string(resp_body)
 	res_str = res_str[1 : len(res_str)-1]
 
