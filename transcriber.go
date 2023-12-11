@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"github.com/sashabaranov/go-openai"
-	"log"
 )
 
 func transcribe(audioPath string, api_url string, key string) string {
@@ -20,7 +19,7 @@ func transcribe(audioPath string, api_url string, key string) string {
 		},
 	)
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 	return resp.Text
 }

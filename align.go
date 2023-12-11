@@ -42,7 +42,7 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 	// Open the audio file
 	audioFile, err := os.Open(audioFilePath)
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 	defer audioFile.Close()
 
@@ -55,14 +55,14 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 	// Add audio file
 	audioPart, err := writer.CreateFormFile("audio", "audio.mp3")
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 	io.Copy(audioPart, audioFile)
 
 	// Add transcript content
 	transcriptPart, err := writer.CreateFormFile("transcript", "words.txt")
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 	io.WriteString(transcriptPart, transcriptContent)
 
@@ -72,7 +72,7 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 	// Create the req: http.ResponseWriter, r *http.Requestuest
 	request, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 
 	// Set the content type header
@@ -82,7 +82,7 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		log.Fatal("MAKE SURE GENTLE IS LAUNCHED\n", err)
+		Fatal("MAKE SURE GENTLE IS LAUNCHED\n", err)
 	}
 	defer response.Body.Close()
 
@@ -92,7 +92,7 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 	var gentleRes GentleResponse
 	err = json.Unmarshal(responseBody, &gentleRes)
 	if err != nil {
-		log.Fatal("Error unmarshalling JSON:", err)
+		Fatal("Error unmarshalling JSON:", err)
 	}
 	cleanGentle(gentleRes)
 	return gentleRes, nil
