@@ -40,7 +40,7 @@ func getString(j *jsonq.JsonQuery, key string) string {
 	s, e := j.String(key)
 	if e != nil {
 		fmt.Println("Error reading ", key, " from json")
-		log.Fatal(e)
+		Fatal(e)
 	}
 	return s
 }
@@ -61,7 +61,7 @@ func getParts(partsMap map[string]string, character *jsonq.JsonQuery, characterD
 
 		imageName, e := character.String(k, "images", v)
 		if e != nil {
-			log.Fatal(e)
+			Fatal(e)
 		}
 		path := filepath.Join(characterDir, k, imageName)
 
@@ -88,14 +88,14 @@ func getPose(poseName string, character *jsonq.JsonQuery, characterDir string) P
 	p, e := character.Object("poses", poseName)
 	if e != nil {
 		fmt.Println("Error getting pose:", poseName)
-		log.Fatal(e)
+		Fatal(e)
 	}
 	var pose Pose
 	mapstructure.Decode(p, &pose)
 	pose.Image = filepath.Join(characterDir, "poses", pose.Image)
 	default_scale, e := character.Float("poses", "defaultMouthScale")
 	if e != nil {
-		log.Fatal(e)
+		Fatal(e)
 	}
 	pose.MouthScale *= float32(default_scale)
 	return pose
@@ -109,7 +109,7 @@ func genImageSequence(req VideoRequest) {
 	characterJsonRaw, e := os.ReadFile(jsonPath)
 	if e != nil {
 		fmt.Println("Could not open character file")
-		log.Fatal(e)
+		Fatal(e)
 	}
 	characterJson := map[string]interface{}{}
 	dec := json.NewDecoder(strings.NewReader(string(characterJsonRaw)))
@@ -119,13 +119,13 @@ func genImageSequence(req VideoRequest) {
 	if e != nil || schema != expectedCharacterSchema {
 		fmt.Print("Mismatched character schema versions. Expected: ", expectedCharacterSchema, " Found: ")
 		fmt.Println(schema)
-		log.Fatal(e)
+		Fatal(e)
 	}
 
 	phonemesJsonRaw, e := os.ReadFile(req.phonemes_path)
 	if e != nil {
 		fmt.Println("Could not open phonemes file at ", req.phonemes_path)
-		log.Fatal(e)
+		Fatal(e)
 	}
 	phonemesJson := map[string]interface{}{}
 	dec = json.NewDecoder(strings.NewReader(string(phonemesJsonRaw)))
@@ -135,7 +135,7 @@ func genImageSequence(req VideoRequest) {
 	if e != nil || schema != expectedPhonemeSchema {
 		fmt.Print("Mismatched phoneme schema versions. Expected: ", expectedPhonemeSchema, " Found: ")
 		fmt.Println(schema)
-		log.Fatal(e)
+		Fatal(e)
 	}
 
 	logM(3, "phonemes:", phonemes)
@@ -144,7 +144,7 @@ func genImageSequence(req VideoRequest) {
 	defaultPose, e := character.String("poses", "defaultPose")
 	if e != nil {
 		fmt.Println("No default pose set")
-		log.Fatal(e)
+		Fatal(e)
 	}
 	timestamp := Timestamp{
 		Time: 0,
@@ -314,7 +314,7 @@ func writeFrame(r FrameRequest, frameCounter uint64, dimensions [2]int, bar *uip
 		path := filepath.Join(generateDir, "frames/", strconv.FormatUint(i, 10)+".jpg")
 		f, err := os.Create(path)
 		if err != nil {
-			log.Fatal(err)
+			Fatal(err)
 
 		}
 		if bar != nil {

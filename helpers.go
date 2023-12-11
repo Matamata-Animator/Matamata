@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/tcolgate/mp3"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/tcolgate/mp3"
 )
 
 var loglevel int8 = 1
@@ -61,7 +61,7 @@ func unwrapHelper(cachepath string, relpath string, entries []fs.DirEntry) {
 			if e != nil {
 				fmt.Println(absolutePath)
 
-				log.Fatal("Error copying file:", e)
+				Fatal("Error copying file:", e)
 			}
 		}
 	}
@@ -77,7 +77,7 @@ func unwrapEmbeddedDefaultCharacter() {
 
 	dir, err := defaults.ReadDir("defaults")
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 	unwrapHelper(generateDir, "defaults", dir)
 }
@@ -94,13 +94,13 @@ func openImage(filePath string) image.Image {
 	f, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println("Error opening image at ", filePath)
-		log.Fatal(err)
+		Fatal(err)
 	}
 	defer f.Close()
 	image, _, err := image.Decode(f)
 	if err != nil {
 		fmt.Println("Error decoding image at ", filePath)
-		log.Fatal(err)
+		Fatal(err)
 	}
 	return image
 }
@@ -108,7 +108,7 @@ func openImage(filePath string) image.Image {
 func getAudioFileDuration(filePath string) float64 {
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 	defer file.Close()
 
@@ -123,13 +123,13 @@ func getAudioFileDuration(filePath string) float64 {
 				if err == io.EOF {
 					break
 				}
-				log.Fatal(err)
+				Fatal(err)
 			}
 			t = t + f.Duration().Seconds()
 		}
 		return t
 	default:
-		log.Fatal("unsupported audio file format, please use an mp3")
+		Fatal("unsupported audio file format, please use an mp3")
 	}
 
 	return -1

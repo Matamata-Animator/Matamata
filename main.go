@@ -39,7 +39,7 @@ func main() {
 		} else if args.Transcriber == "Whisper" || args.Transcriber == "LocalAI" {
 			text = transcribe(args.AudioPath, args.WhisperUrl, args.TranscriberApiKey)
 		} else {
-			log.Fatal("Invalid Transcriber:", args.Transcriber)
+			Fatal("Invalid Transcriber:", args.Transcriber)
 		}
 	} else {
 		logM(1, "Using Stored Transcription...")
@@ -70,24 +70,28 @@ func main() {
 
 	ffmpegCmd := exec.Command("ffmpeg", "-i", args.AudioPath, "-r", "100", "-i", generateDir+"/frames/%d.jpg", "-c:v",
 		"libx264", "-pix_fmt", "yuv420p", args.OutputPath, "-y")
-	//ffmpegCmd.Stderr = os.Stderr
-	//ffmpegCmd.Stdout = os.Stdout
 	err = ffmpegCmd.Run()
 	if err != nil {
-		log.Fatal(err)
+		Fatal(err)
 	}
 
-	logM(1, "Removing Old Files...")
-
-	err = os.RemoveAll(generateDir)
-	if err != nil {
-		log.Fatal(err)
-	}
 	t := time.Now()
 	fmt.Println("Completed in", t.Sub(start))
-
+	Fatal(nil)
 	if args.RunProfiler {
 		fmt.Println("Run the pprof now")
 		select {}
+	}
+}
+
+func Fatal(err ...any) {
+	logM(1, "Removing Old Files...")
+
+	e := os.RemoveAll(generateDir)
+	if e != nil {
+		fmt.Println(e)
+	}
+	if err != nil {
+		log.Fatal(err...)
 	}
 }
