@@ -17,8 +17,10 @@ import (
 //go:embed all:defaults
 
 var defaults embed.FS
+var ARGS_SCHEMA_VERSION = 1
 
 type Args struct {
+	Schema            int    `json:"schema"`
 	AudioPath         string `json:"audioPath"`
 	CharacterPath     string `json:"characterPath"`
 	Timestamps        string `json:"timestamps"`
@@ -35,7 +37,7 @@ type Args struct {
 	Transcriber       string `json:"transcriber"`
 }
 
-func loadDefaults() Args {
+func loadDefaults() (Args, string) {
 	cacheDir, _ := os.UserCacheDir()
 	matamataPath := filepath.Join(cacheDir, "matamata/")
 
@@ -73,15 +75,23 @@ func loadDefaults() Args {
 		log.Fatal(err)
 	}
 
-	return defArgs
+	return defArgs, defaultsPath
 
 }
 
 func parseArgs() Args {
-	defArgs := loadDefaults()
+	defArgs, defaultsPath := loadDefaults()
 	if defArgs.CheckForUpdates {
 		checkForUpdates()
 	}
+	if defArgs.Schema != ARGS_SCHEMA_VERSION {
+		colorReset := "\033[0m"
+		colorRed := "\033[31m"
+		fmt.Println(string(colorRed)+"You are using an outdated default argument schema("+strconv.Itoa(defArgs.Schema)+" -> "+strconv.Itoa(ARGS_SCHEMA_VERSION)+") Please update or delete the file:", defaultsPath, string(colorReset))
+		fmt.Println("Please note, deleting the file will reset your default arguments")
+		os.Exit(1)
+	}
+
 	audio := flag.String("a", defArgs.AudioPath, "audio path")
 	character := flag.String("c", defArgs.CharacterPath, "character path")
 	timestamps := flag.String("t", defArgs.Timestamps, "Timestamps file path")

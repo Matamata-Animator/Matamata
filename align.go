@@ -68,7 +68,6 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 
 	// Close the multipart writer
 	writer.Close()
-	fmt.Println("Hello world")
 	// Create the req: http.ResponseWriter, r *http.Requestuest
 	request, err := http.NewRequest("POST", url, body)
 	if err != nil {
@@ -87,7 +86,7 @@ func gentleAlign(url, audioFilePath, transcriptContent string) (GentleResponse, 
 	defer response.Body.Close()
 
 	// Read the response body
-	responseBody, err := io.ReadAll(response.Body)
+	responseBody, _ := io.ReadAll(response.Body)
 
 	var gentleRes GentleResponse
 	err = json.Unmarshal(responseBody, &gentleRes)

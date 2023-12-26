@@ -77,7 +77,6 @@ func main() {
 
 	t := time.Now()
 	fmt.Println("Completed in", t.Sub(start))
-	Fatal(nil)
 	if args.RunProfiler {
 		fmt.Println("Run the pprof now")
 		select {}
