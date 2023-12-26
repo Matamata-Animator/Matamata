@@ -81,15 +81,6 @@ func unwrapEmbeddedDefaultCharacter() {
 	}
 	unwrapHelper(generateDir, "defaults", dir)
 }
-
-func copyMap(m map[string]string) map[string]string {
-	m2 := make(map[string]string, len(m))
-	for id := range m {
-		m2[id] = m[id]
-	}
-	return m2
-}
-
 func openImage(filePath string) image.Image {
 	f, err := os.Open(filePath)
 	if err != nil {

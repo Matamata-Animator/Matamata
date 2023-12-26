@@ -3,11 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/disintegration/imaging"
-	"github.com/gosuri/uiprogress"
-	"github.com/jmoiron/jsonq"
-	"github.com/mitchellh/mapstructure"
-	"golang.org/x/image/draw"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -20,6 +15,12 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/disintegration/imaging"
+	"github.com/gosuri/uiprogress"
+	"github.com/jmoiron/jsonq"
+	"github.com/mitchellh/mapstructure"
+	"golang.org/x/image/draw"
 )
 
 type FrameRequest struct {
@@ -65,9 +66,9 @@ func getParts(partsMap map[string]string, character *jsonq.JsonQuery, characterD
 		}
 		path := filepath.Join(characterDir, k, imageName)
 
-		scale, e := character.Float(k, "scale")
-		x, e := character.Int(k, "x")
-		y, e := character.Int(k, "y")
+		scale, _ := character.Float(k, "scale")
+		x, _ := character.Int(k, "x")
+		y, _ := character.Int(k, "y")
 
 		parts = append(parts, Part{
 			path, int16(x), int16(y), float32(scale),

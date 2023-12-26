@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"golang.org/x/mod/semver"
 	"io"
 	"net/http"
+
+	"golang.org/x/mod/semver"
 )
 
 type Release struct {
@@ -16,7 +17,7 @@ type Release struct {
 }
 
 func checkForUpdates() {
-	currentSemVer := "v5.1.0"
+	currentSemVer := "v5.1.1"
 
 	logM(1, "Checking for Updates...")
 	endpointUrl := "https://api.github.com/repos/Matamata-Animator/Matamata/releases?per_page=1"
