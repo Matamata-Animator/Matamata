@@ -4,21 +4,21 @@
     "defaultMouthScale": 1,
     "defaultPose": "normal",
     "happy": {
-      "image": "bob_happy.png",
+      "image": "bob_happy.jpg",
       "x": 439,
       "y": 447.8125,
       "mouthScale": 1.51,
       "facingLeft": false
     },
     "normal": {
-      "image": "bob_normal.png",
+      "image": "bob_normal.jpg",
       "x": 439,
       "y": 447.8125,
       "mouthScale": 1.51,
       "facingLeft": false
     },
     "talking": {
-      "image": "bob_talking.png",
+      "image": "bob_talking.jpg",
       "x": 439,
       "y": 447.8125,
       "mouthScale": 1.51,
