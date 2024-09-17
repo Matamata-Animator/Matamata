@@ -100,7 +100,7 @@ sudo apt install ffmpeg
 
 See [/defaults/SampleCharacter](https://github.com/Matamata-Animator/Matamata-Core/tree/main/defaults/SampleCharacter) for an example of how to create your character folder. 
 
-You can automatically generate your character.json file using [https://matamata.org/Character-Creator](https://matamata.org/Character-Creator/).
+You can automatically generate your character.json file using [https://matamata-animator.github.io/Character-Creator/](https://matamata-animator.github.io/Character-Creator/).
 
 ```json
 {
